@@ -16,13 +16,18 @@ template<class View>
 class CannyProcess : public ImageGilFilterProcessor<View>
 {
 public:
+	typedef typename View::value_type Pixel;
+	typedef typename boost::gil::channel_type<View>::type Channel;
 	typedef float Scalar;
 protected :
-    CannyPlugin&    _plugin;        ///< Rendering plugin
+    CannyPlugin&    _plugin;            ///< Rendering plugin
+	CannyProcessParams<Scalar> _params; ///< parameters
 
 public:
     CannyProcess( CannyPlugin& effect );
 
+	void setup( const OFX::RenderArguments& args );
+	
     void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 };
 

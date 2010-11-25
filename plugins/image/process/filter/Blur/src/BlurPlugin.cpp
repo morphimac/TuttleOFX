@@ -3,6 +3,8 @@
 #include "BlurDefinitions.hpp"
 
 #include <tuttle/common/utils/global.hpp>
+#include <tuttle/plugin/image/ofxToGil.hpp>
+
 #include <ofxsImageEffect.h>
 #include <ofxsMultiThread.h>
 #include <boost/gil/gil_all.hpp>
@@ -49,6 +51,62 @@ BlurProcessParams<BlurPlugin::Scalar> BlurPlugin::getProcessParams( const OfxPoi
 			break;
 	}
 	return params;
+}
+
+/*
+   void BlurPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
+   {
+    if( paramName == kHelpButton )
+    {
+        sendMessage( OFX::Message::eMessageMessage,
+                     "", // No XML resources
+                     kHelpString );
+    }
+   }
+ */
+
+bool BlurPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
+{
+	OfxRectD srcRod = _clipSrc->getCanonicalRod( args.time );
+
+	BlurProcessParams<Scalar> params = getProcessParams();
+
+	switch( params._border )
+	{
+		case eParamBorderPadded:
+			rod.x1 = srcRod.x1 + params._gilKernelX.left_size();
+			rod.y1 = srcRod.y1 + params._gilKernelY.left_size();
+			rod.x2 = srcRod.x2 - params._gilKernelX.right_size();
+			rod.y2 = srcRod.y2 - params._gilKernelY.right_size();
+			return true;
+		default:
+			break;
+	}
+	return false;
+}
+
+void BlurPlugin::getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois )
+{
+	BlurProcessParams<Scalar> params = getProcessParams();
+	OfxRectD srcRod                  = _clipSrc->getCanonicalRod( args.time );
+
+	OfxRectD srcRoi;
+	srcRoi.x1 = srcRod.x1 - params._gilKernelX.left_size();
+	srcRoi.y1 = srcRod.y1 - params._gilKernelY.left_size();
+	srcRoi.x2 = srcRod.x2 + params._gilKernelX.right_size();
+	srcRoi.y2 = srcRod.y2 + params._gilKernelY.right_size();
+	rois.setRegionOfInterest( *_clipSrc, srcRoi );
+}
+
+bool BlurPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
+{
+	BlurProcessParams<Scalar> params = getProcessParams();
+	if( params._size.x != 0 || params._size.y != 0 )
+		return false;
+
+	identityClip = _clipSrc;
+	identityTime = args.time;
+	return true;
 }
 
 /**
@@ -126,62 +184,6 @@ void BlurPlugin::render( const OFX::RenderArguments& args )
 		COUT_ERROR( "Pixel components (" << mapPixelComponentEnumToString( dstComponents ) << ") not supported by the plugin." );
 	}
 }
-
-bool BlurPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
-{
-	OfxRectD srcRod = _clipSrc->getCanonicalRod( args.time );
-
-	BlurProcessParams<Scalar> params = getProcessParams();
-
-	switch( params._border )
-	{
-		case eParamBorderPadded:
-			rod.x1 = srcRod.x1 + params._gilKernelX.left_size();
-			rod.y1 = srcRod.y1 + params._gilKernelY.left_size();
-			rod.x2 = srcRod.x2 - params._gilKernelX.right_size();
-			rod.y2 = srcRod.y2 - params._gilKernelY.right_size();
-			return true;
-		default:
-			break;
-	}
-	return false;
-}
-
-void BlurPlugin::getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois )
-{
-	BlurProcessParams<Scalar> params = getProcessParams();
-	OfxRectD srcRod                  = _clipSrc->getCanonicalRod( args.time );
-
-	OfxRectD srcRoi;
-	srcRoi.x1 = srcRod.x1 - params._gilKernelX.left_size();
-	srcRoi.y1 = srcRod.y1 - params._gilKernelY.left_size();
-	srcRoi.x2 = srcRod.x2 + params._gilKernelX.right_size();
-	srcRoi.y2 = srcRod.y2 + params._gilKernelY.right_size();
-	rois.setRegionOfInterest( *_clipSrc, srcRoi );
-}
-
-bool BlurPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
-{
-	BlurProcessParams<Scalar> params = getProcessParams();
-	if( params._size.x != 0 || params._size.y != 0 )
-		return false;
-
-	identityClip = _clipSrc;
-	identityTime = args.time;
-	return true;
-}
-
-/*
-   void BlurPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
-   {
-    if( paramName == kHelpButton )
-    {
-        sendMessage( OFX::Message::eMessageMessage,
-                     "", // No XML resources
-                     kHelpString );
-    }
-   }
- */
 
 }
 }

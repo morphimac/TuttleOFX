@@ -15,13 +15,23 @@ namespace canny {
 CannyPlugin::CannyPlugin( OfxImageEffectHandle handle ) :
 ImageEffect( handle )
 {
-    _srcClip = fetchClip( kOfxImageEffectSimpleSourceClipName );
-    _dstClip = fetchClip( kOfxImageEffectOutputClipName );
+    _clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
+    _clipDst = fetchClip( kOfxImageEffectOutputClipName );
+
+	_paramBorder = fetchChoiceParam( kParamBorder );
+	_paramHysteresis = fetchBooleanParam( kParamHysteresis );
+	_paramUpperThres = fetchDoubleParam( kParamUpperThres );
+	_paramLowerThres = fetchDoubleParam( kParamLowerThres );
 }
 
 CannyProcessParams<CannyPlugin::Scalar> CannyPlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
 	CannyProcessParams<Scalar> params;
+	params._border     = static_cast<EParamBorder>( _paramBorder->getValue() );
+	params._hysteresis = _paramHysteresis->getValue();
+	params._upperThres = _paramUpperThres->getValue();
+	params._lowerThres = std::min( _paramLowerThres->getValue(), params._upperThres );
+
 	return params;
 }
 
@@ -34,6 +44,39 @@ void CannyPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std:
 //                     kParamHelpString );
 //    }
 }
+
+bool CannyPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
+{
+	CannyProcessParams<Scalar> params = getProcessParams();
+	OfxRectD srcRod = _clipSrc->getCanonicalRod( args.time );
+
+	switch( params._border )
+	{
+		case eParamBorderPadded:
+			rod.x1 = srcRod.x1 + 1;
+			rod.y1 = srcRod.y1 + 1;
+			rod.x2 = srcRod.x2 - 1;
+			rod.y2 = srcRod.y2 - 1;
+			return true;
+		default:
+			break;
+	}
+	return false;
+}
+
+void CannyPlugin::getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois )
+{
+	CannyProcessParams<Scalar> params = getProcessParams();
+	OfxRectD srcRod = _clipSrc->getCanonicalRod( args.time );
+
+	OfxRectD srcRoi;
+	srcRoi.x1 = srcRod.x1 - 1;
+	srcRoi.y1 = srcRod.y1 - 1;
+	srcRoi.x2 = srcRod.x2 + 1;
+	srcRoi.y2 = srcRod.y2 + 1;
+	rois.setRegionOfInterest( *_clipSrc, srcRoi );
+}
+
 
 bool CannyPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
@@ -55,8 +98,8 @@ void CannyPlugin::render( const OFX::RenderArguments &args )
 {
 	using namespace boost::gil;
     // instantiate the render code based on the pixel depth of the dst clip
-    OFX::EBitDepth dstBitDepth = _dstClip->getPixelDepth( );
-    OFX::EPixelComponent dstComponents = _dstClip->getPixelComponents( );
+    OFX::EBitDepth dstBitDepth = _clipDst->getPixelDepth( );
+    OFX::EPixelComponent dstComponents = _clipDst->getPixelComponents( );
 
     // do the rendering
     if( dstComponents == OFX::ePixelComponentRGBA )

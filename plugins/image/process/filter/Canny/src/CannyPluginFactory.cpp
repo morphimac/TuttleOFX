@@ -3,12 +3,6 @@
 #include "CannyDefinitions.hpp"
 
 #include <tuttle/plugin/ImageGilProcessor.hpp>
-#include <tuttle/plugin/Progress.hpp>
-#include <tuttle/plugin/exceptions.hpp>
-
-#include <ofxsMultiThread.h>
-#include <boost/gil/gil_all.hpp>
-#include <boost/scoped_ptr.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -59,26 +53,27 @@ void CannyPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	dstClip->addSupportedComponent( OFX::ePixelComponentAlpha );
 	dstClip->setSupportsTiles( kSupportTiles );
 
-//	min
-//	max
-//	OFX::Double2DParamDescriptor* size = desc.defineDouble2DParam( kParamSize );
-//	size->setLabel( "Size" );
-//	size->setDefault( 3, 3 );
-//	size->setRange( 0.0, 0.0, std::numeric_limits<double>::max(), std::numeric_limits<double>::max() );
-//	size->setDisplayRange( 0, 0, 10, 10 );
-//	size->setDoubleType( OFX::eDoubleTypeScale );
-
-	OFX::BooleanParamDescriptor* nonMaximaSuppression = desc.defineBooleanParam( kParamNonMaximaSuppression );
-	nonMaximaSuppression->setLabel( "Non-maxima suppression" );
-	nonMaximaSuppression->setDefault( true );
-	
-	OFX::BooleanParamDescriptor* hysteresisThresholding = desc.defineBooleanParam( kParamHysteresisThresholding );
+	OFX::BooleanParamDescriptor* hysteresisThresholding = desc.defineBooleanParam( kParamHysteresis );
 	hysteresisThresholding->setLabel( "Hysteresis thresholding" );
 	hysteresisThresholding->setDefault( true );
 
-	OFX::BooleanParamDescriptor* thinning = desc.defineBooleanParam( kParamThinning );
-	thinning->setLabel( "Thinning" );
-	thinning->setDefault( true );
+	OFX::DoubleParamDescriptor* upperThres = desc.defineDoubleParam( kParamUpperThres );
+	upperThres->setLabel( "Upper thresold" );
+	upperThres->setDefault( 0.5 );
+	upperThres->setRange( 0.0, std::numeric_limits<double>::max() );
+	upperThres->setDisplayRange( 0.0, 1.0 );
+
+	OFX::DoubleParamDescriptor* lowerThres = desc.defineDoubleParam( kParamLowerThres );
+	lowerThres->setLabel( "Lower thresold" );
+	lowerThres->setDefault( 0.1 );
+	lowerThres->setRange( 0.0, std::numeric_limits<double>::max() );
+	lowerThres->setDisplayRange( 0.0, 1.0 );
+
+	OFX::ChoiceParamDescriptor* border = desc.defineChoiceParam( kParamBorder );
+	border->setLabel( "Border" );
+//	border->setHint( "Border method." );
+	border->appendOption( kParamBorderBlack );
+	border->appendOption( kParamBorderPadded );
 }
 
 /**

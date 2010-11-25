@@ -73,7 +73,7 @@ class Tuttle( SConsProject ):
 				line = f.readline()
 			if versionMajor == -1 or versionMinor == -1:
 				raise ValueError( 'Version not found in OFX plugin file : "'+filename+'"' )
-		except ValueError as e:
+		except ValueError, e:
 			raise ValueError( str(e) + '\n' +
 							   'Valid syntax is : \n'+
 							   '#define OFXPLUGIN_VERSION_MAJOR 1\n'+

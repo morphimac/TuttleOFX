@@ -3,18 +3,12 @@
 #include "SobelDefinitions.hpp"
 
 #include <tuttle/plugin/ImageGilProcessor.hpp>
-#include <tuttle/plugin/Progress.hpp>
-#include <tuttle/plugin/exceptions.hpp>
-
-#include <ofxsMultiThread.h>
-#include <boost/gil/gil_all.hpp>
-#include <boost/scoped_ptr.hpp>
 
 namespace tuttle {
 namespace plugin {
 namespace sobel {
 
-static const bool kSupportTiles = false;
+static const bool kSupportTiles = true;
 
 
 /**
@@ -92,15 +86,24 @@ void SobelPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	computeNorm->setHint( "To disable the norm computation, if you don't need it." );
 	computeNorm->setDefault( true );
 
+	OFX::BooleanParamDescriptor* normalizedNorm = desc.defineBooleanParam( kParamNormalizedNorm );
+	normalizedNorm->setLabel( "Normalized norm" );
+	normalizedNorm->setDefault( true );
+
 	OFX::BooleanParamDescriptor* normManhattan = desc.defineBooleanParam( kParamGradientNormManhattan );
-	normManhattan->setLabel( "Use the manhattan norm." );
+	normManhattan->setLabel( "Use the manhattan norm" );
 	normManhattan->setHint( "Use manhattan norm instead of standard one." );
 	normManhattan->setDefault( true );
 
 	OFX::BooleanParamDescriptor* computeGradientDirection = desc.defineBooleanParam( kParamComputeGradientDirection );
-	computeGradientDirection->setLabel( "Gradient direction." );
+	computeGradientDirection->setLabel( "Gradient direction" );
 	computeGradientDirection->setHint( "To disable the gradient direction computation, if you don't need it." );
 	computeGradientDirection->setDefault( true );
+
+	OFX::BooleanParamDescriptor* gradientDirectionAbs = desc.defineBooleanParam( kParamGradientDirectionAbs );
+	gradientDirectionAbs->setLabel( "Angle between 0 and PI" );
+	gradientDirectionAbs->setHint( "Limit gradient direction between 0 and PI." );
+	gradientDirectionAbs->setDefault( true );
 }
 
 /**
