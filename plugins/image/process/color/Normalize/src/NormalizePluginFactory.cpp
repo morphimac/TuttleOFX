@@ -13,7 +13,7 @@ namespace tuttle {
 namespace plugin {
 namespace normalize {
 
-static const bool kSupportTiles = false;
+static const bool kSupportTiles = true;
 
 
 /**
@@ -22,9 +22,9 @@ static const bool kSupportTiles = false;
  */
 void NormalizePluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
-	desc.setLabels( "Normalize", "Normalize",
+	desc.setLabels( "TuttleNormalize", "Normalize",
 		            "Normalize" );
-	desc.setPluginGrouping( "tuttle" );
+	desc.setPluginGrouping( "tuttle/image/process/color" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextFilter );
@@ -37,6 +37,7 @@ void NormalizePluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 
 	// plugin flags
 	desc.setSupportsTiles( kSupportTiles );
+	desc.setRenderThreadSafety( OFX::eRenderFullySafe );
 }
 
 /**

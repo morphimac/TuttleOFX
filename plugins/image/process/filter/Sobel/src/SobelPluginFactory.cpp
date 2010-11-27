@@ -19,7 +19,7 @@ void SobelPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
 	desc.setLabels( "Sobel", "Sobel",
 		            "Sobel" );
-	desc.setPluginGrouping( "tuttle" );
+	desc.setPluginGrouping( "tuttle/image/process/filter" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextFilter );
@@ -32,6 +32,7 @@ void SobelPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 
 	// plugin flags
 	desc.setSupportsTiles( kSupportTiles );
+	desc.setRenderThreadSafety( OFX::eRenderFullySafe );
 }
 
 /**
@@ -69,9 +70,6 @@ void SobelPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	normalizedKernel->setLabel( "Normalized kernel" );
 	normalizedKernel->setHint( "Use a normalized kernel to compute the gradient." );
 	normalizedKernel->setDefault( true );
-//#ifndef TUTTLE_PRODUCTION
-	normalizedKernel->setIsSecret( true );
-//#endif
 
 	OFX::ChoiceParamDescriptor* border = desc.defineChoiceParam( kParamBorder );
 	border->setLabel( "Gradient border" );
@@ -86,14 +84,10 @@ void SobelPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	computeNorm->setHint( "To disable the norm computation, if you don't need it." );
 	computeNorm->setDefault( true );
 
-	OFX::BooleanParamDescriptor* normalizedNorm = desc.defineBooleanParam( kParamNormalizedNorm );
-	normalizedNorm->setLabel( "Normalized norm" );
-	normalizedNorm->setDefault( true );
-
 	OFX::BooleanParamDescriptor* normManhattan = desc.defineBooleanParam( kParamGradientNormManhattan );
 	normManhattan->setLabel( "Use the manhattan norm" );
 	normManhattan->setHint( "Use manhattan norm instead of standard one." );
-	normManhattan->setDefault( true );
+	normManhattan->setDefault( false );
 
 	OFX::BooleanParamDescriptor* computeGradientDirection = desc.defineBooleanParam( kParamComputeGradientDirection );
 	computeGradientDirection->setLabel( "Gradient direction" );

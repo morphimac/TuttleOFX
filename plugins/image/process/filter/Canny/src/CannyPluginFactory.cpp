@@ -17,9 +17,9 @@ static const bool kSupportTiles = false;
  */
 void CannyPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
-	desc.setLabels( "Canny", "Canny",
+	desc.setLabels( "TuttleCanny", "Canny",
 		            "Canny" );
-	desc.setPluginGrouping( "tuttle" );
+	desc.setPluginGrouping( "tuttle/image/process/filter" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextFilter );
@@ -32,6 +32,7 @@ void CannyPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 
 	// plugin flags
 	desc.setSupportsTiles( kSupportTiles );
+	desc.setRenderThreadSafety( OFX::eRenderFullySafe );
 }
 
 /**
@@ -69,11 +70,17 @@ void CannyPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	lowerThres->setRange( 0.0, std::numeric_limits<double>::max() );
 	lowerThres->setDisplayRange( 0.0, 1.0 );
 
+	OFX::BooleanParamDescriptor* fill = desc.defineBooleanParam( kParamFillAllChannels );
+	fill->setLabel( "Fill all channels" );
+	fill->setHint( "Fill all channels with result" );
+	fill->setDefault( true );
+
 	OFX::ChoiceParamDescriptor* border = desc.defineChoiceParam( kParamBorder );
 	border->setLabel( "Border" );
 //	border->setHint( "Border method." );
 	border->appendOption( kParamBorderBlack );
-	border->appendOption( kParamBorderPadded );
+//	border->appendOption( kParamBorderPadded );
+	border->setDefault( 0 );
 }
 
 /**
