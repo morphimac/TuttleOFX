@@ -80,70 +80,55 @@ TransformAffineOverlayInteract::TransformAffineOverlayInteract( OfxInteractHandl
 	, _interactScene( *effect, _infos )
 {
 	_effect = effect;
-        _plugin = static_cast<TransformAffinePlugin*>( _effect );
+	_plugin = static_cast<TransformAffinePlugin*>( _effect );
 
-        const interact::FrameOptionalClip frame( _plugin->_srcRefClip, _plugin->_srcClip );
-	interact::PointInteract* centerPoint = new interact::ParamPoint<interact::FrameOptionalClip, eCoordonateSystemXXcn>( _infos, _plugin->_center, frame );
-	_interactScene.push_back( new interact::ParamPointRelativePoint<interact::FrameOptionalClip, eCoordonateSystemXXcn>( _infos, _plugin->_gridCenter, frame, centerPoint ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_gridCenterOverlay ) );
-	_interactScene.push_back( centerPoint, new interact::IsActiveBooleanParamFunctor<>( _plugin->_centerOverlay ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn0, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn1, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn2, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut0, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut1, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut2, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
 }
 
 bool TransformAffineOverlayInteract::draw( const OFX::DrawArgs& args )
 {
+	if( !_plugin->_paramOverlay->getValue() || !_plugin->_clipSrc->isConnected() )
+		return false;
+
 	typedef boost::gil::point2<Scalar> Point2;
 	static const float lineWidth = 2.0;
 	bool displaySomething        = false;
 
-	// debug drawing
-        /*if( _plugin->_debugDisplayRoi->getValue() )
-	{
-		glLineWidth( lineWidth );
-		displaySomething = true;
-
-		glColor3f( 1.0f, 0.0f, 0.0f );
-		overlay::displayRect( _plugin->_dstRoi, -1 );
-
-		glColor3f( 0.0f, 1.0f, 0.0f );
-		overlay::displayRect( _plugin->_srcRoi, 1 );
-
-		glColor3f( 0.0f, 0.0f, 1.0f );
-		overlay::displayRect( _plugin->_srcRealRoi, 1 );
-        }*/
-
 	displaySomething |= _interactScene.draw( args );
 
 	// drawing
-        if( _plugin->_gridOverlay->getValue() && _plugin->_srcClip->isConnected() )
-	{
-		displaySomething = true;
-		static const unsigned int steps = 10;
-
-		// get the project size
-                OfxRectD srcRod = _plugin->_srcClip->getCanonicalRod( args.time );
-		if( _plugin->_srcRefClip->isConnected() )
-			srcRod = _plugin->_srcRefClip->getCanonicalRod( args.time );
-
-		const Point2 imgSize( srcRod.x2 - srcRod.x1, srcRod.y2 - srcRod.y1 );
-                const OfxRectD outputRod = _plugin->_dstClip->getCanonicalRod( args.time );
-		//parameters
-		const Point2 gridCenter( ofxToGil( _plugin->_gridCenter->getValue() ) );
-		const Point2 gridScale( ofxToGil( _plugin->_gridScale->getValue() ) );
-		std::vector<std::vector<Point2> > grid = createGrid( srcRod, steps, gridScale, gridCenter );
-                /*if( !_plugin->_displaySource->getValue() )
-		{
-                        TransformAffineProcessParams<Scalar> params;
-			static const double pixelAspectRatio = 1.0; // here the pixel aspect ratio is 1.0 because we work in canonical coordinates
-			params = _plugin->getProcessParams( srcRod, srcRod, pixelAspectRatio, true );
-			// work in output clip coordinates
-			transformValuesApply( _plugin->getLensType(), params, grid );
-                }*/
-		Point2 rodCorner( srcRod.x1, srcRod.y1 );
-		shiftGrid( grid, rodCorner ); // to move in RoW coordinates
-
-		glLineWidth( lineWidth );
-		glColor3f( 1.0f, 1.0f, 0.0f );
-		overlay::drawCurves( grid );
-        }
+//		displaySomething = true;
+//		static const unsigned int steps = 10;
+//
+//		// get the project size
+//		OfxRectD srcRod = _plugin->_clipSrc->getCanonicalRod( args.time );
+//
+//		const Point2 imgSize( srcRod.x2 - srcRod.x1, srcRod.y2 - srcRod.y1 );
+//		const OfxRectD outputRod = _plugin->_clipDst->getCanonicalRod( args.time );
+//
+//		//parameters
+//		const Point2 gridCenter( ofxToGil( _plugin->_gridCenter->getValue() ) );
+//		const Point2 gridScale( ofxToGil( _plugin->_gridScale->getValue() ) );
+//		std::vector<std::vector<Point2> > grid = createGrid( srcRod, steps, gridScale, gridCenter );
+//                /*if( !_plugin->_displaySource->getValue() )
+//		{
+//                        TransformAffineProcessParams<Scalar> params;
+//			static const double pixelAspectRatio = 1.0; // here the pixel aspect ratio is 1.0 because we work in canonical coordinates
+//			params = _plugin->getProcessParams( srcRod, srcRod, pixelAspectRatio, true );
+//			// work in output clip coordinates
+//			transformValuesApply( _plugin->getLensType(), params, grid );
+//                }*/
+//		Point2 rodCorner( srcRod.x1, srcRod.y1 );
+//		shiftGrid( grid, rodCorner ); // to move in RoW coordinates
+//
+//		glLineWidth( lineWidth );
+//		glColor3f( 1.0f, 1.0f, 0.0f );
+//		overlay::drawCurves( grid );
 	return displaySomething;
 }
 

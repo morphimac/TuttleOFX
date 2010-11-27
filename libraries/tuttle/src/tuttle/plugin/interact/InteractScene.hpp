@@ -41,7 +41,7 @@ public:
 	InteractObjectsVector&       getObjects()       { return _objects; }
 	const InteractObjectsVector& getObjects() const { return _objects; }
 
-	void push_back( InteractObject* obj, IsActiveFunctor* isActive ) { _objects.push_back( obj ); _isActive.push_back( isActive ); }
+	void push_back( InteractObject* obj, IsActiveFunctor* isActive = new AlwaysActiveFunctor<>() ) { _objects.push_back( obj ); _isActive.push_back( isActive ); }
 
 	bool draw( const OFX::DrawArgs& args );
 

@@ -16,15 +16,15 @@ namespace transformAffine {
 
 class TransformAffineOverlayInteract : public OFX::OverlayInteract
 {
-typedef double Scalar;
+	typedef double Scalar;
 
-TransformAffinePlugin* _plugin;
+	TransformAffinePlugin* _plugin;
 
-interact::InteractInfos _infos;
-interact::InteractScene _interactScene;
+	interact::InteractInfos _infos;
+	interact::InteractScene _interactScene;
 
 public:
-        TransformAffineOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
+	TransformAffineOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
 
 	bool draw( const OFX::DrawArgs& args );
 	bool penDown( const OFX::PenArgs& args );
@@ -35,9 +35,10 @@ public:
 class TransformAffineEffectOverlayDescriptor : public OFX::EffectOverlayDescriptor
 {
 public:
+
 	OFX::Interact* createInstance( OfxInteractHandle handle, OFX::ImageEffect* effect )
 	{
-                return new TransformAffineOverlayInteract( handle, effect );
+		return new TransformAffineOverlayInteract( handle, effect );
 	}
 
 };

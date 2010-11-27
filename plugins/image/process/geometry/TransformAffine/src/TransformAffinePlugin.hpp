@@ -3,6 +3,7 @@
 
 #include <tuttle/common/utils/global.hpp>
 #include <ofxsImageEffect.h>
+#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/gil/gil_all.hpp>
 
 namespace tuttle {
@@ -12,7 +13,7 @@ namespace transformAffine {
 template<typename Scalar>
 struct TransformAffineProcessParams
 {
-	
+	boost::numeric::ublas::bounded_matrix<double,3,3> _matrix;
 };
 
 /**
@@ -37,33 +38,24 @@ public:
 	
 public:
     // do not need to delete these, the ImageEffect is managing them for us
-    OFX::Clip* _srcClip; ///< Source image clip
-    OFX::GroupParamDescriptor* groupSource;
-    OFX::Double2DParamDescriptor* pointEntree1;
-    OFX::Double2DParamDescriptor* pointEntree2;
-    OFX::Double2DParamDescriptor* pointEntree3;
+    OFX::Clip* _clipSrc; ///< Source image clip
+    OFX::Clip* _clipDst; ///< Destination image clip
 
-    OFX::Clip* _srcRefClip; ///< source ref image clip
+    OFX::Double2DParam* _paramPointIn0;
+    OFX::Double2DParam* _paramPointIn1;
+    OFX::Double2DParam* _paramPointIn2;
 
-    OFX::Clip* _dstClip; ///< Destination image clip
-    OFX::GroupParamDescriptor* groupSortie;
-    OFX::Double2DParamDescriptor* pointSortie1;
-    OFX::Double2DParamDescriptor* pointSortie2;
-    OFX::Double2DParamDescriptor* pointSortie3;
+    OFX::Double2DParam* _paramPointOut0;
+    OFX::Double2DParam* _paramPointOut1;
+    OFX::Double2DParam* _paramPointOut2;
 
-    OFX::GroupParam* _groupDisplayParams; ///< group of all overlay options (don't modify the output image)
-    OFX::BooleanParam*  _gridOverlay; ///< grid overlay
-    OFX::Double2DParam* _gridCenter; ///< grid center
-    OFX::BooleanParam*  _gridCenterOverlay; ///< grid center overlay
-    OFX::Double2DParam* _gridScale; ///< grid scale
-
-    OFX::Double2DParam* _center; ///< center coordonnates
-    OFX::BooleanParam*  _centerOverlay; ///< lens center overlay
-
-    static OfxRectD _dstRoi;
-    static OfxRectD _srcRoi;
-    static OfxRectD _srcRealRoi;
-
+	OFX::Double3DParam* _paramMatrixRow0;
+	OFX::Double3DParam* _paramMatrixRow1;
+	OFX::Double3DParam* _paramMatrixRow2;
+	
+	OFX::BooleanParam*  _paramOverlay;
+	OFX::BooleanParam*  _paramOverlayIn;
+	OFX::BooleanParam*  _paramOverlayOut;
 };
 
 }
