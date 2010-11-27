@@ -13,7 +13,7 @@ namespace transformAffine {
 template<typename Scalar>
 struct TransformAffineProcessParams
 {
-	boost::numeric::ublas::bounded_matrix<double,3,3> _matrix;
+	boost::numeric::ublas::bounded_matrix<Scalar,3,3> _matrix;
 };
 
 /**
@@ -22,7 +22,7 @@ struct TransformAffineProcessParams
 class TransformAffinePlugin : public OFX::ImageEffect
 {
 public:
-	typedef float Scalar;
+	typedef double Scalar;
 public:
     TransformAffinePlugin( OfxImageEffectHandle handle );
 

@@ -16,13 +16,17 @@ template<class View>
 class TransformAffineProcess : public ImageGilFilterProcessor<View>
 {
 public:
-	typedef float Scalar;
+	typedef double Scalar;
 protected :
     TransformAffinePlugin&    _plugin;        ///< Rendering plugin
 
+	TransformAffineProcessParams<Scalar> _params;
+	
 public:
     TransformAffineProcess( TransformAffinePlugin& effect );
 
+	void setup( const OFX::RenderArguments& args );
+	
     void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 };
 
