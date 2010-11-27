@@ -16,7 +16,7 @@ template<class View>
 class TransformAffineProcess : public ImageGilFilterProcessor<View>
 {
 public:
-	typedef double Scalar;
+	typedef TransformAffinePlugin::Scalar Scalar;
 protected :
     TransformAffinePlugin&    _plugin;        ///< Rendering plugin
 

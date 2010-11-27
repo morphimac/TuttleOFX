@@ -22,7 +22,7 @@ struct TransformAffineProcessParams
 class TransformAffinePlugin : public OFX::ImageEffect
 {
 public:
-	typedef double Scalar;
+	typedef float Scalar;
 public:
     TransformAffinePlugin( OfxImageEffectHandle handle );
 

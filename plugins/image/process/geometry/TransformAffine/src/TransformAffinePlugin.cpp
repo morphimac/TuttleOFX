@@ -38,10 +38,16 @@ ImageEffect( handle )
 
 TransformAffineProcessParams<TransformAffinePlugin::Scalar> TransformAffinePlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
+	using namespace boost::numeric::ublas;
 	TransformAffineProcessParams<Scalar> params;
-	_paramMatrixRow0->getValue( params._matrix(0, 0), params._matrix(0, 1), params._matrix(0, 2) );
-	_paramMatrixRow1->getValue( params._matrix(1, 0), params._matrix(1, 1), params._matrix(1, 2) );
-	_paramMatrixRow2->getValue( params._matrix(2, 0), params._matrix(2, 1), params._matrix(2, 2) );
+
+	bounded_matrix<double, 3, 3> m;
+	_paramMatrixRow0->getValue( m(0, 0), m(0, 1), m(0, 2) );
+	_paramMatrixRow1->getValue( m(1, 0), m(1, 1), m(1, 2) );
+	_paramMatrixRow2->getValue( m(2, 0), m(2, 1), m(2, 2) );
+
+	params._matrix = m;
+	
 	return params;
 }
 
@@ -71,7 +77,7 @@ bool TransformAffinePlugin::isIdentity( const OFX::RenderArguments& args, OFX::C
 
 	// is the transformation matrix is an identity matrix the node is identity,
 	// we perform no modification on the input image.
-	if( norm_inf( params._matrix - identity_matrix<double>(3) ) == 0 )
+	if( norm_inf( params._matrix - identity_matrix<Scalar>(3) ) == 0 )
 	{
 		identityClip = _clipSrc;
 		identityTime = args.time;
