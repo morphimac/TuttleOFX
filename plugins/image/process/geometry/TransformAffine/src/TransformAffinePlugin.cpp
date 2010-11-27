@@ -39,9 +39,9 @@ ImageEffect( handle )
 TransformAffineProcessParams<TransformAffinePlugin::Scalar> TransformAffinePlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
 	TransformAffineProcessParams<Scalar> params;
-	_paramMatrixRow0->getValue( params._matrix(0, 0), params._matrix(1, 0), params._matrix(2, 0) );
-	_paramMatrixRow1->getValue( params._matrix(0, 1), params._matrix(1, 1), params._matrix(2, 1) );
-	_paramMatrixRow2->getValue( params._matrix(0, 2), params._matrix(1, 2), params._matrix(2, 2) );
+	_paramMatrixRow0->getValue( params._matrix(0, 0), params._matrix(0, 1), params._matrix(0, 2) );
+	_paramMatrixRow1->getValue( params._matrix(1, 0), params._matrix(1, 1), params._matrix(1, 2) );
+	_paramMatrixRow2->getValue( params._matrix(2, 0), params._matrix(2, 1), params._matrix(2, 2) );
 	return params;
 }
 
