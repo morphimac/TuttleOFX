@@ -8,21 +8,44 @@ namespace tuttle {
 namespace plugin {
 namespace transformAffine {
 
+const static std::string kParamMethod = "method";
+const static std::string kParamMethodAffine = "affine";
+const static std::string kParamMethodPerspective = "perspective";
+const static std::string kParamMethodBilinear = "bilinear";
+enum EParamMethod
+{
+	eParamMethodAffine = 0,
+	eParamMethodPerspective,
+	eParamMethodBilinear
+};
+
+const static std::string kParamInterpolation = "interpolation";
+const static std::string kParamInterpolationNearest = "nearest neighbor";
+const static std::string kParamInterpolationBilinear = "bilinear";
+enum EParamInterpolation
+{
+	eParamInterpolationNearest = 0,
+	eParamInterpolationBilinear,
+};
+
+const static std::string kParamOverlay = "overlay";
+
 
 const static std::string kParamGroupIn = "groupIn";
 const static std::string kParamPointIn = "pIn";
+const static std::string kParamOverlayIn = "overlayIn";
+const static std::string kParamOverlayInColor = "overlayInColor";
 
 const static std::string kParamGroupOut = "groupOut";
 const static std::string kParamPointOut = "pOut";
-
-const static std::string kParamGroupMatrix = "groupMatrix";
-const static std::string kParamMatrixRow = "matrix";
-
-const static std::string kParamOverlay = "overlay";
-const static std::string kParamOverlayIn = "overlayIn";
-const static std::string kParamOverlayInColor = "overlayInColor";
 const static std::string kParamOverlayOut = "overlayOut";
 const static std::string kParamOverlayOutColor = "overlayOutColor";
+
+const static std::string kParamGroupPerspMatrix = "groupPerspMatrix";
+const static std::string kParamPerspMatrixRow = "perpMatrix";
+const static std::string kParamGroupBilinearMatrix = "groupBilinearMatrix";
+const static std::string kParamBilinearMatrixRow = "bilinearMatrix";
+
 
 }
 }

@@ -28,6 +28,10 @@ public:
 	void setup( const OFX::RenderArguments& args );
 	
     void multiThreadProcessImages( const OfxRectI& procWindowRoW );
+
+private:
+	template<class Sampler>
+	void resample( View& srcView, View& dstView, const OfxRectI& procWindow );
 };
 
 }

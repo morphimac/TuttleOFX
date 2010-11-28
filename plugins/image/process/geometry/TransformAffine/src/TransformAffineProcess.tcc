@@ -4,7 +4,6 @@
 #include <tuttle/plugin/image/gil/resample.hpp>
 #include <tuttle/plugin/exceptions.hpp>
 
-
 namespace tuttle {
 namespace plugin {
 namespace transformAffine {
@@ -33,33 +32,33 @@ void TransformAffineProcess<View>::multiThreadProcessImages( const OfxRectI& pro
 {
 	using namespace boost::gil;
 	OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
-//	
-//	for( int y = procWindowOutput.y1;
-//			 y < procWindowOutput.y2;
-//			 ++y )
-//	{
-//		typename View::x_iterator src_it = this->_srcView.x_at( procWindowOutput.x1, y );
-//		typename View::x_iterator dst_it = this->_dstView.x_at( procWindowOutput.x1, y );
-//		for( int x = procWindowOutput.x1;
-//			 x < procWindowOutput.x2;
-//			 ++x, ++src_it, ++dst_it )
-//		{
-//			(*dst_it) = (*src_it);
-//		}
-//		if( this->progressForward() )
-//			return;
-//	}
-	
-//	switch( _interpolation )
-//	{
-//		case eParamInterpolationNearest:
-			resample_pixels_progress<nearest_neighbor_sampler>( this->_srcView, this->_dstView, _params, procWindowOutput, this );
-//			return;
-//		case eParamInterpolationBilinear:
-//			<bilinear_sampler>
-//			return;
-//	}
 
+	switch( _params._interpolation )
+	{
+		case eParamInterpolationNearest:
+			resample<nearest_neighbor_sampler>( this->_srcView, this->_dstView, procWindowOutput );
+			break;
+		case eParamInterpolationBilinear:
+			resample<bilinear_sampler>( this->_srcView, this->_dstView, procWindowOutput );
+			break;
+	}
+}
+
+template<class View>
+template<class Sampler>
+void TransformAffineProcess<View>::resample( View& srcView, View& dstView, const OfxRectI& procWindow )
+{
+	using namespace boost::gil;
+	switch( _params._method )
+	{
+		case eParamMethodAffine:
+		case eParamMethodPerspective:
+			resample_pixels_progress<Sampler>( srcView, dstView, _params._perspective, procWindow, this );
+			return;
+		case eParamMethodBilinear:
+			resample_pixels_progress<Sampler>( srcView, dstView, _params._bilinear, procWindow, this );
+			return;
+	}
 }
 
 }
