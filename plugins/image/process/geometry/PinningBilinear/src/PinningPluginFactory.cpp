@@ -23,7 +23,7 @@ static const bool kSupportTiles = false;
  */
 void PinningPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
-	desc.setLabels( "TuttlePinning", "Pinning",
+	desc.setLabels( "TuttlePinningBilinear", "Pinning",
 		            "Pinning" );
 	desc.setPluginGrouping( "tuttle/image/process/geometry" );
 
