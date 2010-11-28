@@ -1,16 +1,16 @@
-#ifndef _TUTTLE_PLUGIN_TRANSFORMAFFINE_PLUGIN_HPP_
-#define _TUTTLE_PLUGIN_TRANSFORMAFFINE_PLUGIN_HPP_
+#ifndef _TUTTLE_PLUGIN_PINNING_PLUGIN_HPP_
+#define _TUTTLE_PLUGIN_PINNING_PLUGIN_HPP_
 
 #include <tuttle/common/utils/global.hpp>
 #include <ofxsImageEffect.h>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/gil/gil_all.hpp>
 
-#include "TransformAffineDefinitions.hpp"
+#include "PinningDefinitions.hpp"
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
 template<typename Scalar>
 struct Perspective
@@ -25,7 +25,7 @@ struct Bilinear
 };
 
 template<typename Scalar>
-struct TransformAffineProcessParams
+struct PinningProcessParams
 {
 	Perspective<Scalar> _perspective;
 	Bilinear<Scalar> _bilinear;
@@ -35,17 +35,17 @@ struct TransformAffineProcessParams
 };
 
 /**
- * @brief TransformAffine plugin
+ * @brief Pinning plugin
  */
-class TransformAffinePlugin : public OFX::ImageEffect
+class PinningPlugin : public OFX::ImageEffect
 {
 public:
 	typedef float Scalar;
 public:
-    TransformAffinePlugin( OfxImageEffectHandle handle );
+    PinningPlugin( OfxImageEffectHandle handle );
 
 public:
-	TransformAffineProcessParams<Scalar> getProcessParams( const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
+	PinningProcessParams<Scalar> getProcessParams( const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
 
     void changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName );
 

@@ -1,7 +1,7 @@
-#ifndef _TRANSFORMAFFINEOVERLAYINTERACT_HPP_
-#define _TRANSFORMAFFINEOVERLAYINTERACT_HPP_
+#ifndef _PINNINGOVERLAYINTERACT_HPP_
+#define _PINNINGOVERLAYINTERACT_HPP_
 
-#include "TransformAffinePlugin.hpp"
+#include "PinningPlugin.hpp"
 
 #include <tuttle/common/utils/global.hpp>
 #include <tuttle/plugin/interact/interact.hpp>
@@ -12,19 +12,19 @@
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
-class TransformAffineOverlayInteract : public OFX::OverlayInteract
+class PinningOverlayInteract : public OFX::OverlayInteract
 {
 	typedef double Scalar;
 
-	TransformAffinePlugin* _plugin;
+	PinningPlugin* _plugin;
 
 	interact::InteractInfos _infos;
 	interact::InteractScene _interactScene;
 
 public:
-	TransformAffineOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
+	PinningOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
 
 	bool draw( const OFX::DrawArgs& args );
 	bool penDown( const OFX::PenArgs& args );
@@ -32,13 +32,13 @@ public:
 	bool penMotion( const OFX::PenArgs& args );
 };
 
-class TransformAffineEffectOverlayDescriptor : public OFX::EffectOverlayDescriptor
+class PinningEffectOverlayDescriptor : public OFX::EffectOverlayDescriptor
 {
 public:
 
 	OFX::Interact* createInstance( OfxInteractHandle handle, OFX::ImageEffect* effect )
 	{
-		return new TransformAffineOverlayInteract( handle, effect );
+		return new PinningOverlayInteract( handle, effect );
 	}
 
 };

@@ -1,6 +1,6 @@
-#include "TransformAffineOverlayInteract.hpp"
-#include "TransformAffineDefinitions.hpp"
-#include "TransformAffinePlugin.hpp"
+#include "PinningOverlayInteract.hpp"
+#include "PinningDefinitions.hpp"
+#include "PinningPlugin.hpp"
 #include <tuttle/plugin/opengl/gl.h>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
@@ -16,15 +16,15 @@
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
-TransformAffineOverlayInteract::TransformAffineOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect )
+PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect )
 	: OFX::OverlayInteract( handle )
 	, _infos( effect )
 	, _interactScene( *effect, _infos )
 {
 	_effect = effect;
-	_plugin = static_cast<TransformAffinePlugin*>( _effect );
+	_plugin = static_cast<PinningPlugin*>( _effect );
 
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn0, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn1, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
@@ -36,7 +36,7 @@ TransformAffineOverlayInteract::TransformAffineOverlayInteract( OfxInteractHandl
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut3, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
 }
 
-bool TransformAffineOverlayInteract::draw( const OFX::DrawArgs& args )
+bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
 {
 	if( !_plugin->_paramOverlay->getValue() || !_plugin->_clipSrc->isConnected() )
 		return false;
@@ -50,17 +50,17 @@ bool TransformAffineOverlayInteract::draw( const OFX::DrawArgs& args )
 	return displaySomething;
 }
 
-bool TransformAffineOverlayInteract::penMotion( const OFX::PenArgs& args )
+bool PinningOverlayInteract::penMotion( const OFX::PenArgs& args )
 {
 	return _interactScene.penMotion( args );
 }
 
-bool TransformAffineOverlayInteract::penDown( const OFX::PenArgs& args )
+bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
 {
 	return _interactScene.penDown( args );
 }
 
-bool TransformAffineOverlayInteract::penUp( const OFX::PenArgs& args )
+bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
 {
 	return _interactScene.penUp( args );
 }

@@ -1,11 +1,11 @@
-#ifndef _TUTTLE_PLUGIN_TRANSFORMAFFINE_ALGORITHM_HPP_
-#define	_TUTTLE_PLUGIN_TRANSFORMAFFINE_ALGORITHM_HPP_
+#ifndef _TUTTLE_PLUGIN_PINNING_ALGORITHM_HPP_
+#define	_TUTTLE_PLUGIN_PINNING_ALGORITHM_HPP_
 
-#include "TransformAffinePlugin.hpp"
+#include "PinningPlugin.hpp"
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
 /**
  * @brief Perspective transformation functor.

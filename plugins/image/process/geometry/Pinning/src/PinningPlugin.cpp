@@ -1,6 +1,6 @@
-#include "TransformAffinePlugin.hpp"
-#include "TransformAffineProcess.hpp"
-#include "TransformAffineDefinitions.hpp"
+#include "PinningPlugin.hpp"
+#include "PinningProcess.hpp"
+#include "PinningDefinitions.hpp"
 
 #include <tuttle/common/utils/global.hpp>
 #include <ofxsImageEffect.h>
@@ -12,9 +12,9 @@
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
-TransformAffinePlugin::TransformAffinePlugin( OfxImageEffectHandle handle ) :
+PinningPlugin::PinningPlugin( OfxImageEffectHandle handle ) :
 ImageEffect( handle )
 {
 	_clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
@@ -54,10 +54,10 @@ ImageEffect( handle )
 	changedParam( OFX::InstanceChangedArgs( ), kParamMethod );
 }
 
-TransformAffineProcessParams<TransformAffinePlugin::Scalar> TransformAffinePlugin::getProcessParams( const OfxPointD& renderScale ) const
+PinningProcessParams<PinningPlugin::Scalar> PinningPlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
 	using namespace boost::numeric::ublas;
-	TransformAffineProcessParams<Scalar> params;
+	PinningProcessParams<Scalar> params;
 
 	// persp matrix
 	bounded_matrix<double, 3, 3 > pm;
@@ -80,7 +80,7 @@ TransformAffineProcessParams<TransformAffinePlugin::Scalar> TransformAffinePlugi
 	return params;
 }
 
-void TransformAffinePlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
+void PinningPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
 {
 	using namespace boost::numeric::ublas;
 	if( paramName == kParamMethod )
@@ -185,10 +185,10 @@ void TransformAffinePlugin::changedParam( const OFX::InstanceChangedArgs &args, 
 	}
 }
 
-bool TransformAffinePlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
+bool PinningPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
 	using namespace boost::numeric::ublas;
-	TransformAffineProcessParams<Scalar> params = getProcessParams( args.renderScale );
+	PinningProcessParams<Scalar> params = getProcessParams( args.renderScale );
 	bool identity = false;
 
 	// is the transformation matrix is an identity matrix the node is identity,
@@ -229,7 +229,7 @@ bool TransformAffinePlugin::isIdentity( const OFX::RenderArguments& args, OFX::C
  * @brief The overridden render function
  * @param[in]   args     Rendering parameters
  */
-void TransformAffinePlugin::render( const OFX::RenderArguments &args )
+void PinningPlugin::render( const OFX::RenderArguments &args )
 {
 	using namespace boost::gil;
 	// instantiate the render code based on the pixel depth of the dst clip
@@ -243,19 +243,19 @@ void TransformAffinePlugin::render( const OFX::RenderArguments &args )
 		{
 			case OFX::eBitDepthUByte:
 			{
-				TransformAffineProcess<rgba8_view_t> p( *this );
+				PinningProcess<rgba8_view_t> p( *this );
 				p.setupAndProcess( args );
 				break;
 			}
 			case OFX::eBitDepthUShort:
 			{
-				TransformAffineProcess<rgba16_view_t> p( *this );
+				PinningProcess<rgba16_view_t> p( *this );
 				p.setupAndProcess( args );
 				break;
 			}
 			case OFX::eBitDepthFloat:
 			{
-				TransformAffineProcess<rgba32f_view_t> p( *this );
+				PinningProcess<rgba32f_view_t> p( *this );
 				p.setupAndProcess( args );
 				break;
 			}
@@ -272,19 +272,19 @@ void TransformAffinePlugin::render( const OFX::RenderArguments &args )
 		{
 			case OFX::eBitDepthUByte:
 			{
-				TransformAffineProcess<gray8_view_t> p( *this );
+				PinningProcess<gray8_view_t> p( *this );
 				p.setupAndProcess( args );
 				break;
 			}
 			case OFX::eBitDepthUShort:
 			{
-				TransformAffineProcess<gray16_view_t> p( *this );
+				PinningProcess<gray16_view_t> p( *this );
 				p.setupAndProcess( args );
 				break;
 			}
 			case OFX::eBitDepthFloat:
 			{
-				TransformAffineProcess<gray32f_view_t> p( *this );
+				PinningProcess<gray32f_view_t> p( *this );
 				p.setupAndProcess( args );
 				break;
 			}

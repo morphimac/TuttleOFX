@@ -1,7 +1,7 @@
-#include "TransformAffinePluginFactory.hpp"
-#include "TransformAffinePlugin.hpp"
-#include "TransformAffineDefinitions.hpp"
-#include "TransformAffineOverlayInteract.hpp"
+#include "PinningPluginFactory.hpp"
+#include "PinningPlugin.hpp"
+#include "PinningDefinitions.hpp"
+#include "PinningOverlayInteract.hpp"
 
 #include <tuttle/plugin/ImageGilProcessor.hpp>
 #include <tuttle/plugin/exceptions.hpp>
@@ -12,7 +12,7 @@
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
 static const bool kSupportTiles = false;
 
@@ -20,10 +20,10 @@ static const bool kSupportTiles = false;
  * @brief Function called to describe the plugin main features.
  * @param[in, out] desc Effect descriptor
  */
-void TransformAffinePluginFactory::describe( OFX::ImageEffectDescriptor& desc )
+void PinningPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
-	desc.setLabels( "TuttleTransformAffine", "TransformAffine",
-				 "TransformAffine" );
+	desc.setLabels( "TuttlePinning", "Pinning",
+				 "Pinning" );
 	desc.setPluginGrouping( "tuttle" );
 
 	// add the supported contexts, only filter at the moment
@@ -38,7 +38,7 @@ void TransformAffinePluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 	// plugin flags
 	desc.setSupportsTiles( kSupportTiles );
 
-	desc.setOverlayInteractDescriptor( new OFX::DefaultEffectOverlayWrap<TransformAffineEffectOverlayDescriptor > ( ) );
+	desc.setOverlayInteractDescriptor( new OFX::DefaultEffectOverlayWrap<PinningEffectOverlayDescriptor > ( ) );
 }
 
 /**
@@ -46,7 +46,7 @@ void TransformAffinePluginFactory::describe( OFX::ImageEffectDescriptor& desc )
  * @param[in, out]   desc       Effect descriptor
  * @param[in]        context    Application context
  */
-void TransformAffinePluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
+void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 													  OFX::EContext context )
 {
 	OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
@@ -211,10 +211,10 @@ void TransformAffinePluginFactory::describeInContext( OFX::ImageEffectDescriptor
  * @param[in] context Application context
  * @return  plugin instance
  */
-OFX::ImageEffect* TransformAffinePluginFactory::createInstance( OfxImageEffectHandle handle,
+OFX::ImageEffect* PinningPluginFactory::createInstance( OfxImageEffectHandle handle,
 																OFX::EContext context )
 {
-	return new TransformAffinePlugin( handle );
+	return new PinningPlugin( handle );
 }
 
 }

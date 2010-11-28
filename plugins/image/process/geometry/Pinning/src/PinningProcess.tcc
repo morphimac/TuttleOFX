@@ -1,4 +1,4 @@
-#include "transformAffineAlgorithm.hpp"
+#include "pinningAlgorithm.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
 #include <tuttle/plugin/image/gil/resample.hpp>
@@ -6,17 +6,17 @@
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
 template<class View>
-TransformAffineProcess<View>::TransformAffineProcess( TransformAffinePlugin& effect )
+PinningProcess<View>::PinningProcess( PinningPlugin& effect )
 : ImageGilFilterProcessor<View>( effect )
 , _plugin( effect )
 {
 }
 
 template<class View>
-void TransformAffineProcess<View>::setup( const OFX::RenderArguments& args )
+void PinningProcess<View>::setup( const OFX::RenderArguments& args )
 {
 	ImageGilFilterProcessor<View>::setup( args );
 
@@ -28,7 +28,7 @@ void TransformAffineProcess<View>::setup( const OFX::RenderArguments& args )
  * @param[in] procWindowRoW  Processing window
  */
 template<class View>
-void TransformAffineProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
+void PinningProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
 {
 	using namespace boost::gil;
 	OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
@@ -46,7 +46,7 @@ void TransformAffineProcess<View>::multiThreadProcessImages( const OfxRectI& pro
 
 template<class View>
 template<class Sampler>
-void TransformAffineProcess<View>::resample( View& srcView, View& dstView, const OfxRectI& procWindow )
+void PinningProcess<View>::resample( View& srcView, View& dstView, const OfxRectI& procWindow )
 {
 	using namespace boost::gil;
 	switch( _params._method )

@@ -1,12 +1,12 @@
-#ifndef _TUTTLE_PLUGIN_TRANSFORMAFFINE_DEFINITIONS_HPP_
-#define _TUTTLE_PLUGIN_TRANSFORMAFFINE_DEFINITIONS_HPP_
+#ifndef _TUTTLE_PLUGIN_PINNING_DEFINITIONS_HPP_
+#define _TUTTLE_PLUGIN_PINNING_DEFINITIONS_HPP_
 
 #include <tuttle/common/utils/global.hpp>
 
 
 namespace tuttle {
 namespace plugin {
-namespace transformAffine {
+namespace pinning {
 
 const static std::string kParamMethod = "method";
 const static std::string kParamMethodAffine = "affine";
