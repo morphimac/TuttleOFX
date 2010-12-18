@@ -17,8 +17,8 @@ inline boost::gil::point2<F> transform( const Perspective<F>& t, const boost::gi
 {
 	using namespace boost::numeric::ublas;
 	bounded_vector<F,3> pIn;
-	pIn[0] = src.x;
-	pIn[1] = src.y;
+	pIn[0] = (src.x / t._width) - 0.5;
+	pIn[1] = (src.y / t._height) - 0.5;
 	pIn[2] = 1.0;
 
 	bounded_vector<F,3> pOut = prod( t._matrix, pIn );
@@ -26,6 +26,9 @@ inline boost::gil::point2<F> transform( const Perspective<F>& t, const boost::gi
 	boost::gil::point2<F> res;
 	res.x = pOut[0] / pOut[2];
 	res.y = pOut[1] / pOut[2];
+
+	res.x = (res.x + 0.5) * t._width;
+	res.y = (res.y + 0.5) * t._height;
 	
 	return res;
 }
@@ -44,8 +47,13 @@ template <typename F, typename F2>
 inline boost::gil::point2<F> transform( const Bilinear<F>& t, const boost::gil::point2<F2>& src )
 {
 	boost::gil::point2<F> res;
-	res.x = t._matrix(0, 0) * src.x + t._matrix(0, 1) * src.y + t._matrix(0, 2) * src.x * src.y + t._matrix(0, 3);
-	res.y = t._matrix(1, 0) * src.x + t._matrix(1, 1) * src.y + t._matrix(1, 2) * src.x * src.y + t._matrix(1, 3);
+
+	boost::gil::point2<F2> in( (src.x / t._width) - 0.5, (src.y / t._height) - 0.5 );
+	res.x = t._matrix(0, 0) * in.x + t._matrix(0, 1) * in.y + t._matrix(0, 2) * in.x * in.y + t._matrix(0, 3);
+	res.y = t._matrix(1, 0) * in.x + t._matrix(1, 1) * in.y + t._matrix(1, 2) * in.x * in.y + t._matrix(1, 3);
+
+	res.x = (res.x + 0.5) * t._width;
+	res.y = (res.y + 0.5) * t._height;
 	return res;
 }
 

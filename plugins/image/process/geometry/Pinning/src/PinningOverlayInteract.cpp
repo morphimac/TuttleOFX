@@ -26,14 +26,15 @@ PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::I
 	_effect = effect;
 	_plugin = static_cast<PinningPlugin*>( _effect );
 
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn0, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn1, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn2, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn3, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut0, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut1, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut2, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut3, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
+
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn0, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn1, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn2, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn3, _plugin->_clipSrc ), new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
 }
 
 bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )

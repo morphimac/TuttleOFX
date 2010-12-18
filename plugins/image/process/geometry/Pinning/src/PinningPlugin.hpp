@@ -15,12 +15,14 @@ namespace pinning {
 template<typename Scalar>
 struct Perspective
 {
+	double _width, _height;
 	boost::numeric::ublas::bounded_matrix<Scalar,3,3> _matrix;
 };
 
 template<typename Scalar>
 struct Bilinear
 {
+	double _width, _height;
 	boost::numeric::ublas::bounded_matrix<Scalar,2,4> _matrix;
 };
 
@@ -40,12 +42,12 @@ struct PinningProcessParams
 class PinningPlugin : public OFX::ImageEffect
 {
 public:
-	typedef float Scalar;
+	typedef double Scalar;
 public:
     PinningPlugin( OfxImageEffectHandle handle );
 
 public:
-	PinningProcessParams<Scalar> getProcessParams( const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
+	PinningProcessParams<Scalar> getProcessParams( const OfxTime time, const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
 
     void changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName );
 

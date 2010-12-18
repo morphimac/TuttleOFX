@@ -20,7 +20,7 @@ void PinningProcess<View>::setup( const OFX::RenderArguments& args )
 {
 	ImageGilFilterProcessor<View>::setup( args );
 
-	_params = _plugin.getProcessParams( args.renderScale );
+	_params = _plugin.getProcessParams( args.time, args.renderScale );
 }
 
 /**

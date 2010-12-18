@@ -13,55 +13,58 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-
 namespace tuttle {
 namespace plugin {
 namespace pinning {
 
-PinningPlugin::PinningPlugin( OfxImageEffectHandle handle ) :
-ImageEffect( handle )
+PinningPlugin::PinningPlugin( OfxImageEffectHandle handle )
+	: ImageEffect( handle )
 {
 	_clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
 	_clipDst = fetchClip( kOfxImageEffectOutputClipName );
 
-	_paramMethod = fetchChoiceParam( kParamMethod );
+	_paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramInterpolation = fetchChoiceParam( kParamInterpolation );
-	_paramOverlay = fetchBooleanParam( kParamOverlay );
+	_paramOverlay       = fetchBooleanParam( kParamOverlay );
 
-	_paramGroupIn = fetchGroupParam( kParamGroupIn );
-	_paramPointIn0 = fetchDouble2DParam( kParamPointIn + "0" );
-	_paramPointIn1 = fetchDouble2DParam( kParamPointIn + "1" );
-	_paramPointIn2 = fetchDouble2DParam( kParamPointIn + "2" );
-	_paramPointIn3 = fetchDouble2DParam( kParamPointIn + "3" );
-	_paramOverlayIn = fetchBooleanParam( kParamOverlayIn );
+	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
+	_paramPointIn0       = fetchDouble2DParam( kParamPointIn + "0" );
+	_paramPointIn1       = fetchDouble2DParam( kParamPointIn + "1" );
+	_paramPointIn2       = fetchDouble2DParam( kParamPointIn + "2" );
+	_paramPointIn3       = fetchDouble2DParam( kParamPointIn + "3" );
+	_paramOverlayIn      = fetchBooleanParam( kParamOverlayIn );
 	_paramOverlayInColor = fetchRGBParam( kParamOverlayInColor );
 
-	_paramGroupOut = fetchGroupParam( kParamGroupIn );
-	_paramPointOut0 = fetchDouble2DParam( kParamPointOut + "0" );
-	_paramPointOut1 = fetchDouble2DParam( kParamPointOut + "1" );
-	_paramPointOut2 = fetchDouble2DParam( kParamPointOut + "2" );
-	_paramPointOut3 = fetchDouble2DParam( kParamPointOut + "3" );
-	_paramOverlayOut = fetchBooleanParam( kParamOverlayOut );
+	_paramGroupOut        = fetchGroupParam( kParamGroupIn );
+	_paramPointOut0       = fetchDouble2DParam( kParamPointOut + "0" );
+	_paramPointOut1       = fetchDouble2DParam( kParamPointOut + "1" );
+	_paramPointOut2       = fetchDouble2DParam( kParamPointOut + "2" );
+	_paramPointOut3       = fetchDouble2DParam( kParamPointOut + "3" );
+	_paramOverlayOut      = fetchBooleanParam( kParamOverlayOut );
 	_paramOverlayOutColor = fetchRGBParam( kParamOverlayOutColor );
 
 	_paramGroupPerspMatrix = fetchGroupParam( kParamGroupPerspMatrix );
-	_paramPerspMatrixRow0 = fetchDouble3DParam( kParamPerspMatrixRow + "0" );
-	_paramPerspMatrixRow1 = fetchDouble3DParam( kParamPerspMatrixRow + "1" );
-	_paramPerspMatrixRow2 = fetchDouble3DParam( kParamPerspMatrixRow + "2" );
+	_paramPerspMatrixRow0  = fetchDouble3DParam( kParamPerspMatrixRow + "0" );
+	_paramPerspMatrixRow1  = fetchDouble3DParam( kParamPerspMatrixRow + "1" );
+	_paramPerspMatrixRow2  = fetchDouble3DParam( kParamPerspMatrixRow + "2" );
 
 	_paramGroupBilMatrix = fetchGroupParam( kParamGroupBilinearMatrix );
-	_paramBilMatrixRow0 = fetchDouble2DParam( kParamBilinearMatrixRow + "0" );
-	_paramBilMatrixRow1 = fetchDouble2DParam( kParamBilinearMatrixRow + "1" );
-	_paramBilMatrixRow2 = fetchDouble2DParam( kParamBilinearMatrixRow + "2" );
-	_paramBilMatrixRow3 = fetchDouble2DParam( kParamBilinearMatrixRow + "3" );
+	_paramBilMatrixRow0  = fetchDouble2DParam( kParamBilinearMatrixRow + "0" );
+	_paramBilMatrixRow1  = fetchDouble2DParam( kParamBilinearMatrixRow + "1" );
+	_paramBilMatrixRow2  = fetchDouble2DParam( kParamBilinearMatrixRow + "2" );
+	_paramBilMatrixRow3  = fetchDouble2DParam( kParamBilinearMatrixRow + "3" );
 
-	changedParam( OFX::InstanceChangedArgs( ), kParamMethod );
+	changedParam( OFX::InstanceChangedArgs(), kParamMethod );
 }
 
-PinningProcessParams<PinningPlugin::Scalar> PinningPlugin::getProcessParams( const OfxPointD& renderScale ) const
+PinningProcessParams<PinningPlugin::Scalar> PinningPlugin::getProcessParams( const OfxTime time, const OfxPointD& renderScale ) const
 {
 	using namespace boost::numeric::ublas;
 	PinningProcessParams<Scalar> params;
+
+	OfxRectD rod = _clipSrc->getCanonicalRod( time, renderScale );
+	double width = rod.x2 - rod.x1;
+	double height = rod.y2 - rod.y1;
 
 	// persp matrix
 	bounded_matrix<double, 3, 3 > pm;
@@ -69,6 +72,8 @@ PinningProcessParams<PinningPlugin::Scalar> PinningPlugin::getProcessParams( con
 	_paramPerspMatrixRow1->getValue( pm( 1, 0 ), pm( 1, 1 ), pm( 1, 2 ) );
 	_paramPerspMatrixRow2->getValue( pm( 2, 0 ), pm( 2, 1 ), pm( 2, 2 ) );
 	params._perspective._matrix = pm;
+	params._perspective._width = width;
+	params._perspective._height = height;
 
 	// bilinear matrix
 	bounded_matrix<double, 2, 4 > bm;
@@ -77,23 +82,25 @@ PinningProcessParams<PinningPlugin::Scalar> PinningPlugin::getProcessParams( con
 	_paramBilMatrixRow2->getValue( bm( 0, 2 ), bm( 1, 2 ) );
 	_paramBilMatrixRow3->getValue( bm( 0, 3 ), bm( 1, 3 ) );
 	params._bilinear._matrix = bm;
+	params._bilinear._width = width;
+	params._bilinear._height = height;
 
-	params._method = static_cast < EParamMethod > ( _paramMethod->getValue( ) );
-	params._interpolation = static_cast < EParamInterpolation > ( _paramInterpolation->getValue( ) );
+	params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
+	params._interpolation = static_cast<EParamInterpolation>( _paramInterpolation->getValue() );
 
 	return params;
 }
 
-void PinningPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
+void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName )
 {
 	using namespace boost::numeric::ublas;
 	if( paramName == kParamMethod )
 	{
-		bool bil = false;
-		bool persp = false;
+		bool bil        = false;
+		bool persp      = false;
 		bool fourPoints = false;
 
-		switch( static_cast<EParamMethod>( _paramMethod->getValue( ) ) )
+		switch( static_cast<EParamMethod>( _paramMethod->getValue() ) )
 		{
 			case eParamMethodAffine:
 			{
@@ -103,13 +110,13 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs &args, const st
 			case eParamMethodPerspective:
 			{
 				fourPoints = true;
-				persp = true;
+				persp      = true;
 				break;
 			}
 			case eParamMethodBilinear:
 			{
 				fourPoints = true;
-				bil = true;
+				bil        = true;
 				break;
 			}
 		}
@@ -131,183 +138,75 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs &args, const st
 		changedParam( args, kParamPointIn );
 	}
 	else if( boost::starts_with( paramName, kParamPointIn ) ||
-			 boost::starts_with( paramName, kParamPointOut ) )
+	         boost::starts_with( paramName, kParamPointOut ) )
 	{
-		switch( static_cast < EParamMethod > ( _paramMethod->getValue( ) ) )
+		switch( static_cast < EParamMethod >( _paramMethod->getValue() ) )
 		{
 			case eParamMethodAffine:
 			{
-				bounded_matrix<Scalar, 3, 3 > perspMatrix;
+				bounded_matrix<Scalar, 3, 3> perspMatrix;
 
 				////////////////////////////////////////
 				/// @todo melanie: compute "perspMatrix" from input/output points -> "_paramPoint*"
-				perspMatrix = identity_matrix<Scalar > ( 3 );
+				perspMatrix = identity_matrix<Scalar >( 3 );
 
+				/* Calculates coefficients of affine transformation
+				 * which maps (xi,yi) to (ui,vi), (i=1,2,3):
+				 *
+				 * ui = c00*xi + c01*yi + c02
+				 *
+				 * vi = c10*xi + c11*yi + c12
+				 *
+				 * Coefficients are calculated by solving linear system:
+				 * / x0 y0  1  0  0  0 \ /c00\ /u0\
+				 * | x1 y1  1  0  0  0 | |c01| |u1|
+				 * | x2 y2  1  0  0  0 | |c02| |u2|
+				 * |  0  0  0 x0 y0  1 | |c10| |v0|
+				 * |  0  0  0 x1 y1  1 | |c11| |v1|
+				 * \  0  0  0 x2 y2  1 / |c12| |v2|
+				 *
+				 * where:
+				 *   cij - matrix coefficients
+				 */
+				static const int n = 6;
+				permutation_matrix<double> P( n );
+				matrix<double> A( n, n );
+				vector<double> x( n );
+				vector<double> b( n );
 
-                                /* Calculates coefficients of affine transformation
-                                  * which maps (xi,yi) to (ui,vi), (i=1,2,3):
-                                  *
-                                  * ui = c00*xi + c01*yi + c02
-                                  *
-                                  * vi = c10*xi + c11*yi + c12
-                                  *
-                                  * Coefficients are calculated by solving linear system:
-                                  * / x0 y0  1  0  0  0 \ /c00\ /u0\
-                                  * | x1 y1  1  0  0  0 | |c01| |u1|
-                                  * | x2 y2  1  0  0  0 | |c02| |u2|
-                                  * |  0  0  0 x0 y0  1 | |c10| |v0|
-                                  * |  0  0  0 x1 y1  1 | |c11| |v1|
-                                  * \  0  0  0 x2 y2  1 / |c12| |v2|
-                                  *
-                                  * where:
-                                  *   cij - matrix coefficients
-                                  */
-                                /*
-                                Mat getAffineTransform( const Point2f src[], const Point2f dst[] )
-                                {
-                                    //Lignes, colonnes, type de données, valeur de remplissage
-                                     Mat M(2, 3, CV_64F), X(6, 1, CV_64F, M.data);
-                                     double a[6*6], b[6];
-                                     Mat A(6, 6, CV_64F, a), B(6, 1, CV_64F, b);
+				bounded_vector<double, 2> pIn[3];
+				_paramPointIn0->getValue( pIn[0][0], pIn[0][1] );
+				_paramPointIn1->getValue( pIn[1][0], pIn[1][1] );
+				_paramPointIn2->getValue( pIn[2][0], pIn[2][1] );
 
-                                     for( int i = 0; i < 3; i++ )
-                                     {
-                                         int j = i*12;
-                                         int k = i*12+6;
-                                         a[j] = a[k+3] = src[i].x;
-                                         a[j+1] = a[k+4] = src[i].y;
-                                         a[j+2] = a[k+5] = 1;
-                                         a[j+3] = a[j+4] = a[j+5] = 0;
-                                         a[k] = a[k+1] = a[k+2] = 0;
-                                         b[i*2] = dst[i].x;
-                                         b[i*2+1] = dst[i].y;
-                                     }
+				bounded_vector<double, 2> pOut[3];
+				_paramPointOut0->getValue( pOut[0][0], pOut[0][1] );
+				_paramPointOut1->getValue( pOut[1][0], pOut[1][1] );
+				_paramPointOut2->getValue( pOut[2][0], pOut[2][1] );
 
-                                     solve( A, B, X );
-                                     return M;
-                                }*/
-				////////////////////////////////////////
+				/////////////////////
+				// fill A and b... //
+				for( int i = 0; i < 3; ++i )
+				{
+					A( i, 0 ) = A( i + 3, 0 + 3 ) = pIn[i][0];
+					A( i, 1 ) = A( i + 3, 1 + 3 ) = pIn[i][1];
+					b( i )     = pOut[i][0];
+					b( i + 3 ) = pOut[i][1];
+				}
+				subrange( A, 3,6, 0,3 ) = subrange( A, 0,3, 3,6 ) = zero_matrix<double>(n);
+				subrange( A, 0,3, 2,3 ) = subrange( A, 3,6, 5,6 ) = scalar_matrix<double>(3,1, 1);
+				
+				//COUT_VAR( A );
 
-/*
-                                // Matrice points d'entrée
-                                bounded_matrix<Scalar, 6, 6 > A;
+				lu_factorize( A, P );
+				// Now A and P contain the LU factorization of A
+				x = b;
+				lu_substitute( A, P, x );
+				// Now x contains the solution.
 
-                                // Vecteur solution
-                                bounded_matrix<Scalar, 6, 1 > X;
-
-                                // Vecteur points de sortie
-                                bounded_matrix<Scalar, 3, 3 > B;
-
-                                for( int i = 0; i < 3; ++i ){
-                                    int j = i*12;
-                                    int k = i*12+6;
-                                    a[j] = a[k+3] = src[i].x;
-                                    a[j+1] = a[k+4] = src[i].y;
-                                    a[j+2] = a[k+5] = 1;
-                                    a[j+3] = a[j+4] = a[j+5] = 0;
-                                    a[k] = a[k+1] = a[k+2] = 0;
-                                    b[i*2] = dst[i].x;
-                                    b[i*2+1] = dst[i].y;
-                                }
-*/
-
-                                const int n=6;
-                                permutation_matrix<double> P(n);
-                                matrix<double> A(n,n);
-                                vector<double> x(n);
-                                vector<double> b(n);
-
-                                bounded_vector<double, 2> pIn0, pIn1, pIn2;
-                                _paramPointIn0->getValue( pIn0[0], pIn0[1] );
-                                _paramPointIn1->getValue( pIn1[0], pIn1[1] );
-                                _paramPointIn2->getValue( pIn2[0], pIn2[1] );
-
-
-                                bounded_vector<double, 2> pOut0, pOut1, pOut2;
-                                _paramPointOut0->getValue( pOut0[0], pOut0[1] );
-                                _paramPointOut1->getValue( pOut1[0], pOut1[1] );
-                                _paramPointOut2->getValue( pOut2[0], pOut2[1] );
-
-                                /////////////////////
-                                // fill A and b... //
-
-
-                                for( int i = 0; i < 3; ++i ){
-                                    if(i == 0){
-                                        for( int j = 0; j < 3; ++j ){
-                                            if(j == 2){
-                                                A(i, j) = A(i + 3, j + 3) = 1;
-                                            }
-                                            else{
-                                                A(i, j) = A(i + 3, j + 3) = pIn0[j];
-                                            }
-                                            A(i , j + 3) = A(i + 3, j) = 0;
-                                        }
-                                        b(i) = pOut0[0];
-                                        b(i + 3) = pOut0[1];
-                                    }
-
-                                    else if(i == 1){
-                                        for( int j = 0; j < 3; ++j ){
-                                            if(j == 2){
-                                                A(i, j) = A(i + 3, j + 3) = 1;
-                                            }
-                                            else{
-                                                A(i, j) = A(i + 3, j + 3) = pIn1[j];
-                                            }
-                                            A(i, j + 3) = A(i + 3, j) = 0;
-                                        }
-                                        b(i) = pOut1[0];
-                                        b(i + 3) = pOut1[1];
-                                    }
-
-                                    else{
-                                        for( int j = 0; j < 3; ++j ){
-                                            if(j == 2){
-                                                A( i, j ) = A( i + 3, j + 3 ) = 1;
-                                            }
-                                            else{
-                                                A(i, j) = A(i + 3, j + 3) = pIn2[j];
-                                            }
-                                            A(i, j + 3) = A(i + 3, j) = 0;
-                                        }
-                                        b(i) = pOut2[0];
-                                        b(i + 3) = pOut2[1];
-                                    }
-
-                                }
-
-                                lu_factorize(A,P);
-                                // Now A and P contain the LU factorization of A
-                                x = b;
-                                lu_substitute(A,P,x);
-                                // Now x contains the solution.
-
-                                for( int i = 0; i < 3; ++i ){
-                                        for( int j = 0; j < 3; ++j ){
-                                            if(i == 0){
-                                                perspMatrix(i, j) = x(j);
-                                            }
-
-                                            else if(i == 1){
-                                                perspMatrix(i, j) = x(j + 3);
-                                            }
-
-                                            else{
-                                                if(j == 2){
-                                                    perspMatrix(i, j) = 1;
-                                                }
-                                                else{
-                                                    perspMatrix(i, j) = 0;
-                                                }
-                                            }
-                                        }
-                                 }
-
-
-				_paramPerspMatrixRow0->setValue( perspMatrix( 0, 0 ), perspMatrix( 1, 0 ), perspMatrix( 2, 0 ) );
-				_paramPerspMatrixRow1->setValue( perspMatrix( 0, 1 ), perspMatrix( 1, 1 ), perspMatrix( 2, 1 ) );
-				_paramPerspMatrixRow2->setValue( perspMatrix( 0, 2 ), perspMatrix( 1, 2 ), perspMatrix( 2, 2 ) );
+				_paramPerspMatrixRow0->setValue( x( 0 ), x( 1 ), x( 2 ) );
+				_paramPerspMatrixRow1->setValue( x( 3 ), x( 4 ), x( 5 ) );
+				_paramPerspMatrixRow2->setValue( 0, 0, 1 );
 				break;
 			}
 			case eParamMethodPerspective:
@@ -316,7 +215,7 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs &args, const st
 
 				////////////////////////////////////////
 				/// @todo vincent: compute "perspMatrix" from input/output points -> "_paramPoint*"
-				perspMatrix = identity_matrix<Scalar > ( 3 );
+				perspMatrix = identity_matrix<Scalar >( 3 );
 				////////////////////////////////////////
 
 				_paramPerspMatrixRow0->setValue( perspMatrix( 0, 0 ), perspMatrix( 1, 0 ), perspMatrix( 2, 0 ) );
@@ -353,8 +252,8 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs &args, const st
 bool PinningPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
 	using namespace boost::numeric::ublas;
-	PinningProcessParams<Scalar> params = getProcessParams( args.renderScale );
-	bool identity = false;
+	PinningProcessParams<Scalar> params = getProcessParams( args.time, args.renderScale );
+	bool identity                       = false;
 
 	// is the transformation matrix is an identity matrix the node is identity,
 	// we perform no modification on the input image.
@@ -363,7 +262,7 @@ bool PinningPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& id
 		case eParamMethodAffine:
 		case eParamMethodPerspective:
 		{
-			if( norm_inf( params._perspective._matrix - identity_matrix<Scalar > ( 3 ) ) == 0 )
+			if( norm_inf( params._perspective._matrix - identity_matrix<Scalar >( 3 ) ) == 0 )
 			{
 				identity = true;
 			}
@@ -372,13 +271,13 @@ bool PinningPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& id
 		case eParamMethodBilinear:
 		{
 			if( params._bilinear._matrix( 0, 0 ) == 1.0 &&
-			 params._bilinear._matrix( 0, 1 ) == 0.0 &&
-			 params._bilinear._matrix( 0, 2 ) == 0.0 &&
-			 params._bilinear._matrix( 0, 3 ) == 0.0 &&
-			 params._bilinear._matrix( 1, 0 ) == 0.0 &&
-			 params._bilinear._matrix( 1, 1 ) == 1.0 &&
-			 params._bilinear._matrix( 1, 2 ) == 0.0 &&
-			 params._bilinear._matrix( 1, 3 ) == 0.0 )
+			    params._bilinear._matrix( 0, 1 ) == 0.0 &&
+			    params._bilinear._matrix( 0, 2 ) == 0.0 &&
+			    params._bilinear._matrix( 0, 3 ) == 0.0 &&
+			    params._bilinear._matrix( 1, 0 ) == 0.0 &&
+			    params._bilinear._matrix( 1, 1 ) == 1.0 &&
+			    params._bilinear._matrix( 1, 2 ) == 0.0 &&
+			    params._bilinear._matrix( 1, 3 ) == 0.0 )
 			{
 				identity = true;
 			}
@@ -394,12 +293,12 @@ bool PinningPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& id
  * @brief The overridden render function
  * @param[in]   args     Rendering parameters
  */
-void PinningPlugin::render( const OFX::RenderArguments &args )
+void PinningPlugin::render( const OFX::RenderArguments& args )
 {
 	using namespace boost::gil;
 	// instantiate the render code based on the pixel depth of the dst clip
-	OFX::EBitDepth dstBitDepth = _clipDst->getPixelDepth( );
-	OFX::EPixelComponent dstComponents = _clipDst->getPixelComponents( );
+	OFX::EBitDepth dstBitDepth         = _clipDst->getPixelDepth();
+	OFX::EPixelComponent dstComponents = _clipDst->getPixelComponents();
 
 	// do the rendering
 	if( dstComponents == OFX::ePixelComponentRGBA )
@@ -465,7 +364,6 @@ void PinningPlugin::render( const OFX::RenderArguments &args )
 		COUT_ERROR( "Pixel components (" << mapPixelComponentEnumToString( dstComponents ) << ") not supported by the plugin." );
 	}
 }
-
 
 }
 }
