@@ -18,13 +18,18 @@ bool InteractScene::draw( const OFX::DrawArgs& args )
 {
 	bool result                              = false;
 	IsActiveFunctorVector::iterator itActive = _isActive.begin();
+	ColorVector::iterator itColor = _colors.begin();
 
 	for( InteractObjectsVector::iterator it = _objects.begin(), itEnd = _objects.end();
 	     it != itEnd;
-	     ++it, ++itActive )
+	     ++it, ++itActive, ++itColor )
 	{
 		if( itActive->active() )
+		{
+			OfxRGBAColourD color = itColor->getColor( args.time );
+			glColor4d( color.r, color.g, color.b, color.a );
 			result |= it->draw( args );
+		}
 	}
 	return result;
 }
