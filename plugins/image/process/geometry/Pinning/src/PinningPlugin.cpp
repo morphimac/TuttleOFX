@@ -8,7 +8,11 @@
 #include <boost/gil/gil_all.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/lu.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+
 
 namespace tuttle {
 namespace plugin {
@@ -138,7 +142,168 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs &args, const st
 				////////////////////////////////////////
 				/// @todo melanie: compute "perspMatrix" from input/output points -> "_paramPoint*"
 				perspMatrix = identity_matrix<Scalar > ( 3 );
+
+
+                                /* Calculates coefficients of affine transformation
+                                  * which maps (xi,yi) to (ui,vi), (i=1,2,3):
+                                  *
+                                  * ui = c00*xi + c01*yi + c02
+                                  *
+                                  * vi = c10*xi + c11*yi + c12
+                                  *
+                                  * Coefficients are calculated by solving linear system:
+                                  * / x0 y0  1  0  0  0 \ /c00\ /u0\
+                                  * | x1 y1  1  0  0  0 | |c01| |u1|
+                                  * | x2 y2  1  0  0  0 | |c02| |u2|
+                                  * |  0  0  0 x0 y0  1 | |c10| |v0|
+                                  * |  0  0  0 x1 y1  1 | |c11| |v1|
+                                  * \  0  0  0 x2 y2  1 / |c12| |v2|
+                                  *
+                                  * where:
+                                  *   cij - matrix coefficients
+                                  */
+                                /*
+                                Mat getAffineTransform( const Point2f src[], const Point2f dst[] )
+                                {
+                                    //Lignes, colonnes, type de données, valeur de remplissage
+                                     Mat M(2, 3, CV_64F), X(6, 1, CV_64F, M.data);
+                                     double a[6*6], b[6];
+                                     Mat A(6, 6, CV_64F, a), B(6, 1, CV_64F, b);
+
+                                     for( int i = 0; i < 3; i++ )
+                                     {
+                                         int j = i*12;
+                                         int k = i*12+6;
+                                         a[j] = a[k+3] = src[i].x;
+                                         a[j+1] = a[k+4] = src[i].y;
+                                         a[j+2] = a[k+5] = 1;
+                                         a[j+3] = a[j+4] = a[j+5] = 0;
+                                         a[k] = a[k+1] = a[k+2] = 0;
+                                         b[i*2] = dst[i].x;
+                                         b[i*2+1] = dst[i].y;
+                                     }
+
+                                     solve( A, B, X );
+                                     return M;
+                                }*/
 				////////////////////////////////////////
+
+/*
+                                // Matrice points d'entrée
+                                bounded_matrix<Scalar, 6, 6 > A;
+
+                                // Vecteur solution
+                                bounded_matrix<Scalar, 6, 1 > X;
+
+                                // Vecteur points de sortie
+                                bounded_matrix<Scalar, 3, 3 > B;
+
+                                for( int i = 0; i < 3; ++i ){
+                                    int j = i*12;
+                                    int k = i*12+6;
+                                    a[j] = a[k+3] = src[i].x;
+                                    a[j+1] = a[k+4] = src[i].y;
+                                    a[j+2] = a[k+5] = 1;
+                                    a[j+3] = a[j+4] = a[j+5] = 0;
+                                    a[k] = a[k+1] = a[k+2] = 0;
+                                    b[i*2] = dst[i].x;
+                                    b[i*2+1] = dst[i].y;
+                                }
+*/
+
+                                const int n=6;
+                                permutation_matrix<double> P(n);
+                                matrix<double> A(n,n);
+                                vector<double> x(n);
+                                vector<double> b(n);
+
+                                bounded_vector<double, 2> pIn0, pIn1, pIn2;
+                                _paramPointIn0->getValue( pIn0[0], pIn0[1] );
+                                _paramPointIn1->getValue( pIn1[0], pIn1[1] );
+                                _paramPointIn2->getValue( pIn2[0], pIn2[1] );
+
+
+                                bounded_vector<double, 2> pOut0, pOut1, pOut2;
+                                _paramPointOut0->getValue( pOut0[0], pOut0[1] );
+                                _paramPointOut1->getValue( pOut1[0], pOut1[1] );
+                                _paramPointOut2->getValue( pOut2[0], pOut2[1] );
+
+                                /////////////////////
+                                // fill A and b... //
+
+
+                                for( int i = 0; i < 3; ++i ){
+                                    if(i == 0){
+                                        for( int j = 0; j < 3; ++j ){
+                                            if(j == 2){
+                                                A(i, j) = A(i + 3, j + 3) = 1;
+                                            }
+                                            else{
+                                                A(i, j) = A(i + 3, j + 3) = pIn0[j];
+                                            }
+                                            A(i , j + 3) = A(i + 3, j) = 0;
+                                        }
+                                        b(i) = pOut0[0];
+                                        b(i + 3) = pOut0[1];
+                                    }
+
+                                    else if(i == 1){
+                                        for( int j = 0; j < 3; ++j ){
+                                            if(j == 2){
+                                                A(i, j) = A(i + 3, j + 3) = 1;
+                                            }
+                                            else{
+                                                A(i, j) = A(i + 3, j + 3) = pIn1[j];
+                                            }
+                                            A(i, j + 3) = A(i + 3, j) = 0;
+                                        }
+                                        b(i) = pOut1[0];
+                                        b(i + 3) = pOut1[1];
+                                    }
+
+                                    else{
+                                        for( int j = 0; j < 3; ++j ){
+                                            if(j == 2){
+                                                A( i, j ) = A( i + 3, j + 3 ) = 1;
+                                            }
+                                            else{
+                                                A(i, j) = A(i + 3, j + 3) = pIn2[j];
+                                            }
+                                            A(i, j + 3) = A(i + 3, j) = 0;
+                                        }
+                                        b(i) = pOut2[0];
+                                        b(i + 3) = pOut2[1];
+                                    }
+
+                                }
+
+                                lu_factorize(A,P);
+                                // Now A and P contain the LU factorization of A
+                                x = b;
+                                lu_substitute(A,P,x);
+                                // Now x contains the solution.
+
+                                for( int i = 0; i < 3; ++i ){
+                                        for( int j = 0; j < 3; ++j ){
+                                            if(i == 0){
+                                                perspMatrix(i, j) = x(j);
+                                            }
+
+                                            else if(i == 1){
+                                                perspMatrix(i, j) = x(j + 3);
+                                            }
+
+                                            else{
+                                                if(j == 2){
+                                                    perspMatrix(i, j) = 1;
+                                                }
+                                                else{
+                                                    perspMatrix(i, j) = 0;
+                                                }
+                                            }
+                                        }
+                                 }
+
 
 				_paramPerspMatrixRow0->setValue( perspMatrix( 0, 0 ), perspMatrix( 1, 0 ), perspMatrix( 2, 0 ) );
 				_paramPerspMatrixRow1->setValue( perspMatrix( 0, 1 ), perspMatrix( 1, 1 ), perspMatrix( 2, 1 ) );
