@@ -99,13 +99,13 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::Double2DParamDescriptor* pIn2 = desc.defineDouble2DParam( kParamPointIn + "2" );
 	pIn2->setLabel( "In 2" );
 	pIn2->setHint( "Input point 2" );
-	pIn2->setDefault( 0.5, 0.5 );
+	pIn2->setDefault( -0.5, 0.5 );
 	pIn2->setParent( groupIn );
 
 	OFX::Double2DParamDescriptor* pIn3 = desc.defineDouble2DParam( kParamPointIn + "3" );
 	pIn3->setLabel( "In 3" );
 	pIn3->setHint( "Input point 3" );
-	pIn3->setDefault( -0.5, 0.5 );
+	pIn3->setDefault( 0.5, 0.5 );
 	pIn3->setParent( groupIn );
 
 	OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
@@ -138,13 +138,13 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::Double2DParamDescriptor* pOut2 = desc.defineDouble2DParam( kParamPointOut + "2" );
 	pOut2->setLabel( "Out 2" );
 	pOut2->setHint( "Output point 2" );
-	pOut2->setDefault( 0.5, 0.5 );
+	pOut2->setDefault( -0.5, 0.5 );
 	pOut2->setParent( groupOut );
 
 	OFX::Double2DParamDescriptor* pOut3 = desc.defineDouble2DParam( kParamPointOut + "3" );
 	pOut3->setLabel( "Out 3" );
 	pOut3->setHint( "Output point 3" );
-	pOut3->setDefault( -0.5, 0.5 );
+	pOut3->setDefault( 0.5, 0.5 );
 	pOut3->setParent( groupOut );
 
 	OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
