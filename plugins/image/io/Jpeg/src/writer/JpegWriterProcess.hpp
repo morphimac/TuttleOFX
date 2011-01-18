@@ -1,7 +1,7 @@
 #ifndef JPEG_WRITER_PROCESS_HPP
 #define JPEG_WRITER_PROCESS_HPP
 
-#include <tuttle/common/utils/global.hpp>
+#include <tuttle/plugin/global.hpp>
 #include <tuttle/plugin/ImageGilFilterProcessor.hpp>
 
 namespace tuttle {
@@ -21,14 +21,17 @@ public:
 
 protected:
 	JpegWriterPlugin&    _plugin;        ///< Rendering plugin
+	JpegWriterProcessParams _params;
 
 public:
 	JpegWriterProcess( JpegWriterPlugin& instance );
 
+	void setup( const OFX::RenderArguments& args );
+
 	void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 
 	template<class Bits>
-	void writeImage( View& src, const std::string& filepath );
+	void writeImage( View& src );
 };
 
 }

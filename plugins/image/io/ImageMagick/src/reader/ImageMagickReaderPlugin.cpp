@@ -2,11 +2,8 @@
 #include "ImageMagickReaderProcess.hpp"
 #include "ImageMagickReaderDefinitions.hpp"
 
-#include <ofxsImageEffect.h>
-#include <ofxsMultiThread.h>
 #include <boost/gil/gil_all.hpp>
 #include <boost/filesystem.hpp>
-#include "tuttle/plugin/context/ReaderPlugin.hpp"
 
 #include <cstring>
 
@@ -29,6 +26,8 @@ ImageMagickReaderProcessParams ImageMagickReaderPlugin::getProcessParams( const 
 	ImageMagickReaderProcessParams params;
 
 	params._filepath = getAbsoluteFilenameAt( time );
+	params._flip = _paramFlip->getValue();
+
 	return params;
 }
 
@@ -38,75 +37,29 @@ ImageMagickReaderProcessParams ImageMagickReaderPlugin::getProcessParams( const 
  */
 void ImageMagickReaderPlugin::render( const OFX::RenderArguments& args )
 {
+	ReaderPlugin::render( args );
+	
 	// instantiate the render code based on the pixel depth of the dst clip
-	OFX::EBitDepth dstBitDepth         = this->_clipDst->getPixelDepth();
-	OFX::EPixelComponent dstComponents = this->_clipDst->getPixelComponents();
+	OFX::EBitDepth bitDepth         = _clipDst->getPixelDepth();
+	OFX::EPixelComponent components = _clipDst->getPixelComponents();
 
-	// do the rendering
-	if( dstComponents == OFX::ePixelComponentRGBA )
+	switch( components )
 	{
-		switch( dstBitDepth )
+		case OFX::ePixelComponentRGBA:
 		{
-			case OFX::eBitDepthUByte:
-			{
-				ImageMagickReaderProcess<rgba8_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthUShort:
-			{
-				ImageMagickReaderProcess<rgba16_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthFloat:
-			{
-				ImageMagickReaderProcess<rgba32f_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthNone:
-				COUT_FATALERROR( "BitDepthNone not recognize." );
-				return;
-			case OFX::eBitDepthCustom:
-				COUT_FATALERROR( "BitDepthCustom not recognize." );
-				return;
+			doGilRender<ImageMagickReaderProcess, false, boost::gil::rgba_layout_t>( *this, args, bitDepth );
+			return;
 		}
-	} /*
-	     else if( dstComponents == OFX::ePixelComponentAlpha )
-	     {
-	     switch( dstBitDepth )
-	     {
-	        case OFX::eBitDepthUByte:
-	        {
-	            ImageMagickReaderProcess<gray8_view_t> fred( *this );
-	            fred.setupAndProcess( args );
-	            break;
-	        }
-	        case OFX::eBitDepthUShort:
-	        {
-	            ImageMagickReaderProcess<gray16_view_t> fred( *this );
-	            fred.setupAndProcess( args );
-	            break;
-	        }
-	        case OFX::eBitDepthFloat:
-	        {
-	            ImageMagickReaderProcess<gray32f_view_t> fred( *this );
-	            fred.setupAndProcess( args );
-	            break;
-	        }
-	        case OFX::eBitDepthNone:
-	            COUT_FATALERROR( "BitDepthNone not recognize." );
-	            return;
-	        case OFX::eBitDepthCustom:
-	            COUT_FATALERROR( "BitDepthCustom not recognize." );
-	            return;
-	     }
-	     }*/
-	else
-	{
-		COUT_FATALERROR( dstComponents << " not recognize." );
+		case OFX::ePixelComponentRGB:
+		case OFX::ePixelComponentAlpha:
+		case OFX::ePixelComponentCustom:
+		case OFX::ePixelComponentNone:
+		{
+			BOOST_THROW_EXCEPTION( exception::Unsupported()
+				<< exception::user() + "Pixel components (" + mapPixelComponentEnumToString(components) + ") not supported by the plugin." );
+		}
 	}
+	BOOST_THROW_EXCEPTION( exception::Unknown() );
 }
 
 void ImageMagickReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName )
@@ -162,14 +115,6 @@ void ImageMagickReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& cl
 	ReaderPlugin::getClipPreferences( clipPreferences );
 	const std::string filename = getAbsoluteFirstFilename();
 
-	if( !bfs::exists( filename ) )
-	{
-		BOOST_THROW_EXCEPTION( exception::File()
-		    << exception::user( "No input file." )
-		    << exception::filename( filename )
-		                       );
-	}
-
 	ImageInfo* imageInfo = AcquireImageInfo();
 	GetImageInfo( imageInfo );
 	strcpy( imageInfo->filename, filename.c_str() );
@@ -180,7 +125,7 @@ void ImageMagickReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& cl
 
 	switch( getExplicitConversion() )
 	{
-		case eReaderParamExplicitConversionAuto:
+		case eParamReaderExplicitConversionAuto:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthFloat ); // by default
 			if( image )
@@ -197,17 +142,17 @@ void ImageMagickReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& cl
 			}
 			break;
 		}
-		case eReaderParamExplicitConversionByte:
+		case eParamReaderExplicitConversionByte:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUByte );
 			break;
 		}
-		case eReaderParamExplicitConversionShort:
+		case eParamReaderExplicitConversionShort:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUShort );
 			break;
 		}
-		case eReaderParamExplicitConversionFloat:
+		case eParamReaderExplicitConversionFloat:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthFloat );
 			break;

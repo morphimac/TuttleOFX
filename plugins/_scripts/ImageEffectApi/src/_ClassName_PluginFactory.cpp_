@@ -1,8 +1,7 @@
 #include "%CLASSNAME%PluginFactory.hpp"
 #include "%CLASSNAME%Plugin.hpp"
 #include "%CLASSNAME%Definitions.hpp"
-
-#include <tuttle/plugin/ImageGilProcessor.hpp>
+#include "ofxsImageEffect.h"
 
 #include <limits>
 
@@ -23,6 +22,8 @@ void %CLASSNAME%PluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 		            "%PLUGIN_LONG_LABEL%" );
 	desc.setPluginGrouping( "%PLUGIN_GROUP%" );
 
+	desc.setDescription( "<b>%PLUGIN_LONG_LABEL%</b> plugin is used to ???.  <br />" );
+
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextFilter );
 	desc.addSupportedContext( OFX::eContextGeneral );
@@ -34,6 +35,7 @@ void %CLASSNAME%PluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 
 	// plugin flags
 	desc.setSupportsTiles( kSupportTiles );
+	desc.setRenderThreadSafety( OFX::eRenderFullySafe );
 }
 
 /**
@@ -46,12 +48,14 @@ void %CLASSNAME%PluginFactory::describeInContext( OFX::ImageEffectDescriptor& de
 {
 	OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
 	srcClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+	srcClip->addSupportedComponent( OFX::ePixelComponentRGB );
 	srcClip->addSupportedComponent( OFX::ePixelComponentAlpha );
 	srcClip->setSupportsTiles( kSupportTiles );
 
 	// Create the mandated output clip
 	OFX::ClipDescriptor* dstClip = desc.defineClip( kOfxImageEffectOutputClipName );
 	dstClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+	dstClip->addSupportedComponent( OFX::ePixelComponentRGB );
 	dstClip->addSupportedComponent( OFX::ePixelComponentAlpha );
 	dstClip->setSupportsTiles( kSupportTiles );
 

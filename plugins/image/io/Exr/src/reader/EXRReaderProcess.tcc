@@ -2,6 +2,7 @@
 #include "EXRReaderPlugin.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
+#include <tuttle/plugin/image/gil/basic_colors.hpp>
 #include <tuttle/plugin/ImageGilProcessor.hpp>
 #include <tuttle/plugin/exceptions.hpp>
 #include "../half/gilHalf.hpp"
@@ -41,18 +42,11 @@ EXRReaderProcess<View>::EXRReaderProcess( EXRReaderPlugin& instance )
 template<class View>
 void EXRReaderProcess<View>::setup( const OFX::RenderArguments& args )
 {
-	EXRReaderProcessParams params = _plugin.getProcessParams( args.time );
-
-	if( !bfs::exists( params._filepath ) )
-	{
-		BOOST_THROW_EXCEPTION( exception::File()
-		    << exception::user( "Unable to open." )
-		    << exception::filename( params._filepath ) );
-	}
-
 	ImageGilProcessor<View>::setup( args );
 
-	_exrImage.reset( new Imf::InputFile( params._filepath.c_str() ) );
+	_params = _plugin.getProcessParams( args.time );
+
+	_exrImage.reset( new Imf::InputFile( _params._filepath.c_str() ) );
 	const Imf::Header& h = _exrImage->header();
 	typename Imath::V2i imageDims = h.dataWindow().size();
 	imageDims.x++;
@@ -67,7 +61,6 @@ template<class View>
 void EXRReaderProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
 {
 	using namespace boost::gil;
-	EXRReaderProcessParams params = _plugin.getProcessParams( this->_renderArgs.time );
 	BOOST_ASSERT( procWindowRoW == this->_dstPixelRod );
 	try
 	{
@@ -78,13 +71,19 @@ void EXRReaderProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 		typedef image<rgba_pixel_t, false> rgba_image_t;
 		typedef image<gray_pixel_t, false> gray_image_t;
 
-		switch( (ECompType)params._outComponents )
+		View dst = this->_dstView;
+		if( _params._flip )
+		{
+			dst = flipped_up_down_view( this->_dstView );
+		}
+
+		switch( (ECompType)_params._outComponents )
 		{
 			case eGray:
 			{
 				gray_image_t img( this->_dstView.width(), this->_dstView.height() );
 				typename gray_image_t::view_t dv( view( img ) );
-				readImage( flipped_up_down_view( color_converted_view<gray_pixel_t>( this->_dstView ) ), params._filepath );
+				readImage( color_converted_view<gray_pixel_t>( dst ), _params._filepath );
 				copy_and_convert_pixels( dv, this->_dstView );
 				break;
 			}
@@ -92,25 +91,25 @@ void EXRReaderProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 			{
 				rgb_image_t img( this->_dstView.width(), this->_dstView.height() );
 				typename rgb_image_t::view_t dv( view( img ) );
-				readImage( flipped_up_down_view( dv ), params._filepath );
-				copy_and_convert_pixels( dv, this->_dstView );
-				fill_alpha_max( this->_dstView );
+				readImage( dv, _params._filepath );
+				copy_and_convert_pixels( dv, dst );
+				fill_alpha_max( dst );
 				break;
 			}
 			case eRGBA:
 			{
 				rgba_image_t img( this->_dstView.width(), this->_dstView.height() );
 				typename rgba_image_t::view_t dv( view( img ) );
-				readImage( flipped_up_down_view( dv ), params._filepath );
-				copy_and_convert_pixels( dv, this->_dstView );
+				readImage( dv, _params._filepath );
+				copy_and_convert_pixels( dv, dst );
 				break;
 			}
 		}
 	}
 	catch( boost::exception& e )
 	{
-		e << exception::filename( params._filepath );
-		COUT_ERROR( boost::diagnostic_information( e ) );
+		e << exception::filename( _params._filepath );
+		TUTTLE_COUT_ERROR( boost::diagnostic_information( e ) );
 		//		throw;
 	}
 	catch(... )
@@ -118,7 +117,7 @@ void EXRReaderProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 		//		BOOST_THROW_EXCEPTION( exception::Unknown()
 		//			<< exception::user( "Unable to write image")
 		//			<< exception::filename(params._filepath) );
-		COUT_ERROR( boost::current_exception_diagnostic_information() );
+		TUTTLE_COUT_ERROR( boost::current_exception_diagnostic_information() );
 	}
 }
 

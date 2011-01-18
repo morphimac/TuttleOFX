@@ -2,14 +2,11 @@
 #include "BitDepthDefinitions.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
+#include <tuttle/plugin/image/gil/clamp.hpp>
 #include <tuttle/plugin/exceptions.hpp>
 
-#include <ofxsImageEffect.h>
-#include <ofxsMultiThread.h>
 #include <boost/gil/gil_all.hpp>
 
-#include <cstdlib>
-#include <cassert>
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -35,7 +32,7 @@ void BitDepthProcess<SView, DView>::setup( const OFX::RenderArguments& args )
 	this->_src.reset( this->_clipSrc->fetchImage( args.time ) );
 	if( !this->_src.get() )
 		BOOST_THROW_EXCEPTION( exception::ImageNotReady() );
-	if( this->_src->getRowBytes() <= 0 )
+	if( this->_src->getRowBytes() == 0 )
 		BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
 	this->_srcView = ::tuttle::plugin::getView<SView>( this->_src.get(), this->_clipSrc->getPixelRod( args.time ) );
 	//	this->_srcPixelRod = this->_src->getRegionOfDefinition(); // bug in nuke, returns bounds
@@ -63,7 +60,7 @@ void BitDepthProcess<SView, DView>::multiThreadProcessImages( const OfxRectI& pr
 	                           procWindowSize.x,
 	                           procWindowSize.y );
 
-	copy_and_convert_pixels( clamp<typename SView::value_type>( src ), dst );
+	copy_and_convert_pixels( clamp_view(src), dst );
 }
 
 }
