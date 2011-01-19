@@ -286,17 +286,17 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 
 				lu_substitute( A, P, c );
 				// Now bilMatrix contains the solution.
-
+				/*
 				for( int i = 0; i < 4; ++i )
 				{
 					bilMatrix( 0, i ) = c(0)*A(i*2,0) + c(1)*A(i*2,1) + c(2)*A(i*2,2) + c(3);
 					bilMatrix( 1, i ) = c(4)*A(i*2+1,4) + c(5)*A(i*2+1,5) + c(6)*A(i*2+1,6) + c(7);
 				}
-
-				_paramBilMatrixRow0->setValue( bilMatrix( 0, 0 ), bilMatrix( 1, 0 ) );
-				_paramBilMatrixRow1->setValue( bilMatrix( 0, 1 ), bilMatrix( 1, 1 ) );
-				_paramBilMatrixRow2->setValue( bilMatrix( 0, 2 ), bilMatrix( 1, 2 ) );
-				_paramBilMatrixRow3->setValue( bilMatrix( 0, 3 ), bilMatrix( 1, 3 ) );
+				*/
+				_paramBilMatrixRow0->setValue( c( 0 ), c( 4 ) );
+				_paramBilMatrixRow1->setValue( c( 1 ), c( 5 ) );
+				_paramBilMatrixRow2->setValue( c( 2 ), c( 6 ) );
+				_paramBilMatrixRow3->setValue( c( 3 ), c( 7 ) );
 
 				break;
 			}
@@ -306,6 +306,7 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 
 bool PinningPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
+	return false;
 	using namespace boost::numeric::ublas;
 	PinningProcessParams<Scalar> params = getProcessParams( args.time, args.renderScale );
 	bool identity                       = false;
