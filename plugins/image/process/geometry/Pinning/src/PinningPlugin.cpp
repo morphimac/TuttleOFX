@@ -226,9 +226,8 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 			case eParamMethodBilinear:
 			{
 				bounded_matrix<Scalar, 2, 4 > bilMatrix;
-
 				////////////////////////////////////////
-				/// @todo adrien: compute "bilMatrix" from input/output points -> "_paramPoint*"
+				///compute "bilMatrix" from input/output points -> "_paramPoint*"
 				bilMatrix( 0, 0 ) = 1.0;
 				bilMatrix( 0, 1 ) = 0.0;
 				bilMatrix( 0, 2 ) = 0.0;
@@ -238,11 +237,67 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 				bilMatrix( 1, 2 ) = 0.0;
 				bilMatrix( 1, 3 ) = 2.0;
 				////////////////////////////////////////
+				/* Coefficients are calculated by solving linear system:
+				 * / x0  y0   x0y0  1  0    0    0   0 \
+				 * | 0   0  0  0    0  x0  y0  x0y0  1 |
+				 * | x1  y1   x1y1  1  0    0    0   0 |
+				 * | 0   0  0  0    0  x1  y1  x0y1  1 |
+				 * | x2  y2   x2y2  1  0    0    0   0 |
+				 * | 0   0  0  0    0  x2  y2  x2y2  1 |
+				 * | x3  y3   x3y3  1  0    0    0   0 |
+				 * \ 0   0  0  0    0  x3  y3  x3y3  1 /
+				 */
+				// Recuperation des points IN et OUT
+				bounded_vector<double, 2> pIn[4];
+				_paramPointIn0->getValue( pIn[0][0], pIn[0][1] );
+				_paramPointIn1->getValue( pIn[1][0], pIn[1][1] );
+				_paramPointIn2->getValue( pIn[2][0], pIn[2][1] );
+				_paramPointIn3->getValue( pIn[3][0], pIn[3][1] );
+
+				bounded_vector<double, 2> pOut[4];
+				_paramPointOut0->getValue( pOut[0][0], pOut[0][1] );
+				_paramPointOut1->getValue( pOut[1][0], pOut[1][1] );
+				_paramPointOut2->getValue( pOut[2][0], pOut[2][1] );
+				_paramPointOut3->getValue( pOut[3][0], pOut[3][1] );
+
+				static const int n = 8;
+				permutation_matrix<double> P( n );
+				matrix<double> A(n, n);
+				vector<double> c( n );
+				vector<double> b( n );
+
+				for( int i = 0; i < 4; ++i )
+				{
+					A( 2*i, 0 ) = A( 2*i + 1, 0 + 4 ) = pIn[i][0];
+					A( 2*i, 1 ) = A( 2*i + 1, 1 + 4 ) = pIn[i][1];
+					A( 2*i, 2 ) = A( 2*i + 1, 2 + 4 ) = pIn[i][0]*pIn[i][1];
+					A( 2*i, 3 ) = A( 2*i + 1, 3 + 4 ) = 1;
+
+					A(2*i, 4) = A(2*i, 5) = A(2*i, 6) = A(2*i, 7) = 0;
+					A(2*i+1, 0) = A(2*i+1, 1) = A(2*i+1, 2) = A(2*i+1, 3) = 0;
+
+					b( i*2 )     = pOut[i][0];
+					b( i*2 + 1 ) = pOut[i][1];
+				}
+
+				lu_factorize( A, P );		
+				// Now A and P contain the LU factorization of A
+				c = b;
+
+				lu_substitute( A, P, c );
+				// Now bilMatrix contains the solution.
+
+				for( int i = 0; i < 4; ++i )
+				{
+					bilMatrix( 0, i ) = c(0)*A(i*2,0) + c(1)*A(i*2,1) + c(2)*A(i*2,2) + c(3);
+					bilMatrix( 1, i ) = c(4)*A(i*2+1,4) + c(5)*A(i*2+1,5) + c(6)*A(i*2+1,6) + c(7);
+				}
 
 				_paramBilMatrixRow0->setValue( bilMatrix( 0, 0 ), bilMatrix( 1, 0 ) );
 				_paramBilMatrixRow1->setValue( bilMatrix( 0, 1 ), bilMatrix( 1, 1 ) );
 				_paramBilMatrixRow2->setValue( bilMatrix( 0, 2 ), bilMatrix( 1, 2 ) );
 				_paramBilMatrixRow3->setValue( bilMatrix( 0, 3 ), bilMatrix( 1, 3 ) );
+
 				break;
 			}
 		}
