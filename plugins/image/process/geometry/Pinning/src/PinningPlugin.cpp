@@ -168,6 +168,7 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 				 * where:
 				 *   cij - matrix coefficients
 				 */
+
 				static const int n = 6;
 				permutation_matrix<double> P( n );
 				matrix<double> A( n, n );
