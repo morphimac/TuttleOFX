@@ -7,6 +7,7 @@
 #include <ofxsImageEffect.h>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/gil/gil_all.hpp>
+#include <boost/array.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -16,7 +17,8 @@ using namespace boost::gil;
 template<typename Scalar>
 struct WarpProcessParams
 {
-	//std::vector<point2<double> > inPoints;
+	std::vector< point2<double> > inPoints;
+	std::vector< point2<double> > outPoints;
 };
 
 /**
@@ -49,13 +51,13 @@ public:
 	OFX::BooleanParam*  _paramOverlay;
 
     	OFX::GroupParam* _paramGroupIn;
-    	OFX::Double2DParam* _paramPointIn[nbPoints];
+    	boost::array<OFX::Double2DParam*, nbPoints> _paramPointIn;
 
 	OFX::BooleanParam*  _paramOverlayIn;
 	OFX::RGBParam*  _paramOverlayInColor;
 
     	OFX::GroupParam* _paramGroupOut;
-    	OFX::Double2DParam* _paramPointOut[nbPoints];
+    	boost::array<OFX::Double2DParam*, nbPoints> _paramPointOut;
 
 	OFX::BooleanParam*  _paramOverlayOut;
 	OFX::RGBParam*  _paramOverlayOutColor;

@@ -28,7 +28,7 @@ double base_func( const double r2 )
 	: r2 * log(r2) * 0.217147241; // = 1/(2*log(10))
 }
 
-void morphTPS( const std::vector<OFX::Double2DParam*> pIn, const std::vector<OFX::Double2DParam*> pOut )
+void morphTPS( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut )
 {
 	// Nombre de points d'entrée
 	std::size_t p = pIn.size();
@@ -59,10 +59,10 @@ void morphTPS( const std::vector<OFX::Double2DParam*> pIn, const std::vector<OFX
 	// Remplit k et une partie de l
 	for (unsigned i=0; i<p; ++i)
 	{
-      		OfxPointD point_i = pIn[i]->getValue();
+      		const point2<double>& point_i = pIn[i];
       		for (unsigned j=0; j<m; ++j)
       		{
-        		OfxPointD point_j = pIn[j]->getValue(); 
+        		const point2<double>& point_j = pIn[j]; 
         		double sum = boost::math::pow<2>(point_i.x-point_j.x) + boost::math::pow<2>(point_i.y-point_j.y);
         		mtx_l(i,j) = mtx_orig_k(i,j) = base_func(sum);
       		}
@@ -71,7 +71,7 @@ void morphTPS( const std::vector<OFX::Double2DParam*> pIn, const std::vector<OFX
 	// Remplit le reste de l
     	for (unsigned i=0; i<p; ++i)
     	{
-      		OfxPointD point_i = pIn[i]->getValue();
+      		const point2<double>& point_i = pIn[i];
       		mtx_l(i, m+0) = 1.0;
       		mtx_l(i, m+1) = point_i.x;
       		mtx_l(i, m+2) = point_i.y;
@@ -98,7 +98,7 @@ void morphTPS( const std::vector<OFX::Double2DParam*> pIn, const std::vector<OFX
 	// Remplit une partie de v
 	for (unsigned i=0; i<p; ++i)
 	{
-		OfxPointD point_i = pOut[i]->getValue();
+		const point2<double>& point_i = pOut[i];
 		mtx_v(i,0) = point_i.x;
 	      	mtx_v(i,1) = point_i.y;
 	}
@@ -135,3 +135,5 @@ void morphTPS( const std::vector<OFX::Double2DParam*> pIn, const std::vector<OFX
 }
 }
 }
+
+
