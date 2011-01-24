@@ -55,7 +55,7 @@ ImageEffect( handle )
 	_paramOverlayOut      = fetchBooleanParam( kParamOverlayOut );
 	_paramOverlayOutColor = fetchRGBParam( kParamOverlayOutColor );
 
-	morphTPS(_paramPointIn, _paramPointOut);
+	//morphTPS(_paramPointIn, _paramPointOut);
 }
 
 WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPointD& renderScale ) const

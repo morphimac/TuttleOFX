@@ -8,9 +8,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/gil/gil_all.hpp>
 
-double square(double x);
-double base_func(double r2);
-void morphTPS(OFX::Double2DParam* _paramPointIn, OFX::Double2DParam* _paramPointOut);
+void morphTPS( const std::vector<OFX::Double2DParam*> pIn, const std::vector<OFX::Double2DParam*> pOut );
 
 
 #endif

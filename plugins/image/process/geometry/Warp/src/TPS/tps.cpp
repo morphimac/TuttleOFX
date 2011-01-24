@@ -14,14 +14,13 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/math/special_functions/pow.hpp>
 
 namespace tuttle {
 namespace plugin {
 namespace warp {
 
-double square(double x) { return x*x; }
-
-double base_func(double r2)
+double base_func( const double r2 )
 {
 	// same as r*r * log(r), but for r^2:
 	return ( r2==0 )
@@ -29,10 +28,10 @@ double base_func(double r2)
 	: r2 * log(r2) * 0.217147241; // = 1/(2*log(10))
 }
 
-void morphTPS(OFX::Double2DParam* _paramPointIn[nbPoints], OFX::Double2DParam* _paramPointOut[nbPoints]){
-
+void morphTPS( const std::vector<OFX::Double2DParam*> pIn, const std::vector<OFX::Double2DParam*> pOut )
+{
 	// Nombre de points d'entrée
-	unsigned p = nbPoints;
+	std::size_t p = pIn.size();
 
 	// Initialisation des matrices
 	using namespace boost::numeric::ublas;
@@ -60,11 +59,11 @@ void morphTPS(OFX::Double2DParam* _paramPointIn[nbPoints], OFX::Double2DParam* _
 	// Remplit k et une partie de l
 	for (unsigned i=0; i<p; ++i)
 	{
-      		OfxPointD point_i = _paramPointIn[i]->getValue();
+      		OfxPointD point_i = pIn[i]->getValue();
       		for (unsigned j=0; j<m; ++j)
       		{
-        		OfxPointD point_j = _paramPointIn[j]->getValue(); 
-        		double sum = square(point_i.x-point_j.x) + square(point_i.y-point_j.y);
+        		OfxPointD point_j = pIn[j]->getValue(); 
+        		double sum = boost::math::pow<2>(point_i.x-point_j.x) + boost::math::pow<2>(point_i.y-point_j.y);
         		mtx_l(i,j) = mtx_orig_k(i,j) = base_func(sum);
       		}
     	}
@@ -72,7 +71,7 @@ void morphTPS(OFX::Double2DParam* _paramPointIn[nbPoints], OFX::Double2DParam* _
 	// Remplit le reste de l
     	for (unsigned i=0; i<p; ++i)
     	{
-      		OfxPointD point_i = _paramPointIn[i]->getValue();
+      		OfxPointD point_i = pIn[i]->getValue();
       		mtx_l(i, m+0) = 1.0;
       		mtx_l(i, m+1) = point_i.x;
       		mtx_l(i, m+2) = point_i.y;
@@ -99,7 +98,7 @@ void morphTPS(OFX::Double2DParam* _paramPointIn[nbPoints], OFX::Double2DParam* _
 	// Remplit une partie de v
 	for (unsigned i=0; i<p; ++i)
 	{
-		OfxPointD point_i = _paramPointOut[i]->getValue();
+		OfxPointD point_i = pOut[i]->getValue();
 		mtx_v(i,0) = point_i.x;
 	      	mtx_v(i,1) = point_i.y;
 	}
