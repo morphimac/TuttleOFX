@@ -1,4 +1,6 @@
 #include "WarpAlgorithm.hpp"
+#include "WarpPlugin.hpp"
+#include "TPS/tps.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
 #include <tuttle/plugin/image/gil/resample.hpp>
@@ -21,6 +23,7 @@ void WarpProcess<View>::setup( const OFX::RenderArguments& args )
 	ImageGilFilterProcessor<View>::setup( args );
 	_params = _plugin.getProcessParams( args.renderScale );
 
+	morphTPS( _params._inPoints, _params._outPoints );
 }
 
 /**

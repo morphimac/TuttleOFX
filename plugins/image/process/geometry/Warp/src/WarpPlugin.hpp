@@ -17,8 +17,8 @@ using namespace boost::gil;
 template<typename Scalar>
 struct WarpProcessParams
 {
-	std::vector< point2<double> > inPoints;
-	std::vector< point2<double> > outPoints;
+	std::vector< point2<double> > _inPoints;
+	std::vector< point2<double> > _outPoints;
 };
 
 /**
@@ -40,27 +40,30 @@ public:
 //	void getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois );
 	bool isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime );
 
-    	void render( const OFX::RenderArguments &args );
-	
+	void render( const OFX::RenderArguments &args );
 	
 public:
-    	// do not need to delete these, the ImageEffect is managing them for us
-    	OFX::Clip* _clipSrc; ///< Source image clip
+	OFX::Clip* _clipSrc; ///< Source image clip
    	OFX::Clip* _clipDst; ///< Destination image clip
 
 	OFX::BooleanParam*  _paramOverlay;
 
-    	OFX::GroupParam* _paramGroupIn;
-    	boost::array<OFX::Double2DParam*, nbPoints> _paramPointIn;
+	OFX::IntParam*  _paramNbPoints;
+
+	OFX::GroupParam* _paramGroupIn;
+	boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointIn;
 
 	OFX::BooleanParam*  _paramOverlayIn;
 	OFX::RGBParam*  _paramOverlayInColor;
 
-    	OFX::GroupParam* _paramGroupOut;
-    	boost::array<OFX::Double2DParam*, nbPoints> _paramPointOut;
+	OFX::GroupParam* _paramGroupOut;
+	boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointOut;
 
 	OFX::BooleanParam*  _paramOverlayOut;
 	OFX::RGBParam*  _paramOverlayOutColor;
+
+private:
+	OFX::InstanceChangedArgs _instanceChangedArgs;
 };
 
 }

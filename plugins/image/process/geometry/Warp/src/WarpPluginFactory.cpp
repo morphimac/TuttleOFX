@@ -10,6 +10,7 @@
 #include <ofxsMultiThread.h>
 #include <boost/gil/gil_all.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -24,9 +25,9 @@ static const bool kSupportTiles = false;
  */
 void WarpPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
-	desc.setLabels( "Warp", "Warp",
-		            "Warp" );
-	desc.setPluginGrouping( "tuttle" );
+	desc.setLabels( "TuttleWarp", "Warp",
+		        "Warp" );
+	desc.setPluginGrouping( "tuttle/image/process/geometry" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextFilter );
@@ -65,19 +66,18 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	overlay->setLabel( "Overlay" );
 	overlay->setDefault( true );
 
+	OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
+	nbPoints->setDefault( 5 );
+//	nbPoints->setIsSecret( true );
+	
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
 	groupIn->setLabel( "Input points" );
 
-	OFX::Double2DParamDescriptor* pIn[nbPoints];
-	for(int cptIn = 0; cptIn < nbPoints; ++cptIn)
+	OFX::Double2DParamDescriptor* pIn[kMaxNbPoints];
+	for( std::size_t cptIn = 0; cptIn < kMaxNbPoints; ++cptIn )
 	{
-		//Conversion de int en string
-		std::ostringstream oss;			//creation du flux
-		oss << cptIn;				//On insere le int dans notre flux
-		std::string resultIn = oss.str();	//On retourne le int en string
-		//Fin de conversion
-
+		std::string resultIn = boost::lexical_cast<std::string>(cptIn);
 		pIn[cptIn] = desc.defineDouble2DParam( kParamPointIn + resultIn );
 		pIn[cptIn]->setLabel( "In " + resultIn );
 		pIn[cptIn]->setHint( "Input point " + resultIn );
@@ -100,15 +100,10 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::GroupParamDescriptor* groupOut = desc.defineGroupParam( kParamGroupOut );
 	groupOut->setLabel( "Output points" );
 
-	OFX::Double2DParamDescriptor* pOut[nbPoints];
-	for(int cptOut = 0; cptOut < nbPoints; ++cptOut)
+	OFX::Double2DParamDescriptor* pOut[kMaxNbPoints];
+	for( std::size_t cptOut = 0; cptOut < kMaxNbPoints; ++cptOut )
 	{
-		//Conversion de int en string
-		std::ostringstream oss;			//creation du flux
-		oss << cptOut;				//On insere le int dans notre flux
-		std::string resultOut = oss.str();	//On retourne le int en string
-		//Fin de conversion
-
+		std::string resultOut = boost::lexical_cast<std::string>(cptOut);
 		pOut[cptOut] = desc.defineDouble2DParam( kParamPointOut + resultOut );
 		pOut[cptOut]->setLabel( "In " + resultOut );
 		pOut[cptOut]->setHint( "Input point " + resultOut );

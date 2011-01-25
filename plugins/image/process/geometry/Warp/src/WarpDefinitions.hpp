@@ -8,9 +8,10 @@ namespace tuttle {
 namespace plugin {
 namespace warp {
 
-const static int nbPoints = 10;
+const static std::size_t kMaxNbPoints = 10;
 
 const static std::string kParamOverlay = "overlay";
+const static std::string kParamNbPoints = "nbPoints";
 
 const static std::string kParamGroupIn = "groupIn";
 const static std::string kParamPointIn = "pIn";

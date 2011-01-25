@@ -1,12 +1,13 @@
 #include "WarpPlugin.hpp"
 #include "WarpProcess.hpp"
 #include "WarpDefinitions.hpp"
-#include "TPS/tps.hpp"
 
-#include <sstream>
+#include <tuttle/plugin/image/ofxToGil.hpp>
 #include <tuttle/common/utils/global.hpp>
+
 #include <ofxsImageEffect.h>
 #include <ofxsMultiThread.h>
+
 #include <boost/gil/gil_all.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -14,6 +15,9 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <cstddef>
 
 namespace tuttle {
 namespace plugin {
@@ -27,46 +31,66 @@ ImageEffect( handle )
 
 	_paramOverlay       = fetchBooleanParam( kParamOverlay );
 
-	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
-	for(int cptIn = 0; cptIn < nbPoints; ++cptIn)
-	{
-		//Conversion de int en string
-		std::ostringstream oss;			//creation du flux
-		oss << cptIn;				//On insere le int dans notre flux
-		std::string resultIn = oss.str();	//On retourne le int en string
-		//Fin de conversion
+	_paramNbPoints       = fetchIntParam( kParamNbPoints );
 
-		_paramPointIn[cptIn] = fetchDouble2DParam( kParamPointIn + resultIn );
+	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
+	for( std::size_t cptIn = 0; cptIn < kMaxNbPoints; ++cptIn )
+	{
+		_paramPointIn[cptIn] = fetchDouble2DParam( kParamPointIn + boost::lexical_cast<std::string>(cptIn) );
 	}
 	_paramOverlayIn      = fetchBooleanParam( kParamOverlayIn );
 	_paramOverlayInColor = fetchRGBParam( kParamOverlayInColor );
 
 	_paramGroupOut        = fetchGroupParam( kParamGroupIn );
-	for(int cptOut = 0; cptOut < nbPoints; ++cptOut)
+	for( std::size_t cptOut = 0; cptOut < kMaxNbPoints; ++cptOut )
 	{
-		//Conversion de int en string
-		std::ostringstream oss;			//creation du flux
-		oss << cptOut;				//On insere le int dans notre flux
-		std::string resultOut = oss.str();	//On retourne le int en string
-		//Fin de conversion
-
-		_paramPointOut[cptOut] = fetchDouble2DParam( kParamPointOut + resultOut );
+		_paramPointOut[cptOut] = fetchDouble2DParam( kParamPointOut + boost::lexical_cast<std::string>(cptOut) );
 	}
 	_paramOverlayOut      = fetchBooleanParam( kParamOverlayOut );
 	_paramOverlayOutColor = fetchRGBParam( kParamOverlayOutColor );
 
-	//morphTPS(_paramPointIn, _paramPointOut);
+	_instanceChangedArgs.time          = 0;
+	_instanceChangedArgs.renderScale.x = 1;
+	_instanceChangedArgs.renderScale.y = 1;
+	_instanceChangedArgs.reason        = OFX::eChangePluginEdit;
+	changedParam( _instanceChangedArgs, kParamNbPoints ); // init IsSecret property for each pair of points parameters
 }
 
 WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
 	WarpProcessParams<Scalar> params;
+	std::size_t size = _paramNbPoints->getValue();
+
+	for( std::size_t i = 0; i < size; ++i )
+	{
+		point2<double> pIn = ofxToGil( _paramPointIn[i]->getValue() );
+		params._inPoints.push_back( pIn );
+		point2<double> pOut = ofxToGil( _paramPointOut[i]->getValue() );
+		params._outPoints.push_back( pOut );
+	}
+
 	return params;
 }
 
 void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
 {
-
+	if( boost::starts_with( paramName, kParamPointIn ) ||
+	    boost::starts_with( paramName, kParamPointOut ) ||
+		paramName == kParamNbPoints )
+	{
+		std::size_t size = _paramNbPoints->getValue();
+		std::size_t i = 0;
+		for(; i < size; ++i )
+		{
+			_paramPointIn[i]->setIsSecretAndDisabled( false );
+			_paramPointOut[i]->setIsSecretAndDisabled( false );
+		}
+		for( ; i < kMaxNbPoints; ++i )
+		{
+			_paramPointIn[i]->setIsSecretAndDisabled( true );
+			_paramPointOut[i]->setIsSecretAndDisabled( true );
+		}
+	}
 }
 
 //bool WarpPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
