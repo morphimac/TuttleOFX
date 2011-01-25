@@ -23,7 +23,7 @@ void WarpProcess<View>::setup( const OFX::RenderArguments& args )
 	ImageGilFilterProcessor<View>::setup( args );
 	_params = _plugin.getProcessParams( args.renderScale );
 
-	morphTPS( _params._inPoints, _params._outPoints );
+	
 }
 
 /**
@@ -62,6 +62,7 @@ void WarpProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW 
 	copy_pixels( src, dst );
 	*/
 
+	morphTPS( _params._inPoints, _params._outPoints );
 }
 
 }

@@ -16,6 +16,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/math/special_functions/pow.hpp>
 
+#include <vector>
+
 namespace tuttle {
 namespace plugin {
 namespace warp {
@@ -28,13 +30,16 @@ double base_func( const double r2 )
 	: r2 * log(r2) * 0.217147241; // = 1/(2*log(10))
 }
 
-void morphTPS( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut )
+void morphTPS( const std::vector< point2<double> > pIn, std::vector< point2<double> > pOut )
 {
 	// Nombre de points d'entrée
 	std::size_t p = pIn.size();
 
 	// Initialisation des matrices
 	using namespace boost::numeric::ublas;
+	typedef	matrix<double> Matrix;
+	typedef matrix_row<Matrix> Matrix_Row;
+	typedef matrix_column<Matrix> Matrix_Col;
 
  	matrix<double> mtx_l(p+3, p+3);
   	matrix<double> mtx_v(p+3, 2);
@@ -54,7 +59,7 @@ void morphTPS( const std::vector< point2<double> > pIn, const std::vector< point
     	// safe and saves us p*p square roots
     	const double a = 0.5;
 
-	/*------------ REMPLISSAGE DES MATRICES -----------*/
+	/*------------ INITIALISATION DES MATRICES -----------*/
 	
 	// Remplit k et une partie de l
 	for (unsigned i=0; i<p; ++i)
@@ -107,29 +112,41 @@ void morphTPS( const std::vector< point2<double> > pIn, const std::vector< point
 	mtx_v(p+0, 1) = mtx_v(p+1, 1) = mtx_v(p+2, 1) = 0.0;
 	
 	// Solve the linear system "inplace"
-	//int sret = lu_solve(mtx_l, mtx_v);
+	//int sret = LU_Solve(mtx_l, mtx_v);
 
-	//lu_factorize( A, P );
-	// Now A and P contain the LU factorization of A
-	//x = b;
-	//lu_substitute( A, P, x );
+	//matrix<double> inverse(p+3, p+3);
+	permutation_matrix<double> P(p+3);
+	matrix<double> x(p+3, 2);
 
-	/*assert( sret != 2 );
-	if (sret == 1)
-	{
-	      puts( "Singular matrix! Aborting." );
-		exit(1);
-	}*/
+	lu_factorize(mtx_l, P);
+	x = mtx_v;
+	lu_substitute(mtx_l, P, x);
+
+	/*------------ FIN ITIALISATION DES MATRICES -----------*/	
 
 	// Boucle qui parcourt la liste de points
-/*	for ( std::vector<Point>::iterator ite=pts.begin(), end=pts.end(); ite != end; ++ite ){
-
+	for ( std::vector< point2<double> >::iterator ite=pOut.begin(), end=pOut.end(); ite != end; ++ite ){
 		double x = ite->x, y=ite->y;
+
+		std::cout<<"Ite x-> "<<ite->x<<"et y-> "<<ite->y<<std::endl;
+
       		double dx = mtx_v(m+0, 0) + mtx_v(m+1, 0)*x + mtx_v(m+2, 0)*y;
       		double dy = mtx_v(m+0, 1) + mtx_v(m+1, 1)*x + mtx_v(m+2, 1)*y;
-
-
-	}*/
+	
+		std::vector< point2<double> >::iterator ite2 = pOut.begin();
+      		Matrix_Col cv0(mtx_v,0), cv1(mtx_v,1);
+      		Matrix_Col::const_iterator cv0_ite(cv0.begin()), cv1_ite(cv1.begin());
+      		for ( unsigned i=0; i<m; ++i, ++ite2, ++cv0_ite, ++cv1_ite )
+      		{
+        		double d = base_func( boost::math::pow<2>(ite2->x - x) + boost::math::pow<2>(ite2->y - y) );
+        		dx += (*cv0_ite) * d;
+        		dy += (*cv1_ite) * d;
+      		}
+		
+      		ite->x += dx;
+      		ite->y += dy;
+		std::cout<<"AFTER Ite x-> "<<ite->x<<"et y-> "<<ite->y<<std::endl;
+	}
 }
 
 }

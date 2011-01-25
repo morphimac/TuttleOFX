@@ -14,7 +14,7 @@ namespace warp {
 
 using namespace boost::gil;
 
-void morphTPS( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut );
+void morphTPS( const std::vector< point2<double> > pIn, std::vector< point2<double> > pOut );
 
 }
 }
