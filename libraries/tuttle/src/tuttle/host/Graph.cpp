@@ -99,7 +99,7 @@ void Graph::addToGraph( Node& node )
 {
 	Vertex v( node.getName(), node );
 
-	COUT_DEBUG( node.getName() );
+	TUTTLE_COUT_DEBUG( node.getName() );
 
 	_graph.addVertex( v );
 }
@@ -194,9 +194,7 @@ memory::MemoryCache Graph::compute( const std::list<std::string>& nodes, const i
 	graph::exportAsDOT( "graph.dot", _graph );
 #endif
 	
-	COUT( "ProcessGraph constructor" );
 	graph::ProcessGraph process( *this, nodes );
-	COUT( "ProcessGraph process" );
 	return process.process( tBegin, tEnd );
 }
 

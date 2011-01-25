@@ -2,6 +2,7 @@
 #include "ImageMagickWriterPlugin.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
+#include <tuttle/plugin/image/gil/clamp.hpp>
 #include <tuttle/plugin/exceptions.hpp>
 
 #include <ofxsImageEffect.h>
@@ -45,7 +46,7 @@ void ImageMagickWriterProcess<View>::multiThreadProcessImages( const OfxRectI& p
 	catch( exception::Common& e )
 	{
 		e << exception::filename( params._filepath );
-		COUT_ERROR( boost::diagnostic_information( e ) );
+		TUTTLE_COUT_ERROR( boost::diagnostic_information( e ) );
 		//		throw;
 	}
 	catch(... )
@@ -53,7 +54,7 @@ void ImageMagickWriterProcess<View>::multiThreadProcessImages( const OfxRectI& p
 		//		BOOST_THROW_EXCEPTION( exception::Unknown()
 		//			<< exception::user( "Unable to write image")
 		//			<< exception::filename(params._filepath) );
-		COUT_ERROR( boost::current_exception_diagnostic_information() );
+		TUTTLE_COUT_ERROR( boost::current_exception_diagnostic_information() );
 	}
 	copy_pixels( this->_srcView, this->_dstView );
 }
@@ -70,12 +71,12 @@ void ImageMagickWriterProcess<View>::writeImage( View& src, const std::string& f
 	//	if( params._premult )
 	//	{
 	//		typedef pixel<Bits, rgb_layout_t> OutPixelType;
-	//		imagemagick_write_view( filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp<OutPixelType>( src ) ) ), params._quality );
+	//		imagemagick_write_view( filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp_view( src ) ) ), params._quality );
 	//	}
 	//	else
 	//	{
 	//		typedef pixel<Bits, layout<typename color_space_type<View>::type> > OutPixelType;
-	//		imagemagick_write_view( filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp<OutPixelType>( src ) ) ) );
+	//		imagemagick_write_view( filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp_view( src ) ) ) );
 	//	}
 }
 

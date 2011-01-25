@@ -74,7 +74,7 @@ OfxStatus paramGetHandle( OfxParamSetHandle     paramSet,
 		}
 
 		OfxhParamSetDescriptor* setDescriptor = dynamic_cast<OfxhParamSetDescriptor*>( baseSet );
-		if( !setDescriptor )
+		if( setDescriptor )
 		{
 			const std::map<std::string, OfxhParamDescriptor*>& params      = setDescriptor->getParams();
 			std::map<std::string, OfxhParamDescriptor*>::const_iterator it = params.find( name );
@@ -97,7 +97,7 @@ OfxStatus paramGetHandle( OfxParamSetHandle     paramSet,
 	}
 	catch( OfxhException& e )
 	{
-		COUT_EXCEPTION( e );
+		TUTTLE_COUT_EXCEPTION( e );
 		return e.getStatus();
 	}
 	catch(... )

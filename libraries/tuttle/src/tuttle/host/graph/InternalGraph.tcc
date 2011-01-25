@@ -1,5 +1,7 @@
 #include "GraphExporter.hpp"
 
+#include <boost/graph/graphviz.hpp>
+
 namespace tuttle {
 namespace host {
 namespace graph {
@@ -97,7 +99,7 @@ std::size_t InternalGraph<VERTEX, EDGE, OutEdgeList, VertexList, EdgeList>::remo
 	}
 	BOOST_FOREACH( const std::string & vs, toRemove )
 	{
-		//TCOUT( "removeVertex: " << vs );
+		//TUTTLE_TCOUT( "removeVertex: " << vs );
 		this->removeVertex( getVertexDescriptor( vs ) );
 	}
 

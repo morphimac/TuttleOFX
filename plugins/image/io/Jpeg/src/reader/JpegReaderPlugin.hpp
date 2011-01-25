@@ -1,5 +1,5 @@
-#ifndef _JPEG_READER_PLUGIN_HPP_
-#define _JPEG_READER_PLUGIN_HPP_
+#ifndef _TUTTLE_PLUGIN_JPEG_READER_PLUGIN_HPP_
+#define _TUTTLE_PLUGIN_JPEG_READER_PLUGIN_HPP_
 
 #include <tuttle/plugin/context/ReaderPlugin.hpp>
 
@@ -11,6 +11,7 @@ namespace reader {
 struct JpegReaderProcessParams
 {
 	std::string _filepath;       ///< filepath
+	bool _flip;
 };
 
 /**
@@ -24,10 +25,12 @@ public:
 
 public:
 	JpegReaderProcessParams getProcessParams( const OfxTime time );
-	void                    render( const OFX::RenderArguments& args );
-	void                    changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName );
-	bool                    getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod );
-	void                    getClipPreferences( OFX::ClipPreferencesSetter& clipPreferences );
+	
+	void changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName );
+	bool getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod );
+	void getClipPreferences( OFX::ClipPreferencesSetter& clipPreferences );
+	
+	void render( const OFX::RenderArguments& args );
 };
 
 }

@@ -52,7 +52,9 @@
 #include <ofxTimeLine.h>
 
 #include <map>
+#include <vector>
 #include <string>
+#include <algorithm>
 #include <sstream>
 
 /** @brief Nasty macro used to define empty protected copy ctors and assign ops */
@@ -77,6 +79,8 @@ OfxStatus mainEntryStr( const char*          actionRaw,
  */
 namespace OFX {
 /** forward class declarations */
+struct tag_ofxStatus;
+
 class ClipDescriptor;
 class ImageEffectDescriptor;
 
@@ -118,6 +122,7 @@ enum EPixelComponent
 {
 	ePixelComponentNone,
 	ePixelComponentRGBA,
+	ePixelComponentRGB,
 	ePixelComponentAlpha,
 	ePixelComponentCustom ///< some non standard pixel type
 };
@@ -270,6 +275,8 @@ public:
 	bool supportsChoiceAnimation;
 	bool supportsBooleanAnimation;
 	bool supportsCustomAnimation;
+	bool supportsParametricParameter;
+	bool supportsCameraParameter;
 	int maxParameters;
 	int maxPages;
 	int pageRowCount;
@@ -283,8 +290,12 @@ public:
 	bool supportsProgressSuite;
 	bool supportsTimeLineSuite;
 public:
+	bool supportsPixelComponent( const OFX::EPixelComponent component ) const
+	{
+		return std::find( _supportedComponents.begin(), _supportedComponents.end(), component ) != _supportedComponents.end();
+	}
 	/** @return the pixel depth used by host application, if it doesn't support multiple clip depth. */
-	EBitDepth getPixelDepth()
+	EBitDepth getPixelDepth() const
 	{
 		if( _supportedPixelDepths.size() == 1 )
 		{
@@ -292,7 +303,7 @@ public:
 		}
 		else
 		{
-			COUT_WARNING("The host doesn't support multiple clip depths, but didn't define supported pixel depth. (size: " << _supportedPixelDepths.size() << ")" );
+			TUTTLE_COUT_WARNING("The host doesn't support multiple clip depths, but didn't define supported pixel depth. (size: " << _supportedPixelDepths.size() << ")" );
 			return eBitDepthFloat;
 		}
 	}
@@ -397,6 +408,8 @@ public:
 	/** @brief, set the label properties in a plugin */
 	void setLabels( const std::string& label, const std::string& shortLabel, const std::string& longLabel );
 	void setLabel( const std::string& label ) { setLabels(label, label, label); }
+
+	void setDescription( const std::string& description );
 
 	/** @brief Set the plugin grouping, defaults to "" */
 	void setPluginGrouping( const std::string& group );

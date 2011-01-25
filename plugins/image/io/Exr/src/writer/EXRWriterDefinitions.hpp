@@ -1,7 +1,7 @@
 #ifndef EXRWRITER_DEFINITIONS_HPP
 #define EXRWRITER_DEFINITIONS_HPP
 
-#include <tuttle/common/utils/global.hpp>
+#include <tuttle/plugin/global.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -18,9 +18,6 @@ enum EParamBitDepth
 };
 
 static const std::string kParamComponentsType = "compType";
-
-const static std::string kEXRWriterHelpButton = "Help";
-const static std::string kEXRWriterHelpString = "<b>EXR File writer</b> plugin is used to write exr files.<br />";
 
 }
 }

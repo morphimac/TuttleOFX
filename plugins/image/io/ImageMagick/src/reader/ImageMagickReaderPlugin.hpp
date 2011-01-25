@@ -1,5 +1,5 @@
-#ifndef _IMAGEMAGICK_READER_PLUGIN_HPP_
-#define _IMAGEMAGICK_READER_PLUGIN_HPP_
+#ifndef _TUTTLE_PLUGIN_IMAGEMAGICK_READER_PLUGIN_HPP_
+#define _TUTTLE_PLUGIN_IMAGEMAGICK_READER_PLUGIN_HPP_
 
 #include <tuttle/plugin/context/ReaderPlugin.hpp>
 
@@ -11,6 +11,7 @@ namespace reader {
 struct ImageMagickReaderProcessParams
 {
 	std::string _filepath;       ///< filepath
+	bool _flip;
 };
 
 /**

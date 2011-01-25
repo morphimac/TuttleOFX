@@ -2,11 +2,6 @@
 #include "RawReaderProcess.hpp"
 #include "RawReaderDefinitions.hpp"
 
-#include <tuttle/plugin/context/ReaderPlugin.hpp>
-
-#include <ofxsImageEffect.h>
-#include <ofxsMultiThread.h>
-
 #include <libraw/libraw.h>
 
 #include <boost/gil/gil_all.hpp>
@@ -32,89 +27,14 @@ RawReaderProcessParams RawReaderPlugin::getProcessParams( const OfxTime time )
 
 	params._filepath  = getAbsoluteFilenameAt( time );
 	params._filtering = static_cast<EFiltering>( _paramFiltering->getValue() );
+	params._flip      = _paramFlip->getValue();
+
 	return params;
-}
-
-/**
- * @brief The overridden render function
- * @param[in]   args     Rendering parameters
- */
-void RawReaderPlugin::render( const OFX::RenderArguments& args )
-{
-	// instantiate the render code based on the pixel depth of the dst clip
-	OFX::EBitDepth dstBitDepth         = this->_clipDst->getPixelDepth();
-	OFX::EPixelComponent dstComponents = this->_clipDst->getPixelComponents();
-
-	// do the rendering
-	if( dstComponents == OFX::ePixelComponentRGBA )
-	{
-		switch( dstBitDepth )
-		{
-			case OFX::eBitDepthUByte:
-			{
-				RawReaderProcess<rgba8_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthUShort:
-			{
-				RawReaderProcess<rgba16_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthFloat:
-			{
-				RawReaderProcess<rgba32f_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthNone:
-				COUT_FATALERROR( "BitDepthNone not recognize." );
-				return;
-			case OFX::eBitDepthCustom:
-				COUT_FATALERROR( "BitDepthCustom not recognize." );
-				return;
-		}
-	}
-	else if( dstComponents == OFX::ePixelComponentAlpha )
-	{
-		switch( dstBitDepth )
-		{
-			case OFX::eBitDepthUByte:
-			{
-				RawReaderProcess<gray8_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthUShort:
-			{
-				RawReaderProcess<gray16_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthFloat:
-			{
-				RawReaderProcess<gray32f_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthNone:
-				COUT_FATALERROR( "BitDepthNone not recognize." );
-				return;
-			case OFX::eBitDepthCustom:
-				COUT_FATALERROR( "BitDepthCustom not recognize." );
-				return;
-		}
-	}
-	else
-	{
-		COUT_FATALERROR( dstComponents << " not recognize." );
-	}
 }
 
 void RawReaderPlugin::updateInfos()
 {
-	COUT( "updateInfos begin" );
+	TUTTLE_COUT( "updateInfos begin" );
 	RawReaderProcessParams params = getProcessParams( this->timeLineGetBounds().min );
 
 	LibRaw rawProcessor;
@@ -127,12 +47,12 @@ void RawReaderPlugin::updateInfos()
 
 	if( const int ret = rawProcessor.open_file( params._filepath.c_str() ) )
 	{
-		COUT_ERROR( "Cannot open \"" << params._filepath << "\": " << libraw_strerror( ret ) );
+		TUTTLE_COUT_ERROR( "Cannot open \"" << params._filepath << "\": " << libraw_strerror( ret ) );
 		return;
 	}
 	if( const int ret = rawProcessor.adjust_sizes_info_only() )
 	{
-		COUT_ERROR( "Cannot decode infos \"" << params._filepath << "\": " << libraw_strerror( ret ) );
+		TUTTLE_COUT_ERROR( "Cannot decode infos \"" << params._filepath << "\": " << libraw_strerror( ret ) );
 		return;
 	}
 
@@ -209,20 +129,14 @@ void RawReaderPlugin::updateInfos()
 
 void RawReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName )
 {
-	if( paramName == kRawReaderHelpButton )
-	{
-		sendMessage( OFX::Message::eMessageMessage,
-		             "", // No XML resources
-		             kRawReaderHelpString );
-	}
-	//	else if( paramName == kRawReaderUpdateInfosButton )
-	//	{
-	//		updateInfos();
-	//	}
-	else
-	{
-		ReaderPlugin::changedParam( args, paramName );
-	}
+//	else if( paramName == kRawReaderUpdateInfosButton )
+//	{
+//		updateInfos();
+//	}
+//	else
+//	{
+	ReaderPlugin::changedParam( args, paramName );
+//	}
 }
 
 bool RawReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
@@ -238,18 +152,18 @@ bool RawReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArgume
 
 	if( const int ret = rawProcessor.open_file( params._filepath.c_str() ) )
 	{
-		COUT_ERROR( "Cannot open \"" << params._filepath << "\": " << libraw_strerror( ret ) );
+		TUTTLE_COUT_ERROR( "Cannot open \"" << params._filepath << "\": " << libraw_strerror( ret ) );
 		return false;
 	}
 	if( const int ret = rawProcessor.adjust_sizes_info_only() )
 	{
-		COUT_ERROR( "Cannot decode infos \"" << params._filepath << "\": " << libraw_strerror( ret ) );
+		TUTTLE_COUT_ERROR( "Cannot decode infos \"" << params._filepath << "\": " << libraw_strerror( ret ) );
 		return false;
 	}
 
 	//	point2<ptrdiff_t> dims( sizes.raw_width, sizes.raw_height );
 	point2<ptrdiff_t> dims( sizes.width, sizes.height );
-	COUT_VAR( dims );
+	TUTTLE_COUT_VAR( dims );
 	rod.x1 = 0;
 	rod.x2 = dims.x * this->_clipDst->getPixelAspectRatio();
 	rod.y1 = 0;
@@ -260,19 +174,10 @@ bool RawReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArgume
 void RawReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPreferences )
 {
 	ReaderPlugin::getClipPreferences( clipPreferences );
-	const std::string filename( getAbsoluteFirstFilename() );
-
-	if( !bfs::exists( filename ) )
-	{
-		BOOST_THROW_EXCEPTION( exception::File()
-		    << exception::user( "No input file." )
-		    << exception::filename( filename )
-		                       );
-	}
-
+//	const std::string filename( getAbsoluteFirstFilename() );
 	switch( getExplicitConversion() )
 	{
-		case eReaderParamExplicitConversionAuto:
+		case eParamReaderExplicitConversionAuto:
 		{
 			OFX::EBitDepth bd = OFX::eBitDepthNone;
 			int bitDepth      = 32;    //raw_read_precision( filename );
@@ -284,24 +189,26 @@ void RawReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPrefer
 				case 16:
 					bd = OFX::eBitDepthUShort;
 					break;
-				default:
-					BOOST_THROW_EXCEPTION( OFX::Exception::Suite( kOfxStatErrImageFormat ) );
+				case 32:
+					bd = OFX::eBitDepthFloat;
 					break;
+				default:
+					BOOST_THROW_EXCEPTION( exception::ImageFormat() );
 			}
 			clipPreferences.setClipBitDepth( *this->_clipDst, bd );
 			break;
 		}
-		case eReaderParamExplicitConversionByte:
+		case eParamReaderExplicitConversionByte:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUByte );
 			break;
 		}
-		case eReaderParamExplicitConversionShort:
+		case eParamReaderExplicitConversionShort:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUShort );
 			break;
 		}
-		case eReaderParamExplicitConversionFloat:
+		case eParamReaderExplicitConversionFloat:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthFloat );
 			break;
@@ -309,6 +216,16 @@ void RawReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPrefer
 	}
 	clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentRGBA );
 	clipPreferences.setPixelAspectRatio( *this->_clipDst, 1.0 );
+}
+
+/**
+ * @brief The overridden render function
+ * @param[in]   args     Rendering parameters
+ */
+void RawReaderPlugin::render( const OFX::RenderArguments& args )
+{
+	ReaderPlugin::render( args );
+	doGilRender<RawReaderProcess>( *this, args );
 }
 
 }

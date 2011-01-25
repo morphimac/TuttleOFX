@@ -78,6 +78,12 @@ private:
 }
 #endif
 
+namespace OFX {
+struct tag_ofxStatus;
+typedef ::boost::error_info<OFX::tag_ofxStatus, ::OfxStatus> ofxStatus;
+inline std::string to_string( const ofxStatus& e ) { return ::tuttle::ofx::mapStatusToString( e.value() ); }
+}
+
 namespace tuttle {
 
 /**
@@ -109,6 +115,7 @@ namespace exception {
  * @remark User information.
  */
 typedef ::boost::error_info<struct tag_userMessage, ::boost::error_info_sstream> user;
+
 /**
  * @brief This is detailed informations for developpers.
  * Not always a real human readable message :)
@@ -117,12 +124,12 @@ typedef ::boost::error_info<struct tag_userMessage, ::boost::error_info_sstream>
 //typedef ::boost::error_info<struct tag_message,std::string> dev;
 typedef ::boost::error_info<struct tag_devMessage, ::boost::error_info_sstream> dev;
 //typedef ::boost::error_info_sstream<struct tag_message> dev;
+
 /**
  * @brief The ofx error status code.
  * @remark Dev information.
  */
-typedef ::boost::error_info<struct tag_ofxStatus, ::OfxStatus> ofxStatus;
-inline std::string to_string( const ofxStatus& e ) { return ofx::mapStatusToString( e.value() ); }
+typedef ::OFX::ofxStatus ofxStatus;
 
 /**
  * @brief The ofx context name.
@@ -174,7 +181,13 @@ struct Common : virtual public ::std::exception
  * @brief You have to specify the exception::ofxStatus(kOfxStatXXX) yourself.
  * When you call a base level function (C API) which returns an ofxStatus, you can use this exception and fill it with the returned value using ofxStatus tag.
  */
-struct OfxCustom : virtual public Common {};
+struct OfxCustom : virtual public Common
+{
+	OfxCustom( const OfxStatus status )
+	{
+		*this << ofxStatus( status );
+	}
+};
 
 /** @brief Status error code for a failed operation */
 struct Failed : virtual public Common
@@ -221,7 +234,11 @@ struct MissingHostFeature : virtual Common
 	{
 		* this << ofxStatus( kOfxStatErrMissingHostFeature );
 	}
-
+	MissingHostFeature( const std::string& feature )
+	{
+		* this << ofxStatus( kOfxStatErrMissingHostFeature );
+		* this << user() + "Missing feature: " + quotes(feature);
+	}
 };
 
 /** @brief Status error code for an unsupported feature/operation */
@@ -379,7 +396,54 @@ struct Data : virtual public Value {};
  * @brief File manipulation error.
  * eg. read only, file doesn't exists, etc.
  */
-struct File : virtual public Value {};
+struct File : virtual public Value
+{
+	File()
+	{}
+	File( const std::string path )
+	{
+		*this << filename(path);
+	}
+};
+
+/**
+ * @brief File doesn't exists.
+ */
+struct FileNotExist : virtual public File
+{
+	FileNotExist()
+	{}
+	FileNotExist( const std::string path )
+	{
+		*this << filename(path);
+	}
+};
+
+/**
+ * @brief Directory doesn't exists.
+ */
+struct NoDirectory : virtual public File
+{
+	NoDirectory()
+	{}
+	NoDirectory( const std::string path )
+	{
+		*this << filename(path);
+	}
+};
+
+/**
+ * @brief Read only file.
+ */
+struct ReadOnlyFile : virtual public File
+{
+	ReadOnlyFile()
+	{}
+	ReadOnlyFile( const std::string path )
+	{
+		*this << filename(path);
+	}
+};
 /// @}
 
 }
