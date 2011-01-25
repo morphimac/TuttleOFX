@@ -29,18 +29,29 @@ class WarpPlugin : public OFX::ImageEffect
 public:
 	typedef float Scalar;
 public:
-    	WarpPlugin( OfxImageEffectHandle handle );
+    WarpPlugin( OfxImageEffectHandle handle );
 
 public:
 	WarpProcessParams<Scalar> getProcessParams( const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
 
-	void changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName );
+    void changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName );
+
 
 //	bool getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod );
 //	void getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois );
 	bool isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime );
 
-	void render( const OFX::RenderArguments &args );
+    void render( const OFX::RenderArguments &args );
+	
+	
+public:
+    // do not need to delete these, the ImageEffect is managing them for us
+    OFX::Clip* _clipSrc; ///< Source image clip
+    OFX::Clip* _clipDst; ///< Destination image clip
+
+	OFX::BooleanParam*  _paramOverlay;
+
+    	void render( const OFX::RenderArguments &args );
 	
 public:
 	OFX::Clip* _clipSrc; ///< Source image clip
