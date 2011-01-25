@@ -26,7 +26,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
 	_effect = effect;
 	_plugin = static_cast<WarpPlugin*>( _effect );
 
-	for(int cptOut = 0; cptOut < nbPoints; ++cptOut)
+	for( std::size_t cptOut = 0; cptOut < kMaxNbPoints; ++cptOut )
 	{
 		_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut[cptOut], _plugin->_clipSrc ),
 					  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ),
@@ -36,7 +36,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	for(int cptIn = 0; cptIn < nbPoints; ++cptIn)
+	for(int cptIn = 0; cptIn < kMaxNbPoints; ++cptIn)
 	{
 		_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn[cptIn], _plugin->_clipSrc ),
 					  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ),
