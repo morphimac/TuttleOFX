@@ -23,8 +23,8 @@ static const bool kSupportTiles = false;
 void PinningPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
 	desc.setLabels( "TuttlePinning", "Pinning",
-				 "Pinning" );
-	desc.setPluginGrouping( "tuttle" );
+			"Pinning" );
+	desc.setPluginGrouping( "tuttle/image/process/geometry" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextFilter );
@@ -47,7 +47,7 @@ void PinningPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
  * @param[in]        context    Application context
  */
 void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
-													  OFX::EContext context )
+                                              OFX::EContext context )
 {
 	OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
 	srcClip->addSupportedComponent( OFX::ePixelComponentRGBA );
