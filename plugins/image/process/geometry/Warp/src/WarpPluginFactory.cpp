@@ -40,6 +40,9 @@ void WarpPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 
 	// plugin flags
 	desc.setSupportsTiles( kSupportTiles );
+
+        desc.setOverlayInteractDescriptor( new OFX::DefaultEffectOverlayWrap<WarpEffectOverlayDescriptor > ( ) );
+
 }
 
 /**

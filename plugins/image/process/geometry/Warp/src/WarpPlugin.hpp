@@ -43,16 +43,7 @@ public:
 
     void render( const OFX::RenderArguments &args );
 	
-	
-public:
-    // do not need to delete these, the ImageEffect is managing them for us
-    OFX::Clip* _clipSrc; ///< Source image clip
-    OFX::Clip* _clipDst; ///< Destination image clip
 
-	OFX::BooleanParam*  _paramOverlay;
-
-    	void render( const OFX::RenderArguments &args );
-	
 public:
 	OFX::Clip* _clipSrc; ///< Source image clip
    	OFX::Clip* _clipDst; ///< Destination image clip

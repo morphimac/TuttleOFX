@@ -30,6 +30,7 @@ public:
 	bool penDown( const OFX::PenArgs& args );
 	bool penUp( const OFX::PenArgs& args );
 	bool penMotion( const OFX::PenArgs& args );
+        bool keyDown( const OFX::KeyArgs& args );
 };
 
 class WarpEffectOverlayDescriptor : public OFX::EffectOverlayDescriptor
