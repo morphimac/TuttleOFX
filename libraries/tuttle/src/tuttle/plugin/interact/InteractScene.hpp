@@ -39,8 +39,11 @@ private:
 	IsActiveFunctorVector _isActive;
 	ColorVector _colors;
 	InteractObjectsVectorLink _selected;
-	EMoveType _moveType;
-	bool _mouseDown;
+        EMoveType _moveType;
+        bool _mouseDown;
+
+        EMoveType _keyType;
+        bool _keyDown;
 
 public:
 	InteractObjectsVector&       getObjects()       { return _objects; }
@@ -60,6 +63,8 @@ public:
 	bool penDown( const OFX::PenArgs& args );
 
 	bool penUp( const OFX::PenArgs& args );
+
+        bool keyDown( const OFX::KeyArgs& args );
 };
 
 }

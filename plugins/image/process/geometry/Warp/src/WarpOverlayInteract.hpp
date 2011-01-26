@@ -27,7 +27,7 @@ public:
 	WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
 
 	bool draw( const OFX::DrawArgs& args );
-	bool penDown( const OFX::PenArgs& args );
+        bool penDown( const OFX::PenArgs& args );
 	bool penUp( const OFX::PenArgs& args );
 	bool penMotion( const OFX::PenArgs& args );
         bool keyDown( const OFX::KeyArgs& args );
