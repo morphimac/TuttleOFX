@@ -1,7 +1,7 @@
 #ifndef _DPXWRITER_DEFINITIONS_HPP_
 #define _DPXWRITER_DEFINITIONS_HPP_
 
-#include <tuttle/common/utils/global.hpp>
+#include <tuttle/plugin/global.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -19,9 +19,6 @@ enum EParamBitDepth
 
 static const std::string kParamComponentsType = "componentsType";
 static const std::string kParamCompressed     = "compressed";
-
-const static std::string kDPXWriterHelpButton = "Help";
-const static std::string kDPXWriterHelpString = "<b>DPX File writer</b> plugin is used to output dpx files.  <br />";
 
 }
 }

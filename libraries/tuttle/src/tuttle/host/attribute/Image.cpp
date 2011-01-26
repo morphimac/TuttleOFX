@@ -20,6 +20,7 @@ Image::Image( ClipImage& clip, const OfxRectD& bounds, const OfxTime time )
 	: ofx::imageEffect::OfxhImage( clip ) ///< this ctor will set basic props on the image
 	, _memlen(0)
 	, _rowlen(0)
+	, _fullname(clip.getFullName())
 {
 	_ncomp = 0;
 	// Set rod in canonical & pixel coord.
@@ -35,6 +36,10 @@ Image::Image( ClipImage& clip, const OfxRectD& bounds, const OfxTime time )
 	if( clip.getComponentsString() == kOfxImageComponentRGBA )
 	{
 		_ncomp = 4;
+	}
+	else if( clip.getComponentsString() == kOfxImageComponentRGB )
+	{
+		_ncomp = 3;
 	}
 	else if( clip.getComponentsString() == kOfxImageComponentAlpha )
 	{
@@ -89,7 +94,9 @@ Image::Image( ClipImage& clip, const OfxRectD& bounds, const OfxTime time )
 }
 
 Image::~Image()
-{}
+{
+	TUTTLE_TCOUT_VAR( getFullName() );
+}
 
 boost::uint8_t* Image::pixel( int x, int y )
 {

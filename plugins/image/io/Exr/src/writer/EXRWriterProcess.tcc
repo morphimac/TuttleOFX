@@ -1,9 +1,10 @@
 #include "EXRWriterDefinitions.hpp"
 #include "EXRWriterProcess.hpp"
+#include "EXRWriterPlugin.hpp"
+#include "../half/gilHalf.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
-#include "../half/gilHalf.hpp"
-#include "EXRWriterPlugin.hpp"
+#include <tuttle/plugin/image/gil/clamp.hpp>
 #include <tuttle/plugin/ImageGilProcessor.hpp>
 #include <tuttle/plugin/exceptions.hpp>
 
@@ -34,6 +35,14 @@ EXRWriterProcess<View>::EXRWriterProcess( EXRWriterPlugin& instance )
 	this->setNoMultiThreading();
 }
 
+template<class View>
+void EXRWriterProcess<View>::setup( const OFX::RenderArguments& args )
+{
+	using namespace boost::gil;
+	ImageGilProcessor<View>::setup( args );
+	_params = _plugin.getProcessParams( args.time );
+}
+
 /**
  * @brief Function called by rendering thread each time a process must be done.
  * @param[in] procWindowRoW  Processing window in RoW
@@ -44,30 +53,36 @@ void EXRWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 	// no tiles and no multithreading supported
 	BOOST_ASSERT( ( procWindowRoW == this->_dstPixelRod ) );
 	BOOST_ASSERT( ( this->_srcPixelRod == this->_dstPixelRod ) );
-	EXRWriterProcessParams params = _plugin.getProcessParams( this->_renderArgs.time );
+	
+	View src = this->_srcView;
+	if( _params._flip )
+	{
+		src = flipped_up_down_view( this->_srcView );
+	}
+
 	try
 	{
-		switch( params._bitDepth )
+		switch( _params._bitDepth )
 		{
 			case eParamBitDepth16f:
 			{
-				switch( params._componentsType )
+				switch( _params._componentsType )
 				{
 					case eGray:
 					{
 						BOOST_THROW_EXCEPTION( exception::Unsupported()
 						    << exception::user( "ExrWriter: Gray not supported!" ) );
-						// writeImage<gray16h_pixel_t>(this->_srcView, filepath, Imf::HALF);
+						// writeImage<gray16h_pixel_t>(src, filepath, Imf::HALF);
 						break;
 					}
 					case eRGB:
 					{
-						writeImage<rgb16h_pixel_t>( this->_srcView, params._filepath, Imf::HALF );
+						writeImage<rgb16h_pixel_t>( src, _params._filepath, Imf::HALF );
 						break;
 					}
 					case eRGBA:
 					{
-						writeImage<rgba16h_pixel_t>( this->_srcView, params._filepath, Imf::HALF );
+						writeImage<rgba16h_pixel_t>( src, _params._filepath, Imf::HALF );
 						break;
 					}
 				}
@@ -75,23 +90,23 @@ void EXRWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 			}
 			case eParamBitDepth32f:
 			{
-				switch( params._componentsType )
+				switch( _params._componentsType )
 				{
 					case eGray:
 					{
 						BOOST_THROW_EXCEPTION( exception::Unsupported()
 						    << exception::user( "ExrWriter: Gray not supported!" ) );
-						// writeImage<gray32f_pixel_t>(this->_srcView, filepath, Imf::FLOAT);
+						// writeImage<gray32f_pixel_t>(src, _params._filepath, Imf::FLOAT);
 						break;
 					}
 					case eRGB:
 					{
-						writeImage<rgb32f_pixel_t>( this->_srcView, params._filepath, Imf::FLOAT );
+						writeImage<rgb32f_pixel_t>( src, _params._filepath, Imf::FLOAT );
 						break;
 					}
 					case eRGBA:
 					{
-						writeImage<rgba32f_pixel_t>( this->_srcView, params._filepath, Imf::FLOAT );
+						writeImage<rgba32f_pixel_t>( src, _params._filepath, Imf::FLOAT );
 						break;
 					}
 				}
@@ -99,23 +114,23 @@ void EXRWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 			}
 			case eParamBitDepth32:
 			{
-				switch( params._componentsType )
+				switch( _params._componentsType )
 				{
 					case eGray:
 					{
 						BOOST_THROW_EXCEPTION( exception::Unsupported()
 						    << exception::user( "ExrWriter: Gray not supported!" ) );
-						// writeImage<gray32_pixel_t>(this->_srcView, filepath, Imf::FLOAT);
+						// writeImage<gray32_pixel_t>(src, _params._filepath, Imf::FLOAT);
 						break;
 					}
 					case eRGB:
 					{
-						writeImage<rgb32_pixel_t>( this->_srcView, params._filepath, Imf::UINT );
+						writeImage<rgb32_pixel_t>( src, _params._filepath, Imf::UINT );
 						break;
 					}
 					case eRGBA:
 					{
-						writeImage<rgba32_pixel_t>( this->_srcView, params._filepath, Imf::UINT );
+						writeImage<rgba32_pixel_t>( src, _params._filepath, Imf::UINT );
 						break;
 					}
 				}
@@ -125,8 +140,8 @@ void EXRWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 	}
 	catch( exception::Common& e )
 	{
-		e << exception::filename( params._filepath );
-		COUT_ERROR( boost::diagnostic_information( e ) );
+		e << exception::filename( _params._filepath );
+		TUTTLE_COUT_ERROR( boost::diagnostic_information( e ) );
 		//		throw;
 	}
 	catch(... )
@@ -134,7 +149,7 @@ void EXRWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWindo
 		//		BOOST_THROW_EXCEPTION( exception::Unknown()
 		//			<< exception::user( "Unable to write image")
 		//			<< exception::filename(params._filepath) );
-		COUT_ERROR( boost::current_exception_diagnostic_information() );
+		TUTTLE_COUT_ERROR( boost::current_exception_diagnostic_information() );
 	}
 	// @todo: This is sometimes not neccessary... Checkbox it.
 	copy_and_convert_pixels( this->_srcView, this->_dstView );
@@ -151,7 +166,7 @@ void EXRWriterProcess<View>::writeImage( View& src, std::string& filepath, Imf::
 	image_t img( src.width(), src.height() );
 	view_t dvw( view( img ) );
 	View flippedView = flipped_up_down_view( src );
-	copy_and_convert_pixels( clamp<WPixel>( flippedView ), dvw );
+	copy_and_convert_pixels( clamp_view( flippedView ), dvw );
 	Imf::Header header( src.width(), src.height() );
 	switch( pixType )
 	{

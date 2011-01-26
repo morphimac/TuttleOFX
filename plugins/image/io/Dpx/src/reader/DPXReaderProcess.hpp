@@ -1,11 +1,9 @@
-#ifndef _DPX_READER_PROCESS_HPP_
-#define _DPX_READER_PROCESS_HPP_
+#ifndef _TUTTLE_PLUGIN_DPX_READER_PROCESS_HPP_
+#define _TUTTLE_PLUGIN_DPX_READER_PROCESS_HPP_
 
 #include <dpxEngine/dpxImage.hpp>
 
-#include <tuttle/common/utils/global.hpp>
 #include <tuttle/plugin/ImageGilProcessor.hpp>
-#include <tuttle/plugin/exceptions.hpp>
 
 #include <ofxsImageEffect.h>
 #include <ofxsMultiThread.h>
@@ -41,6 +39,8 @@ protected:
 
 protected:
 	DPXReaderPlugin&    _plugin;        ///< Rendering plugin
+	DPXReaderProcessParams _params;
+	
 	tuttle::io::DpxImage _dpxImage;
 
 };

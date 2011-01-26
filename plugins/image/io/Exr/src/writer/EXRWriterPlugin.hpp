@@ -1,8 +1,8 @@
-#ifndef EXRWRITER_PLUGIN_H
-#define EXRWRITER_PLUGIN_H
+#ifndef _TUTTLE_PLUGIN_EXRWRITER_PLUGIN_HPP_
+#define _TUTTLE_PLUGIN_EXRWRITER_PLUGIN_HPP_
 
-#include <tuttle/plugin/context/WriterPlugin.hpp>
 #include "EXRWriterDefinitions.hpp"
+#include <tuttle/plugin/context/WriterPlugin.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -14,6 +14,7 @@ struct EXRWriterProcessParams
 	std::string _filepath;       ///< filepath
 	EParamBitDepth _bitDepth;        ///< Bit depth
 	ECompType _componentsType;   ///< Components type
+	bool _flip;
 };
 
 /**
@@ -27,7 +28,7 @@ public:
 
 public:
 	EXRWriterProcessParams getProcessParams( const OfxTime time );
-	void                   render( const OFX::RenderArguments& args );
+	void              render( const OFX::RenderArguments& args );
 
 protected:
 	OFX::ChoiceParam*     _componentsType;  ///< Components type
@@ -38,4 +39,4 @@ protected:
 }
 }
 
-#endif  // EXRWRITER_PLUGIN_H
+#endif

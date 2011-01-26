@@ -1,18 +1,8 @@
 #include "DPXReaderDefinitions.hpp"
 #include "DPXReaderPluginFactory.hpp"
 #include "DPXReaderPlugin.hpp"
-#include "tuttle/plugin/context/ReaderDefinition.hpp"
-#include <tuttle/plugin/ImageGilProcessor.hpp>
-#include <tuttle/plugin/exceptions.hpp>
 
-#include <string>
-#include <iostream>
-#include <stdio.h>
-#include <cmath>
-#include <ofxsImageEffect.h>
-#include <ofxsMultiThread.h>
-#include <boost/gil/gil_all.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <tuttle/plugin/context/ReaderPluginFactory.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -29,6 +19,8 @@ void DPXReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 	                "Dpx file reader" );
 	desc.setPluginGrouping( "tuttle/image/io" );
 
+	desc.setDescription( "Digital Picture Exchange (DPX), ANSI/SMPTE standard (268M-2003)" );
+
 	// add the supported contexts
 	desc.addSupportedContext( OFX::eContextReader );
 	desc.addSupportedContext( OFX::eContextGeneral );
@@ -39,8 +31,10 @@ void DPXReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 	desc.addSupportedBitDepth( OFX::eBitDepthFloat );
 
 	// plugin flags
-	desc.setSupportsMultipleClipDepths( true );
+	desc.setRenderThreadSafety( OFX::eRenderFullySafe );
+	desc.setHostFrameThreading( false );
 	desc.setSupportsMultiResolution( false );
+	desc.setSupportsMultipleClipDepths( true );
 	desc.setSupportsTiles( kSupportTiles );
 }
 
@@ -55,34 +49,11 @@ void DPXReaderPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc
 	OFX::ClipDescriptor* dstClip = desc.defineClip( kOfxImageEffectOutputClipName );
 	// Dpx only supports RGB(A)
 	dstClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+	dstClip->addSupportedComponent( OFX::ePixelComponentRGB );
 	dstClip->setSupportsTiles( kSupportTiles );
 
-	OFX::StringParamDescriptor* filename = desc.defineStringParam( kReaderParamFilename );
-	filename->setLabel( "Filename" );
-	filename->setStringType( OFX::eStringTypeFilePath );
-	filename->setCacheInvalidation( OFX::eCacheInvalidateValueAll );
-	desc.addClipPreferencesSlaveParam( *filename );
+	describeReaderParamsInContext( desc, context );
 
-	OFX::ChoiceParamDescriptor* explicitConversion = desc.defineChoiceParam( kReaderParamExplicitConversion );
-	explicitConversion->setLabel( "Explicit conversion" );
-	explicitConversion->appendOption( kTuttlePluginBitDepthAuto );
-	explicitConversion->appendOption( kTuttlePluginBitDepth8 );
-	explicitConversion->appendOption( kTuttlePluginBitDepth16 );
-	explicitConversion->appendOption( kTuttlePluginBitDepth32f );
-	explicitConversion->setCacheInvalidation( OFX::eCacheInvalidateValueAll );
-	explicitConversion->setAnimates( false );
-	desc.addClipPreferencesSlaveParam( *explicitConversion );
-
-	if( OFX::getImageEffectHostDescription()->supportsMultipleClipDepths )
-	{
-		explicitConversion->setDefault( 0 );
-	}
-	else
-	{
-		explicitConversion->setIsSecret( true );
-		explicitConversion->setDefault( static_cast<int>( OFX::getImageEffectHostDescription()->getPixelDepth() ) );
-	}
-	
 	OFX::PushButtonParamDescriptor* displayHeader = desc.definePushButtonParam( kParamDisplayHeader );
 	displayHeader->setLabel( "See Header" );
 	displayHeader->setHint( "See the file header without formating (debug purpose only)." );

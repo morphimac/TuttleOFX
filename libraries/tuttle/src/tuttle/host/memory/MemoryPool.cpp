@@ -88,26 +88,26 @@ MemoryPool::~MemoryPool()
 {
 	if( !_dataUsed.empty() )
 	{
-		COUT_ERROR( "Error inside memory pool. Some data always mark used at the destruction (nb elements:" << _dataUsed.size() << ")" );
+		TUTTLE_COUT_ERROR( "Error inside memory pool. Some data always mark used at the destruction (nb elements:" << _dataUsed.size() << ")" );
 	}
-	COUT_X( 20, "-" );
-	COUT( "~MemoryPool()" );
-	COUT_VAR( _dataUsed.size() );
-	COUT_VAR( _dataUnused.size() );
-	COUT_VAR( _allDatas.size() );
-	COUT_VAR( _memoryAuthorized );
-	COUT( "" );
-	COUT_VAR( getUsedMemorySize() );
-	COUT_VAR( getAllocatedMemorySize() );
-	COUT_VAR( getMaxMemorySize() );
-	COUT_VAR( getAvailableMemorySize() );
-	COUT_VAR( getWastedMemorySize() );
-	COUT_X( 20, "-" );
+	TUTTLE_TCOUT_X( 20, "-" );
+	TUTTLE_TCOUT( "~MemoryPool()" );
+	TUTTLE_TCOUT_VAR( _dataUsed.size() );
+	TUTTLE_TCOUT_VAR( _dataUnused.size() );
+	TUTTLE_TCOUT_VAR( _allDatas.size() );
+	TUTTLE_TCOUT_VAR( _memoryAuthorized );
+	TUTTLE_TCOUT( "" );
+	TUTTLE_TCOUT_VAR( getUsedMemorySize() );
+	TUTTLE_TCOUT_VAR( getAllocatedMemorySize() );
+	TUTTLE_TCOUT_VAR( getMaxMemorySize() );
+	TUTTLE_TCOUT_VAR( getAvailableMemorySize() );
+	TUTTLE_TCOUT_VAR( getWastedMemorySize() );
+	TUTTLE_TCOUT_X( 20, "-" );
 }
 
 void MemoryPool::referenced( PoolData* pData )
 {
-	//	DataList::iterator it = std::find( _dataUnused.begin(), _dataUnused.end(), pData );
+	boost::mutex::scoped_lock locker( _mutex );
 	DataList::iterator it = _dataUnused.find( pData );
 
 	if( it != _dataUnused.end() )
@@ -124,6 +124,7 @@ void MemoryPool::referenced( PoolData* pData )
 
 void MemoryPool::released( PoolData* pData )
 {
+	boost::mutex::scoped_lock locker( _mutex );
 	_dataUsed.erase( pData );
 	_dataUnused.insert( pData );
 }
@@ -166,18 +167,25 @@ struct DataFitSize : public std::unary_function<PoolData*, void>
 
 boost::intrusive_ptr<IPoolData> MemoryPool::allocate( const std::size_t size )
 {
-	// checking within unused data
-	PoolData* const pData = std::for_each( _dataUnused.begin(), _dataUnused.end(), DataFitSize( size ) ).bestMatch();
+	PoolData* pData = NULL;
+
+	{
+		boost::mutex::scoped_lock locker( _mutex );
+		// checking within unused data
+		pData = std::for_each( _dataUnused.begin(), _dataUnused.end(), DataFitSize( size ) ).bestMatch();
+	}
 
 	if( pData != NULL )
 	{
 		pData->_size = size;
 		return pData;
 	}
-	if( size > getAvailableMemorySize() )
+
+	const std::size_t availableSize = getAvailableMemorySize();
+	if( size > availableSize )
 	{
 		std::stringstream s;
-		s << "MemoryPool can't allocate size:" << size << " because memorySizeAvailable=" << getAvailableMemorySize();
+		s << "MemoryPool can't allocate size:" << size << " because memorySizeAvailable=" << availableSize;
 		BOOST_THROW_EXCEPTION( std::length_error( s.str() ) );
 	}
 	return new PoolData( *this, size );
@@ -185,9 +193,9 @@ boost::intrusive_ptr<IPoolData> MemoryPool::allocate( const std::size_t size )
 
 std::size_t MemoryPool::updateMemoryAuthorizedWithRAM()
 {
-	_memoryAuthorized = getUsedMemorySize() + getMemoryInfo()._totalRam;
-	COUT_X( 5, " - MEMORYPOOL::updateMemoryAuthorizedWithRAM - " );
-	COUT_VAR( _memoryAuthorized );
+	_memoryAuthorized = /*getUsedMemorySize() +*/ getMemoryInfo()._totalRam;
+	TUTTLE_TCOUT_X( 5, " - MEMORYPOOL::updateMemoryAuthorizedWithRAM - " );
+	TUTTLE_TCOUT_VAR( _memoryAuthorized );
 	return _memoryAuthorized;
 }
 
@@ -207,12 +215,19 @@ std::size_t accumulateWastedSize( const std::size_t& sum, const IPoolData* pData
 
 std::size_t MemoryPool::getUsedMemorySize() const
 {
+	boost::mutex::scoped_lock locker( _mutex );
 	return std::accumulate( _dataUsed.begin(), _dataUsed.end(), 0, &accumulateReservedSize );
+}
+
+std::size_t MemoryPool::getAllocatedAndUnusedMemorySize() const
+{
+	boost::mutex::scoped_lock locker( _mutex );
+	return std::accumulate( _dataUnused.begin(), _dataUnused.end(), 0, &accumulateReservedSize );
 }
 
 std::size_t MemoryPool::getAllocatedMemorySize() const
 {
-	return getUsedMemorySize() + std::accumulate( _dataUnused.begin(), _dataUnused.end(), 0, &accumulateReservedSize );
+	return getUsedMemorySize() + getAllocatedAndUnusedMemorySize();
 }
 
 std::size_t MemoryPool::getMaxMemorySize() const
@@ -227,19 +242,27 @@ std::size_t MemoryPool::getAvailableMemorySize() const
 
 std::size_t MemoryPool::getWastedMemorySize() const
 {
+	boost::mutex::scoped_lock locker( _mutex );
 	return std::accumulate( _dataUsed.begin(), _dataUsed.end(), 0, std::ptr_fun( &accumulateWastedSize ) );
 }
 
 void MemoryPool::clear( std::size_t size )
-{}
-
-void MemoryPool::clearOne()
-{}
-
-void MemoryPool::clearAll()
 {
+	/// @todo tuttle
+}
+
+void MemoryPool::clear()
+{
+	/// @todo tuttle
+	boost::mutex::scoped_lock locker( _mutex );
 	_dataUnused.clear();
 }
+
+void MemoryPool::clearOne()
+{
+	/// @todo tuttle
+}
+
 
 }
 }

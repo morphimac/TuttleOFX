@@ -1,7 +1,7 @@
 #ifndef _EXR_READER_PROCESS_HPP_
 #define _EXR_READER_PROCESS_HPP_
 
-#include <tuttle/common/utils/global.hpp>
+#include <tuttle/plugin/global.hpp>
 #include <tuttle/plugin/ImageGilProcessor.hpp>
 
 #include <ofxsImageEffect.h>
@@ -25,6 +25,7 @@ class EXRReaderProcess : public ImageGilProcessor<View>
 protected:
 	typedef typename View::value_type Pixel;
 	EXRReaderPlugin&    _plugin;                        ///< Rendering plugin
+	EXRReaderProcessParams _params;
 	boost::scoped_ptr<Imf::InputFile>   _exrImage;      ///< Pointer to an exr image
 
 	template<class DView>

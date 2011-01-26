@@ -118,9 +118,10 @@ protected:
 		}
 		else
 		{
-			COUT_WARNING( "Warning! Plugin: " <<
-			              plugin->getRawIdentifier() <<
-			              " loaded twice!" );
+			TUTTLE_COUT_WARNING( "Warning! Plugin: "
+			              << plugin->getRawIdentifier()
+			              << " loaded twice!"
+				          << " (" << plugin->getBinary().getFilePath() << ")" );
 		}
 		_plugins.push_back( plugin );
 
@@ -179,7 +180,7 @@ public:
 
 	void setDirty()
 	{
-		//COUT("OfxhPluginCache::setDirty()");
+		//TUTTLE_TCOUT("OfxhPluginCache::setDirty()");
 		_dirty = true;
 	}
 

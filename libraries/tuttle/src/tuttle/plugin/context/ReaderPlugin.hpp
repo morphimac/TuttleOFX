@@ -3,12 +3,9 @@
 
 #include "ReaderDefinition.hpp"
 
+#include <tuttle/plugin/ImageEffectGilPlugin.hpp>
 #include <tuttle/common/clip/Sequence.hpp>
 #include <tuttle/plugin/exceptions.hpp>
-
-#include <ofxsImageEffect.h>
-
-#include <boost/gil/gil_all.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -17,7 +14,7 @@ class ReaderPlugin : public OFX::ImageEffect
 {
 public:
 	ReaderPlugin( OfxImageEffectHandle handle );
-	virtual ~ReaderPlugin();
+	virtual ~ReaderPlugin() = 0;
 
 public:
 	virtual void changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName );
@@ -25,18 +22,20 @@ public:
 	virtual void getClipPreferences( OFX::ClipPreferencesSetter& clipPreferences );
 	virtual bool getTimeDomain( OfxRangeD& range );
 
+	virtual void render( const OFX::RenderArguments& args );
+
 public:
 	std::string getAbsoluteFilenameAt( const OfxTime time ) const
 	{
-		//		COUT_VAR( time );
+		//		TUTTLE_COUT_VAR( time );
 		if( _isSequence )
 		{
-			//			COUT_VAR( _filePattern.getAbsoluteFilenameAt( time ) );
+			//			TUTTLE_COUT_VAR( _filePattern.getAbsoluteFilenameAt( time ) );
 			return _filePattern.getAbsoluteFilenameAt( time );
 		}
 		else
 		{
-			//			COUT_VAR( _paramFilepath->getValue() );
+			//			TUTTLE_COUT_VAR( _paramFilepath->getValue() );
 			return _paramFilepath->getValue();
 		}
 	}
@@ -65,22 +64,22 @@ public:
 			return kOfxFlagInfiniteMax;
 	}
 
-	EReaderParamExplicitConversion getExplicitConversion() const
+	EParamReaderExplicitConversion getExplicitConversion() const
 	{
-		return static_cast<EReaderParamExplicitConversion>( _paramExplicitConv->getValue() );
+		return static_cast<EParamReaderExplicitConversion>( _paramExplicitConv->getValue() );
 	}
 
 	OFX::EBitDepth getOfxExplicitConversion() const
 	{
 		switch( getExplicitConversion() )
 		{
-			case eReaderParamExplicitConversionByte:
+			case eParamReaderExplicitConversionByte:
 				return OFX::eBitDepthUByte;
-			case eReaderParamExplicitConversionShort:
+			case eParamReaderExplicitConversionShort:
 				return OFX::eBitDepthUShort;
-			case eReaderParamExplicitConversionFloat:
+			case eParamReaderExplicitConversionFloat:
 				return OFX::eBitDepthFloat;
-			case eReaderParamExplicitConversionAuto:
+			case eParamReaderExplicitConversionAuto:
 				BOOST_THROW_EXCEPTION( exception::Value() );
 		}
 		return OFX::eBitDepthNone;
@@ -95,6 +94,7 @@ public:
 	/// @{
 	OFX::StringParam*    _paramFilepath;     ///< File path
 	OFX::ChoiceParam*    _paramExplicitConv; ///< Explicit conversion
+	OFX::BooleanParam*   _paramFlip;         ///< vertically flip the buffer
 	/// @}
 
 private:
