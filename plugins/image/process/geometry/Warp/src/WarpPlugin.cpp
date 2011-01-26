@@ -59,7 +59,7 @@ ImageEffect( handle )
 WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
 	WarpProcessParams<Scalar> params;
-	std::size_t size = _paramNbPoints->getValue();
+        std::size_t size = _paramNbPoints->getValue();
 
 	for( std::size_t i = 0; i < size; ++i )
 	{

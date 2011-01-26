@@ -64,11 +64,9 @@ public:
 
 	bool penUp( const OFX::PenArgs& args );
 
-<<<<<<< HEAD
         bool keyDown( const OFX::KeyArgs& args );
-=======
 
-        bool moveXYSelected( const Point2& p )
+   /*     bool moveXYSelected( const Point2& p )
         {
             bool bb = false;
             BOOST_FOREACH( const interact::InteractObject& p, _interactScene.getObjects() )
@@ -78,6 +76,7 @@ public:
             }
             return bb;
         }
+   */
         bool moveXSelected( const Point2& )
         {
             return false;
@@ -89,7 +88,6 @@ public:
 
         void beginMove()                     {}
         void endMove()                       {}
->>>>>>> f1d4035eb4601037283a830d3118fc9b0b77fdd0
 };
 
 }

@@ -18,7 +18,7 @@ class WarpOverlayInteract : public OFX::OverlayInteract
 {
 	typedef double Scalar;
 
-	WarpPlugin* _plugin;
+        WarpPlugin* _plugin;
 
 	interact::InteractInfos _infos;
 	interact::InteractScene _interactScene;
