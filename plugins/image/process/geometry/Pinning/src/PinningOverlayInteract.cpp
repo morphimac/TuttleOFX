@@ -75,18 +75,136 @@ bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
 
 bool PinningOverlayInteract::penMotion( const OFX::PenArgs& args )
 {
-	return _interactScene.penMotion( args );
+
+	//std::cout<<"pen move"<<std::endl;
+	
+        return _interactScene.penMotion( args );
 }
 
 bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
 {
-	return _interactScene.penDown( args );
+	//std::cout<<"pen down"<<std::endl;
+	OfxPointD pos = args.penPosition;
+	std::cout<<pos.x<<";"<<pos.y<<std::endl;
+	double pres = args.penPressure; // lorsque l'on utilise une tablette graphique, on peut récupérer la pression du stylo
+	OfxTime time = args.time;
+	
+        int width = _plugin->_clipSrc->getCanonicalRodSize(args.time, args.renderScale).x;
+        _plugin->_paramPointIn0->setValue( args.penPosition.x / width, args.penPosition.y / width );
+	
+
+        /*
+	double seuil = 10;
+	
+	for( int i; i < 50; ++i )
+	{
+		if( (abs(pos.x - pIn[i][0]) < seuil) &&  (abs(pos.y - pIn[i][1]) < seuil) )
+		{
+			pSelect[i] = pIn[i];
+		}
+		if( (abs(pos.x - pOut[i][0]) < seuil) &&  (abs(pos.y - pOut[i][1]) < seuil) )
+		{
+			pSelect[i] = pOut[i];
+		}
+	}
+        */
+	
+	
+        bool selObj = _interactScene.penDown( args );
+        if( selObj )
+        {
+            return true;
+        }
+        else
+        {
+            _beginSelection = true;
+            _multiSelectionRec.x1 = args.penPosition.x;
+            _multiSelectionRec.y1 = args.penPosition.y;
+
+            if(_keyPressed_ctrl)
+            {
+                _multiSelection = true;
+            }
+        }
 }
 
 bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
 {
-	return _interactScene.penUp( args );
+    if( _multiSelection )
+    {
+        _multiSelectionRec.x2 = args.penPosition.x;
+        _multiSelectionRec.y2 = args.penPosition.y;
+        _beginSelection = false;
+
+        // parcours Points
+        //??
+
+        _multiSelection = false;
+        BOOST_FOREACH( const interact::InteractObject& p, _interactScene.getObjects() )
+        {
+            bool b = p.selectIfIsIn( _multiSelectionRec );
+            _multiSelection = _multiSelection || b;
+        }
+    }
+
+    // x , y
+    _interactScene.moveXYSelected( x, y );
+
+	//std::cout<<"pen up"<<std::endl;
+    return _interactScene.penUp( args );
 }
+
+
+bool PinningOverlayInteract::keyDown( const KeyArgs& args )
+{
+   if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
+   {
+         _keyPressed_ctrl = true;
+   }
+}
+
+bool keyUp( const KeyArgs& args )
+{
+   if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
+   {
+         _keyPressed_ctrl = false;
+   }
+}
+
+bool keyRepeat( const KeyArgs& args )
+{
+
+}
+
+/*
+void movePts(pSelect)
+{
+	for(int i=0 ; i<pSelect.size() ; ++i)
+	{
+		pIn[i][...] += n;
+	}
+}
+*/
+/*
+void rotatePts(pSelect, double angle)
+{
+	OfxPointD centreRotation;
+	
+	for(int i=0 ; i<pSelect.size() ; ++i)
+	{
+		centreRotation.x += pSelect[i][0];
+		centreRotation.y += pSelect[i][1];
+	}
+	centreRotation.x /= pSelect.size();
+	centreRotation.y /= pSelect.size();
+	
+	for(int i=0 ; i<pSelect.size() ; ++i)
+	{
+		pSelect[i][0] = pSelect[i][0]*cos(angle) - pSelect[i][1]*sin(angle);
+		pSelect[i][1] = pSelect[i][0]*sin(angle) - pSelect[i][1]*cos(angle);
+	}
+}
+*/
 
 }
 }

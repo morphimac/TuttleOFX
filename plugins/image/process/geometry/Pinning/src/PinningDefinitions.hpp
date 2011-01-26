@@ -41,6 +41,13 @@ const static std::string kParamPointOut = "pOut";
 const static std::string kParamOverlayOut = "overlayOut";
 const static std::string kParamOverlayOutColor = "overlayOutColor";
 
+/*
+const static std::string kParamGroupSelect = "groupSelect";
+const static std::string kParamPointSelect = "pSelect";
+const static std::string kParamOverlaySelect = "overlaySelect";
+const static std::string kParamOverlaySelectColor = "overlayInSelect";
+*/
+
 const static std::string kParamGroupPerspMatrix = "groupPerspMatrix";
 const static std::string kParamPerspMatrixRow = "perpMatrix";
 const static std::string kParamGroupBilinearMatrix = "groupBilinearMatrix";
