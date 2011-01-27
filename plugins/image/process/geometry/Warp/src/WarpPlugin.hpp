@@ -19,6 +19,7 @@ struct WarpProcessParams
 {
 	std::vector< point2<double> > _inPoints;
 	std::vector< point2<double> > _outPoints;
+	std::vector< point2<double> > _buildPoints;
 
         EParamMethod _method;
 };

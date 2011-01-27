@@ -30,23 +30,16 @@ double base_func( const double r2 )
 	: r2 * log(r2) * 0.217147241; // = 1/(2*log(10))
 }
 
-void morphTPS( const std::vector< point2<double> > pIn, std::vector< point2<double> > pOut )
+TPS_Morpher::TPS_Morpher( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut, std::vector< point2<double> > pToBuild) :
+		_pIn(pIn), _pOut(pOut), _pToBuild(pToBuild)
 {
 	// Nombre de points d'entrée
-	std::size_t p = pIn.size();
+	std::size_t p = _pIn.size();
 
 	// Initialisation des matrices
-	using namespace boost::numeric::ublas;
-	typedef	matrix<double> Matrix;
-	typedef matrix_row<Matrix> Matrix_Row;
-	typedef matrix_column<Matrix> Matrix_Col;
-
  	matrix<double> mtx_l(p+3, p+3);
   	matrix<double> mtx_v(p+3, 2);
   	matrix<double> mtx_orig_k(p, p);
-
-	// Nombre de colonnes de la matrice K
-	const unsigned m = mtx_orig_k.size2();
 
 	/// @param regularization Amount of "relaxation", 0.0 = exact interpolation
 	double regularization = 0.0;
@@ -64,24 +57,31 @@ void morphTPS( const std::vector< point2<double> > pIn, std::vector< point2<doub
 	// Remplit k et une partie de l
 	for (unsigned i=0; i<p; ++i)
 	{
-      		const point2<double>& point_i = pIn[i];
-      		for (unsigned j=0; j<m; ++j)
+      		const point2<double>& point_i = _pIn[i];
+		//std::cout<<"point i x "<<point_i.x<<std::endl;
+		//std::cout<<"point i y "<<point_i.y<<std::endl;
+      		for (unsigned j=0; j<p; ++j)
       		{
-        		const point2<double>& point_j = pIn[j]; 
+        		const point2<double>& point_j = _pIn[j]; 
+			//std::cout<<"point j x "<<point_j.x<<std::endl;
+			//std::cout<<"point j y "<<point_j.y<<std::endl;
         		double sum = boost::math::pow<2>(point_i.x-point_j.x) + boost::math::pow<2>(point_i.y-point_j.y);
+			//std::cout<<"Sum "<<sum<<std::endl;
         		mtx_l(i,j) = mtx_orig_k(i,j) = base_func(sum);
+			//std::cout<<"remplit k "<<mtx_l(i,j)<<std::endl;
+			//std::cout<<"remplit l "<<mtx_orig_k(i,j)<<std::endl;
       		}
     	}
 	
 	// Remplit le reste de l
     	for (unsigned i=0; i<p; ++i)
     	{
-      		const point2<double>& point_i = pIn[i];
-      		mtx_l(i, m+0) = 1.0;
-      		mtx_l(i, m+1) = point_i.x;
-      		mtx_l(i, m+2) = point_i.y;
+      		const point2<double>& point_i = _pIn[i];
+      		mtx_l(i, p+0) = 1.0;
+      		mtx_l(i, p+1) = point_i.x;
+      		mtx_l(i, p+2) = point_i.y;
 
-      		if (i<m)
+      		if (i<p)
       		{
         		// diagonal: reqularization parameters (lambda * a^2)
         		mtx_l(i,i) = mtx_orig_k(i,i) = regularization * (a*a);
@@ -94,7 +94,7 @@ void morphTPS( const std::vector< point2<double> > pIn, std::vector< point2<doub
 	
 	for (unsigned i=p; i<p+3; ++i)
 	{
-      		for (unsigned j=m; j<m+3; ++j)
+      		for (unsigned j=p; j<p+3; ++j)
 		{
         		mtx_l(i,j) = 0.0;
 		}
@@ -103,7 +103,7 @@ void morphTPS( const std::vector< point2<double> > pIn, std::vector< point2<doub
 	// Remplit une partie de v
 	for (unsigned i=0; i<p; ++i)
 	{
-		const point2<double>& point_i = pOut[i];
+		const point2<double>& point_i = _pOut[i];
 		mtx_v(i,0) = point_i.x;
 	      	mtx_v(i,1) = point_i.y;
 	}
@@ -111,42 +111,46 @@ void morphTPS( const std::vector< point2<double> > pIn, std::vector< point2<doub
 	mtx_v(p+0, 0) = mtx_v(p+1, 0) = mtx_v(p+2, 0) = 0.0;
 	mtx_v(p+0, 1) = mtx_v(p+1, 1) = mtx_v(p+2, 1) = 0.0;
 	
-	// Solve the linear system "inplace"
-	//int sret = LU_Solve(mtx_l, mtx_v);
-
-	//matrix<double> inverse(p+3, p+3);
+	// Solve the linear system "inplace"	
 	permutation_matrix<double> P(p+3);
 	matrix<double> x(p+3, 2);
 
 	lu_factorize(mtx_l, P);
 	x = mtx_v;
 	lu_substitute(mtx_l, P, x);
-
-	/*------------ FIN ITIALISATION DES MATRICES -----------*/	
-
-	// Boucle qui parcourt la liste de points
-	for ( std::vector< point2<double> >::iterator ite=pOut.begin(), end=pOut.end(); ite != end; ++ite ){
-		double x = ite->x, y=ite->y;
-
-		std::cout<<"Ite x-> "<<ite->x<<"et y-> "<<ite->y<<std::endl;
-
-      		double dx = mtx_v(m+0, 0) + mtx_v(m+1, 0)*x + mtx_v(m+2, 0)*y;
-      		double dy = mtx_v(m+0, 1) + mtx_v(m+1, 1)*x + mtx_v(m+2, 1)*y;
 	
-		std::vector< point2<double> >::iterator ite2 = pOut.begin();
-      		Matrix_Col cv0(mtx_v,0), cv1(mtx_v,1);
-      		Matrix_Col::const_iterator cv0_ite(cv0.begin()), cv1_ite(cv1.begin());
-      		for ( unsigned i=0; i<m; ++i, ++ite2, ++cv0_ite, ++cv1_ite )
-      		{
-        		double d = base_func( boost::math::pow<2>(ite2->x - x) + boost::math::pow<2>(ite2->y - y) );
-        		dx += (*cv0_ite) * d;
-        		dy += (*cv1_ite) * d;
-      		}
-		
-      		ite->x += dx;
-      		ite->y += dy;
-		std::cout<<"AFTER Ite x-> "<<ite->x<<"et y-> "<<ite->y<<std::endl;
-	}
+}
+
+void TPS_Morpher::morphTPS(point2<double> pt)
+{
+	// Nombre de colonnes de la matrice K
+	const unsigned m = mtx_orig_k.size2();
+
+	double x = pt.x, y = pt.y;
+	//std::cout<<"X -> "<<pt.x<<" et Y -> "<<pt.y<<std::endl;
+	//std::cout<<"ALLO 1"<<std::endl;
+	double test = 0;
+	//std::cout<<"B test "<<test<<std::endl;
+	//test = mtx_v(m+0, 0); 
+	//std::cout<<"A test "<<test<<std::endl;
+      	//double dx = mtx_v(m+0, 0) + mtx_v(m+1, 0)*x + mtx_v(m+2, 0)*y;
+      	//double dy = mtx_v(m+0, 1) + mtx_v(m+1, 1)*x + mtx_v(m+2, 1)*y;
+/*	
+	std::vector< point2<double> >::const_iterator ite2 = _pOut.begin();
+      	Matrix_Col cv0(mtx_v,0), cv1(mtx_v,1);
+      	Matrix_Col::const_iterator cv0_ite(cv0.begin()), cv1_ite(cv1.begin());
+      	for ( unsigned i=0; i<m; ++i, ++ite2, ++cv0_ite, ++cv1_ite )
+      	{
+        	double d = base_func( boost::math::pow<2>(ite2->x - x) + boost::math::pow<2>(ite2->y - y) );
+        	dx += (*cv0_ite) * d;
+        	dy += (*cv1_ite) * d;
+      	}*/
+		/*std::cout<<"ALLO 2"<<std::endl;
+	std::cout<<"Dx-> "<<dx<<"et Dy-> "<<dy<<std::endl;
+		std::cout<<"ALLO 3"<<std::endl;*//*		
+      	pt.x += dx;
+      	pt.y += dy;
+	std::cout<<"AFTER x-> "<<pt.x<<"et y-> "<<pt.y<<std::endl;*/
 }
 
 }
