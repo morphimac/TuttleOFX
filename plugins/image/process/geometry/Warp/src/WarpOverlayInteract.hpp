@@ -26,7 +26,8 @@ class WarpOverlayInteract : public OFX::OverlayInteract
 public:
 	WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
 
-	bool draw( const OFX::DrawArgs& args );
+        bool bezier( const std::vector< point2<double> > p1, std::vector< point2<double> > p2 );
+        bool draw( const OFX::DrawArgs& args );
         bool penDown( const OFX::PenArgs& args );
 	bool penUp( const OFX::PenArgs& args );
 	bool penMotion( const OFX::PenArgs& args );

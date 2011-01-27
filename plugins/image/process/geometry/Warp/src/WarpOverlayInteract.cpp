@@ -51,6 +51,19 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
         }
 }
 
+bool WarpOverlayInteract::bezier( const std::vector< point2<double> > p1, std::vector< point2<double> > p2)
+{
+    /*
+    std::vector< point2<double> > pBezier;
+
+    for(double t= 0.0 ; t < 1.0 ; t+=0.02)
+    {
+        pBezier.x = ( (1-t)*(p1.x) ) + t*(p2.x);
+        pBezier.y = ( (1-t)*(p1.y) ) + t*(p2.x);
+    }
+    */
+}
+
 bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 {
 	if( !_plugin->_paramOverlay->getValue() || !_plugin->_clipSrc->isConnected() )
@@ -74,7 +87,23 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         {
                                 if(nbPoints > j)
                                     glVertex2f( _plugin->_paramPointIn[nbPoints-j-1]->getValue().x, _plugin->_paramPointIn[nbPoints-j-1]->getValue().y);
+                        }
+                }
+                glEnd();
 
+                glColor3f( 1.0f, 0.25f, 0.6f );
+
+                glBegin( GL_POINTS );
+                for(int i=0 ; i < nbPoints ; ++i)
+                {
+                        for(int j = 0; j < kMaxNbPoints; ++j)
+                        {
+                                if(nbPoints > j)
+                                {
+                                    double ptx1 = _plugin->_paramPointIn[nbPoints-j-1]->getValue().x;
+                                    double pty1 = _plugin->_paramPointIn[nbPoints-j-1]->getValue().y;
+                                    glVertex2f( ptx1 + 50.0,pty1 + 50.0);
+                                }
                         }
                 }
                 glEnd();
@@ -109,7 +138,6 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
         }
         else if(_plugin->_paramMethod->getValue() == eParamMethodDelete)
         {
-                //_interactScene;
                 //_plugin->_paramPointIn[2]->setIsSecretAndDisabled(true);
         }
 }
