@@ -12,6 +12,10 @@
 #include <ofxsInteract.h>
 #include <boost/gil/gil_all.hpp>
 
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/variate_generator.hpp>
+
 #include <vector>
 
 namespace tuttle {
@@ -40,7 +44,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        for(int cptIn = 0; cptIn < kMaxNbPoints; ++cptIn)
+        for(unsigned int cptIn = 0; cptIn < kMaxNbPoints; ++cptIn)
 	{
                 interact::AndActiveFunctor<>* activeIn = new interact::AndActiveFunctor<>();
                 activeIn->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
@@ -91,14 +95,22 @@ bool WarpOverlayInteract::penMotion( const OFX::PenArgs& args )
 
 bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 {
-        int nbPoints = _plugin->_paramNbPoints->getValue();
+        unsigned int nbPoints = _plugin->_paramNbPoints->getValue();
 
         if((nbPoints < kMaxNbPoints) && (_plugin->_paramMethod->getValue() == eParamMethodCreation))
         {
-                _plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
-                _plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
+		for(unsigned int i = 0; i<nbPoints; ++i)
+		{/*
+			/*boost::mt19937 rng;                 
+			boost::uniform_int<> randomX(0,640);     
+			boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(rng, randomX);             
+			int x = die();
+			std::cout<<"Aleatoire "<<x<<std::endl;*/
+                	_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
+                	_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
 
-                _plugin->_paramNbPoints->setValue(nbPoints+1);
+                	_plugin->_paramNbPoints->setValue(nbPoints+1);
+		}
 
                 return _interactScene.penDown( args );
         }
