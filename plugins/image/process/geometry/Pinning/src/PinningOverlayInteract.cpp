@@ -259,6 +259,7 @@ void movePts(pSelect)
 		pIn[i][...] += n;
 	}
 }
+*/
 
 }
 }

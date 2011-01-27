@@ -40,10 +40,11 @@ public:
 	bool penUp( const OFX::PenArgs& args );
 	bool penMotion( const OFX::PenArgs& args );
 
-
+/*
         bool keyDown( const KeyArgs& args );
         bool keyUp( const KeyArgs& args );
         bool keyRepeat( const KeyArgs& args );
+*/
 };
 
 
