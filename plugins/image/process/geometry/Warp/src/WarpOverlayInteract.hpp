@@ -21,7 +21,7 @@ class WarpOverlayInteract : public OFX::OverlayInteract
         WarpPlugin* _plugin;
 
 	interact::InteractInfos _infos;
-	interact::InteractScene _interactScene;
+        interact::InteractScene _interactScene;
 
 public:
 	WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );

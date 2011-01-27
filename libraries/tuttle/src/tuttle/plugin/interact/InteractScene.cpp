@@ -101,7 +101,7 @@ bool InteractScene::penDown( const OFX::PenArgs& args )
 {
 	bool result = false;
 
-	_mouseDown = true;
+        _mouseDown = true;
 	_moveType  = eMoveTypeNone;
 	_params.beginEditBlock( "InteractObjectsGroup" );
 
@@ -126,7 +126,7 @@ bool InteractScene::penDown( const OFX::PenArgs& args )
 				{
 					_selected.push_back( &( *it ) );
 					_moveType = m;
-				}
+                                }
 				else if( m == eMoveTypeXY ) // if we already register an object X or Y and we found an XY intersection
 				{
 					_selected.clear();

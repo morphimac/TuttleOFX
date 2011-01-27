@@ -29,8 +29,9 @@ ImageEffect( handle )
 	_clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
 	_clipDst = fetchClip( kOfxImageEffectOutputClipName );
 
-	_paramOverlay       = fetchBooleanParam( kParamOverlay );
+        _paramOverlay       = fetchBooleanParam( kParamOverlay );
 
+        _paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramNbPoints       = fetchIntParam( kParamNbPoints );
 
 	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
@@ -52,8 +53,8 @@ ImageEffect( handle )
 	_instanceChangedArgs.time          = 0;
 	_instanceChangedArgs.renderScale.x = 1;
 	_instanceChangedArgs.renderScale.y = 1;
-	_instanceChangedArgs.reason        = OFX::eChangePluginEdit;
-	changedParam( _instanceChangedArgs, kParamNbPoints ); // init IsSecret property for each pair of points parameter
+        _instanceChangedArgs.reason        = OFX::eChangePluginEdit;
+        changedParam( _instanceChangedArgs, kParamNbPoints ); // init IsSecret property for each pair of points parameter
 }
 
 WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPointD& renderScale ) const
@@ -67,63 +68,46 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 		params._inPoints.push_back( pIn );
 		point2<double> pOut = ofxToGil( _paramPointOut[i]->getValue() );
 		params._outPoints.push_back( pOut );
+                params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
 	}
 
-	return params;
+        return params;
 }
 
 void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
-{
-	if( boost::starts_with( paramName, kParamPointIn ) ||
+{        if( boost::starts_with( paramName, kParamPointIn ) ||
 	    boost::starts_with( paramName, kParamPointOut ) ||
 		paramName == kParamNbPoints )
-	{
-		std::size_t size = _paramNbPoints->getValue();
-		std::size_t i = 0;
-		for(; i < size; ++i )
-		{
-			_paramPointIn[i]->setIsSecretAndDisabled( false );
-			_paramPointOut[i]->setIsSecretAndDisabled( false );
-		}
-		for( ; i < kMaxNbPoints; ++i )
-		{
-			_paramPointIn[i]->setIsSecretAndDisabled( true );
-			_paramPointOut[i]->setIsSecretAndDisabled( true );
-		}
-	}
+        {
+                switch( static_cast < EParamMethod >( _paramMethod->getValue() ) )
+                {
+                        case eParamMethodCreation:
+                        {
+                                std::size_t size = _paramNbPoints->getValue();
+                                std::size_t i = 0;
+                                for(; i < size; ++i )
+                                {
+                                        _paramPointIn[i]->setIsSecretAndDisabled( false );
+                                        _paramPointOut[i]->setIsSecretAndDisabled( false );
+                                }
+                                for( ; i < kMaxNbPoints; ++i )
+                                {
+                                        _paramPointIn[i]->setIsSecretAndDisabled( true );
+                                        _paramPointOut[i]->setIsSecretAndDisabled( true );
+                                }
+                                break;
+                        }
+                        case eParamMethodDelete:
+                        {
+                                break;
+                        }
+                        case eParamMethodMove:
+                        {
+                                break;
+                        }
+                }
+        }
 }
-
-//bool WarpPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
-//{
-//	WarpProcessParams<Scalar> params = getProcessParams();
-//	OfxRectD srcRod = _clipSrc->getCanonicalRod( args.time );
-//
-//	switch( params._border )
-//	{
-//		case eParamBorderPadded:
-//			rod.x1 = srcRod.x1 + 1;
-//			rod.y1 = srcRod.y1 + 1;
-//			rod.x2 = srcRod.x2 - 1;
-//			rod.y2 = srcRod.y2 - 1;
-//			return true;
-//		default:
-//			break;
-//	}
-//	return false;
-//}
-//
-//void WarpPlugin::getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois )
-//{
-//	WarpProcessParams<Scalar> params = getProcessParams();
-//	OfxRectD srcRod = _clipSrc->getCanonicalRod( args.time );
-//
-//	OfxRectD srcRoi;
-//	srcRoi.x1 = srcRod.x1 - 1;
-//	srcRoi.y1 = srcRod.y1 - 1;
-//	srcRoi.x2 = srcRod.x2 + 1;
-//	srcRoi.y2 = srcRod.y2 + 1;
-//	rois.setRegionOfInterest( *_clipSrc, srcRoi );
-//}
 
 bool WarpPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {

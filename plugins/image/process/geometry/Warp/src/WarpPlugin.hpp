@@ -19,6 +19,8 @@ struct WarpProcessParams
 {
 	std::vector< point2<double> > _inPoints;
 	std::vector< point2<double> > _outPoints;
+
+        EParamMethod _method;
 };
 
 /**
@@ -48,7 +50,8 @@ public:
 	OFX::Clip* _clipSrc; ///< Source image clip
    	OFX::Clip* _clipDst; ///< Destination image clip
 
-	OFX::BooleanParam*  _paramOverlay;
+        OFX::BooleanParam*  _paramOverlay;
+        OFX::ChoiceParam*  _paramMethod;
 
 	OFX::IntParam*  _paramNbPoints;
 

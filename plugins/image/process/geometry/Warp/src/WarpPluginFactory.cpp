@@ -65,20 +65,28 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	dstClip->setSupportsTiles( kSupportTiles );
 
 	//////////////////// Options ////////////////////
-	OFX::BooleanParamDescriptor* overlay = desc.defineBooleanParam( kParamOverlay );
-	overlay->setLabel( "Overlay" );
-	overlay->setDefault( true );
+        OFX::ChoiceParamDescriptor* method = desc.defineChoiceParam( kParamMethod );
+        method->setLabel( "Method" );
+        method->appendOption( kParamMethodCreation );
+        method->appendOption( kParamMethodDelete );
+        method->appendOption( kParamMethodMove );
+        method->setDefault( 0 );
+        method->setHint( "Points method" );
 
-	OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
-	nbPoints->setDefault( 5 );
-//	nbPoints->setIsSecret( true );
+	OFX::BooleanParamDescriptor* overlay = desc.defineBooleanParam( kParamOverlay );
+        overlay->setLabel( "Overlay" );
+        overlay->setDefault( true );
+
+        OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
+        nbPoints->setDefault( 0 );
+        nbPoints->setIsSecret( true );
 	
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
 	groupIn->setLabel( "Input points" );
 
 	OFX::Double2DParamDescriptor* pIn[kMaxNbPoints];
-	for( std::size_t cptIn = 0; cptIn < kMaxNbPoints; ++cptIn )
+        for( std::size_t cptIn = 0; cptIn < kMaxNbPoints; ++cptIn )
 	{
 		std::string resultIn = boost::lexical_cast<std::string>(cptIn);
 		pIn[cptIn] = desc.defineDouble2DParam( kParamPointIn + resultIn );
@@ -86,12 +94,12 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 		pIn[cptIn]->setHint( "Input point " + resultIn );
 		pIn[cptIn]->setDefault( 840.0, 240.0 );
 		pIn[cptIn]->setParent( groupIn );
-	}
+        }
 
-	OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
-	overlayIn->setLabel( "Overlay" );
-	overlayIn->setDefault( true );
-	overlayIn->setParent( groupIn );
+        OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
+        overlayIn->setLabel( "Overlay" );
+        overlayIn->setDefault( true );
+        overlayIn->setParent( groupIn );
 
 	OFX::RGBParamDescriptor* ouverlayInColor = desc.defineRGBParam( kParamOverlayInColor );
 	ouverlayInColor->setLabel( "Color" );
@@ -114,10 +122,10 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 		pOut[cptOut]->setParent( groupOut );
 	}
 
-	OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
-	overlayOut->setLabel( "Overlay" );
-	overlayOut->setDefault( true );
-	overlayOut->setParent( groupOut );
+        OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
+        overlayOut->setLabel( "Overlay" );
+        overlayOut->setDefault( true );
+        overlayOut->setParent( groupOut );
 
 	OFX::RGBParamDescriptor* ouverlayOutColor = desc.defineRGBParam( kParamOverlayOutColor );
 	ouverlayOutColor->setLabel( "Color" );

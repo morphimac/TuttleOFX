@@ -59,9 +59,29 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 	typedef boost::gil::point2<Scalar> Point2;
 	bool displaySomething        = false;
 
+        int nbPoints = _plugin->_paramNbPoints->getValue();
+
+        if(nbPoints >1)
+            {
+                static const float lineWidth = 1.0;
+                glLineWidth( lineWidth );
+                glColor3f( 0.0f, 1.0f, 0.0f );
+
+                glBegin( GL_LINE_STRIP );
+                for(int i=0 ; i < nbPoints ; ++i)
+                {
+                        for(int j = 0; j < kMaxNbPoints; ++j)
+                        {
+                                if(nbPoints > j)
+                                    glVertex2f( _plugin->_paramPointIn[nbPoints-j-1]->getValue().x, _plugin->_paramPointIn[nbPoints-j-1]->getValue().y);
+
+                        }
+                }
+                glEnd();
+            }
 	displaySomething |= _interactScene.draw( args );
 
-	return displaySomething;
+	return displaySomething;       
 }
 
 bool WarpOverlayInteract::penMotion( const OFX::PenArgs& args )
@@ -73,14 +93,25 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 {
         int nbPoints = _plugin->_paramNbPoints->getValue();
 
-        if((nbPoints <= kMaxNbPoints))
-            {
+        if((nbPoints < kMaxNbPoints) && (_plugin->_paramMethod->getValue() == eParamMethodCreation))
+        {
                 _plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
                 _plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
 
                 _plugin->_paramNbPoints->setValue(nbPoints+1);
-                //return _interactScene.penDown( args );
-            }
+
+                return _interactScene.penDown( args );
+        }
+
+        else if(_plugin->_paramMethod->getValue() == eParamMethodMove)
+        {
+            return _interactScene.penDown( args );
+        }
+        else if(_plugin->_paramMethod->getValue() == eParamMethodDelete)
+        {
+                //_interactScene;
+                //_plugin->_paramPointIn[2]->setIsSecretAndDisabled(true);
+        }
 }
 
 bool WarpOverlayInteract::keyDown( const OFX::KeyArgs& args )

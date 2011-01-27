@@ -10,6 +10,17 @@ namespace warp {
 
 const static std::size_t kMaxNbPoints = 10;
 
+const static std::string kParamMethod = "method";
+const static std::string kParamMethodCreation = "creation";
+const static std::string kParamMethodDelete = "delete";
+const static std::string kParamMethodMove = "move";
+enum EParamMethod
+{
+        eParamMethodCreation = 0,
+        eParamMethodDelete,
+        eParamMethodMove
+};
+
 const static std::string kParamOverlay = "overlay";
 const static std::string kParamNbPoints = "nbPoints";
 
