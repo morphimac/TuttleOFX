@@ -136,6 +136,21 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 
 		// recompute the matrix
 		changedParam( args, kParamPointIn );
+
+        //TODO-vince //
+        /*
+	bounded_vector<double, 2> pSelect[8];
+	_paramPointSelect0->getValue( pSelect[0][0], pSelect[0][1] );
+	_paramPointSelect1->getValue( pSelect[1][0], pSelect[1][1] );
+	_paramPointSelect2->getValue( pSelect[2][0], pSelect[2][1] );
+	_paramPointSelect3->getValue( pSelect[3][0], pSelect[3][1] );
+	_paramPointSelect4->getValue( pSelect[4][0], pSelect[4][1] );
+	_paramPointSelect5->getValue( pSelect[5][0], pSelect[5][1] );
+	_paramPointSelect6->getValue( pSelect[6][0], pSelect[6][1] );
+	_paramPointSelect7->getValue( pSelect[7][0], pSelect[7][1] );
+        */
+	///////////
+	
 	}
 	else if( boost::starts_with( paramName, kParamPointIn ) ||
 	         boost::starts_with( paramName, kParamPointOut ) )
@@ -168,7 +183,6 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 				 * where:
 				 *   cij - matrix coefficients
 				 */
-
 				static const int n = 6;
 				permutation_matrix<double> P( n );
 				matrix<double> A( n, n );
@@ -313,10 +327,8 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 				// Now x contains the solution.
 				
 
-				
 				//solve( A, b, x, DECOMP_SVD );
 				//((double*)M.data)[8] = 1.;
-
 				
 				_paramPerspMatrixRow0->setValue( x( 0 ), x( 1 ), x( 2 ) );
 				_paramPerspMatrixRow1->setValue( x( 3 ), x( 4 ), x( 5 ) );
