@@ -96,8 +96,6 @@ bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
 //        int width = _plugin->_clipSrc->getCanonicalRodSize(args.time, args.renderScale).x;
 //      _plugin->_paramPointIn0->setValue( args.penPosition.x / width, args.penPosition.y / width );
 	
-	
-	
         bool selObj = _interactScene.penDown( args );
         if( selObj )
         {
@@ -157,6 +155,7 @@ bool PinningOverlayInteract::keyDown( const OFX::KeyArgs& args )
 bool PinningOverlayInteract::keyUp( const OFX::KeyArgs& args )
 {
   if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
+
    {
          _keyPressed_ctrl = false;
    }
@@ -242,6 +241,22 @@ void scalePts( std::vector< bounded_vector<double, 2> > pSelect, double coef)
             //retour position initiale
             pSelect[i][0] += centre.x;
             pSelect[i][1] += centre.y;
+	}
+}
+
+/*
+bool keyRepeat( const KeyArgs& args )
+{
+
+}
+*/
+
+/*
+void movePts(pSelect)
+{
+	for(int i=0 ; i<pSelect.size() ; ++i)
+	{
+		pIn[i][...] += n;
 	}
 }
 

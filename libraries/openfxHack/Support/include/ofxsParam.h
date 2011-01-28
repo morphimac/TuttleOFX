@@ -612,6 +612,8 @@ protected:
 	/** @brief hidden constructor */
 	GroupParamDescriptor( const std::string& name, OfxPropertySetHandle props );
 
+	void setOpen( const bool open = true );
+	
 	// so it can make one
 	friend class ParamSetDescriptor;
 
@@ -674,14 +676,33 @@ protected:
 	/** @brief hidden constructor */
 	ParametricParamDescriptor( const std::string& name, OfxPropertySetHandle props );
 
+	OfxParamHandle _ofxParamHandle;
+	ParamSetDescriptor* _paramSet;
+	std::auto_ptr<ParamInteractWrap> _interact;
+	
 	// so it can make one
 	friend class ParamSetDescriptor;
+	void setParamSet( ParamSetDescriptor& paramSet );
 
 public:
-	void setDimension( const std::size_t dimension );
+	void setDimension( const int dimension );
+
+	void setRange( const double min, const double max );
 
 	void setLabel( const std::string label );
-	void setDimensionLabel( const std::string label, const std::size_t id );
+
+	void setDimensionLabel( const std::string label, const int id );
+
+	void setUIColour( const int id, const OfxRGBColourD color );
+
+	void addControlPoint( const int id, const OfxTime time, const double x, const double y, const bool addKey );
+
+	void setIdentity( const int id );
+
+	void setIdentity();
+
+	void setInteractDescriptor( ParamInteractWrap* desc );
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -724,14 +745,14 @@ protected:
 		{
 			if( param->getType() == paramType )
 			{
-				COUT_WARNING( "Parameter already defined ! (" + name + ")" );
+				TUTTLE_COUT_WARNING( "Parameter already defined ! (" + name + ")" );
 				paramPtr = (T*) param; // could be a dynamic cast here
 				return true;
 			}
 			else
 			{
-				COUT_ERROR( "Parameter already defined with another type ! (" + name + ")" );
-				return false; ///< @todo tuttle: SHOULD THROW SOMETHING HERE!!!!!!!
+				BOOST_THROW_EXCEPTION( OFX::Exception::Suite( kOfxStatErrExists, "Parameter already defined with another type ! (" + name + ")" ) );
+				return false;
 			}
 		}
 		else
@@ -762,13 +783,19 @@ protected:
 	/** @brief Hidden ctor */
 	ParamSetDescriptor( void );
 
-	/** @brief set the param set handle */
-	void setParamSetHandle( OfxParamSetHandle h );
-
 	/** @brief find a param in the map */
 	ParamDescriptor* findPreviouslyDefinedParam( const std::string& name );
 
+	/** @brief set the param set handle */
+	void setOfxParamSetHandle( OfxParamSetHandle h );
+
 public:
+
+	OfxParamSetHandle getOfxParamSetHandle()
+	{
+		return _paramSetHandle;
+	}
+
 	virtual ~ParamSetDescriptor();
 	/** @brief tries to fetch a ParamDescriptor, returns 0 if it isn't there*/
 	ParamDescriptor* getParamDescriptor( const std::string& name ) const;

@@ -29,7 +29,7 @@ int main( int argc, char** argv )
 
 		BOOST_FOREACH( boost::filesystem::path path, args )
 		{
-			//COUT( "param:" << path );
+			//TUTTLE_COUT( "param:" << path );
 
 			if( fs::exists( path ) )
 			{
@@ -40,11 +40,17 @@ int main( int argc, char** argv )
 					BOOST_FOREACH( const std::vector<Sequence>::value_type & s, sequences )
 					{
 						//						if( s.getNbFiles() != 1 )
-						COUT( s );
+						TUTTLE_COUT( s );
 					}
 				}
 				else
 				{
+					Sequence s;
+					s.initFromDetection( path, Sequence::ePatternFrame );
+					if( s.getNbFiles() )
+					{
+						TUTTLE_COUT( s );
+					}
 					//					cout << "* File: " << path << endl;
 				}
 			}
@@ -52,8 +58,12 @@ int main( int argc, char** argv )
 			{
 				try
 				{
-					Sequence s( path );
-					COUT( s );
+					Sequence s;
+					s.initFromDetection( path );
+					if( s.getNbFiles() )
+					{
+						TUTTLE_COUT( s );
+					}
 				}
 				catch(... )
 				{

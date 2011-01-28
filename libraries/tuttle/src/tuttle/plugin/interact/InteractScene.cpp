@@ -101,7 +101,7 @@ bool InteractScene::penDown( const OFX::PenArgs& args )
 {
 	bool result = false;
 
-	_mouseDown = true;
+        _mouseDown = true;
 	_moveType  = eMoveTypeNone;
 	_params.beginEditBlock( "InteractObjectsGroup" );
 
@@ -126,7 +126,7 @@ bool InteractScene::penDown( const OFX::PenArgs& args )
 				{
 					_selected.push_back( &( *it ) );
 					_moveType = m;
-				}
+                                }
 				else if( m == eMoveTypeXY ) // if we already register an object X or Y and we found an XY intersection
 				{
 					_selected.clear();
@@ -145,9 +145,9 @@ bool InteractScene::penDown( const OFX::PenArgs& args )
 	//			_moveType = eMoveTypeXY;
 	//			return true;
 	//		}
-	_mouseDown = result;
-	return result;
+        _mouseDown = result;
 }
+
 
 bool InteractScene::penUp( const OFX::PenArgs& args )
 {
@@ -166,7 +166,45 @@ bool InteractScene::penUp( const OFX::PenArgs& args )
 	_selected.clear();
 	return result;
 }
+/*
+bool InteractScene::keyDown( const OFX::KeyArgs& args )
+{
+        bool result = false;
 
+        _keyDown = true;
+        _keyType  = e;
+        _params.beginEditBlock( "InteractObjectsGroup" );
+
+        IsActiveFunctorVector::iterator itActive = _isActive.begin();
+        for( InteractObjectsVector::iterator it = _objects.begin(), itEnd = _objects.end();
+             it != itEnd;
+             ++it, ++itActive )
+        {
+                if( itActive->active() )
+                {
+                        EMoveType m;
+                        if( ( m = it->selectIfIntesect( args ) ) != eMoveTypeNone )
+                        {
+                                if( _moveType == eMoveTypeNone )
+                                {
+                                        _selected.push_back( &( *it ) );
+                                        _moveType = m;
+                                }
+                                else if( m == eMoveTypeXY ) // if we already register an object X or Y and we found an XY intersection
+                                {
+                                        _selected.clear();
+                                        _selected.push_back( &( *it ) );
+                                        _moveType = m;
+                                }
+                                result = true;
+                                if( m == eMoveTypeXY )
+                                        break;
+                        }
+                }
+        }
+        _keyDown = result;
+}
+*/
 }
 }
 }

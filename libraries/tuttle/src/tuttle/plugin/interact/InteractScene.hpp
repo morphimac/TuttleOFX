@@ -39,8 +39,11 @@ private:
 	IsActiveFunctorVector _isActive;
 	ColorVector _colors;
 	InteractObjectsVectorLink _selected;
-	EMoveType _moveType;
-	bool _mouseDown;
+        EMoveType _moveType;
+        bool _mouseDown;
+
+        EMoveType _keyType;
+        bool _keyDown;
 
 public:
 	InteractObjectsVector&       getObjects()       { return _objects; }
@@ -60,6 +63,31 @@ public:
 	bool penDown( const OFX::PenArgs& args );
 
 	bool penUp( const OFX::PenArgs& args );
+
+        bool keyDown( const OFX::KeyArgs& args );
+
+   /*     bool moveXYSelected( const Point2& p )
+        {
+            bool bb = false;
+            BOOST_FOREACH( const interact::InteractObject& p, _interactScene.getObjects() )
+            {
+                bool b = p.moveXYSelected( p );
+                bb = (bb || b);
+            }
+            return bb;
+        }
+   */
+        bool moveXSelected( const Point2& )
+        {
+            return false;
+        }
+        bool moveYSelected( const Point2& )
+        {
+            return false;
+        }
+
+        void beginMove()                     {}
+        void endMove()                       {}
 };
 
 }

@@ -2,6 +2,7 @@
 #include "JpegWriterPlugin.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
+#include <tuttle/plugin/image/gil/clamp.hpp>
 #include <tuttle/plugin/exceptions.hpp>
 
 #include <ofxsImageEffect.h>
@@ -28,6 +29,15 @@ JpegWriterProcess<View>::JpegWriterProcess( JpegWriterPlugin& instance )
 	this->setNoMultiThreading();
 }
 
+template<class View>
+void JpegWriterProcess<View>::setup( const OFX::RenderArguments& args )
+{
+	ImageGilFilterProcessor<View>::setup( args );
+
+	_params = _plugin.getProcessParams( args.time );
+}
+
+
 /**
  * @brief Function called by rendering thread each time a process must be done.
  * @param[in] procWindowRoW  Processing window in RoW
@@ -38,15 +48,21 @@ void JpegWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWind
 {
 	BOOST_ASSERT( procWindowRoW == this->_srcPixelRod );
 	using namespace boost::gil;
-	JpegWriterProcessParams params = _plugin.getProcessParams( this->_renderArgs.time );
+
+	View srcView = this->_srcView;
+	if( _params._flip )
+	{
+		srcView = flipped_up_down_view( srcView );
+	}
+
 	try
 	{
-		writeImage<bits8>( this->_srcView, params._filepath );
+		writeImage<bits8>( srcView );
 	}
 	catch( exception::Common& e )
 	{
-		e << exception::filename( params._filepath );
-		COUT_ERROR( boost::diagnostic_information( e ) );
+		e << exception::filename( _params._filepath );
+		TUTTLE_COUT_ERROR( boost::diagnostic_information( e ) );
 		//		throw;
 	}
 	catch(... )
@@ -54,7 +70,7 @@ void JpegWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWind
 		//		BOOST_THROW_EXCEPTION( exception::Unknown()
 		//			<< exception::user( "Unable to write image")
 		//			<< exception::filename(params._filepath) );
-		COUT_ERROR( boost::current_exception_diagnostic_information() );
+		TUTTLE_COUT_ERROR( boost::current_exception_diagnostic_information() );
 	}
 	copy_pixels( this->_srcView, this->_dstView );
 }
@@ -64,7 +80,7 @@ void JpegWriterProcess<View>::multiThreadProcessImages( const OfxRectI& procWind
  */
 template<class View>
 template<class Bits>
-void JpegWriterProcess<View>::writeImage( View& src, const std::string& filepath )
+void JpegWriterProcess<View>::writeImage( View& src )
 {
 	using namespace boost::gil;
 
@@ -73,12 +89,12 @@ void JpegWriterProcess<View>::writeImage( View& src, const std::string& filepath
 	//	if( params._premult )
 	//	{
 	typedef pixel<Bits, rgb_layout_t> OutPixelType;
-	jpeg_write_view( filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp<OutPixelType>( src ) ) ), params._quality );
+	jpeg_write_view( params._filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp_view( src ) ) ), params._quality );
 	//	}
 	//	else
 	//	{
 	//		typedef pixel<Bits, layout<typename color_space_type<View>::type> > OutPixelType;
-	//		jpeg_write_view( filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp<OutPixelType>( src ) ) ) );
+	//		jpeg_write_view( params._filepath, flipped_up_down_view( color_converted_view<OutPixelType>( clamp_view( src ) ) ) );
 	//	}
 }
 

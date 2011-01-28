@@ -1,15 +1,23 @@
-#ifndef MERGE_PLUGIN_H
-#define MERGE_PLUGIN_H
+#ifndef _TUTTLE_PLUGIN_MERGEPLUGIN_HPP_
+#define _TUTTLE_PLUGIN_MERGEPLUGIN_HPP_
 
-#include "gil/toolbox/MergeFunctors.hpp"
+#include "MergeDefinitions.hpp"
 
-#include <tuttle/common/utils/global.hpp>
-#include <ofxsImageEffect.h>
-#include <boost/gil/gil_all.hpp>
+#include <boost/gil/color_convert.hpp> // included first, to use the hack version
+#include <tuttle/plugin/ImageEffectGilPlugin.hpp>
 
 namespace tuttle {
 namespace plugin {
 namespace merge {
+
+template<typename Scalar>
+struct MergeProcessParams
+{
+	EParamRod _rod;
+
+	boost::gil::point2<std::ptrdiff_t> _offsetA;
+	boost::gil::point2<std::ptrdiff_t> _offsetB;
+};
 
 /**
  * @brief
@@ -17,6 +25,8 @@ namespace merge {
  */
 class MergePlugin : public OFX::ImageEffect
 {
+public:
+	typedef float Scalar;
 private:
 	template<template <typename> class Functor>
 	void renderGray( const OFX::RenderArguments& args );
@@ -27,36 +37,39 @@ private:
 public:
 	MergePlugin( OfxImageEffectHandle handle );
 
-	inline OFX::Clip* getSrcClipA() const
-	{
-		return _clipSrcA;
-	}
+public:
+	MergeProcessParams<Scalar> getProcessParams( const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
 
-	inline OFX::Clip* getSrcClipB() const
-	{
-		return _clipSrcB;
-	}
+//	void changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName );
 
-	inline OFX::Clip* getDstClip() const
-	{
-		return _clipDst;
-	}
+	bool getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod );
+
+	void render( const OFX::RenderArguments& args );
+
+private:
+	template< class View >
+	void render( const OFX::RenderArguments& args );
+	template< class View, template <typename> class Functor >
+	void render( const OFX::RenderArguments& args );
+	
+	template< class View, template <typename> class Functor >
+	void render_if( const OFX::RenderArguments& args, boost::mpl::false_ );
+	template< class View, template <typename> class Functor >
+	void render_if( const OFX::RenderArguments& args, boost::mpl::true_ );
 
 public:
-	virtual void render( const OFX::RenderArguments& args );
-	void         changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName );
-	virtual bool getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod );
-
-protected:
-	OFX::ChoiceParam* _mergeFunction;   ///< Functor structure
-	// do not need to delete these, the ImageEffect is managing them for us
 	OFX::Clip* _clipSrcA;               ///< Source image clip A
 	OFX::Clip* _clipSrcB;               ///< Source image clip B
 	OFX::Clip* _clipDst;                ///< Destination image clip
+
+	OFX::ChoiceParam* _paramMerge;   ///< Functor structure
+	OFX::ChoiceParam* _paramRod;
+	OFX::Int2DParam* _paramOffsetA;
+	OFX::Int2DParam* _paramOffsetB;
 };
 
 }
 }
 }
 
-#endif  // MERGE_PLUGIN_H
+#endif

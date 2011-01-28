@@ -2,11 +2,8 @@
 #include "JpegReaderProcess.hpp"
 #include "JpegReaderDefinitions.hpp"
 
-#include <ofxsImageEffect.h>
-#include <ofxsMultiThread.h>
 #include <boost/gil/gil_all.hpp>
 #include <boost/filesystem.hpp>
-#include "tuttle/plugin/context/ReaderPlugin.hpp"
 
 namespace tuttle {
 namespace plugin {
@@ -25,98 +22,14 @@ JpegReaderProcessParams JpegReaderPlugin::getProcessParams( const OfxTime time )
 	JpegReaderProcessParams params;
 
 	params._filepath = getAbsoluteFilenameAt( time );
+	params._flip = _paramFlip->getValue();
+	
 	return params;
-}
-
-/**
- * @brief The overridden render function
- * @param[in]   args     Rendering parameters
- */
-void JpegReaderPlugin::render( const OFX::RenderArguments& args )
-{
-	// instantiate the render code based on the pixel depth of the dst clip
-	OFX::EBitDepth dstBitDepth         = this->_clipDst->getPixelDepth();
-	OFX::EPixelComponent dstComponents = this->_clipDst->getPixelComponents();
-
-	// do the rendering
-	if( dstComponents == OFX::ePixelComponentRGBA )
-	{
-		switch( dstBitDepth )
-		{
-			case OFX::eBitDepthUByte:
-			{
-				JpegReaderProcess<rgba8_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthUShort:
-			{
-				JpegReaderProcess<rgba16_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthFloat:
-			{
-				JpegReaderProcess<rgba32f_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthNone:
-				COUT_FATALERROR( "BitDepthNone not recognize." );
-				return;
-			case OFX::eBitDepthCustom:
-				COUT_FATALERROR( "BitDepthCustom not recognize." );
-				return;
-		}
-	}
-	else if( dstComponents == OFX::ePixelComponentAlpha )
-	{
-		switch( dstBitDepth )
-		{
-			case OFX::eBitDepthUByte:
-			{
-				JpegReaderProcess<gray8_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthUShort:
-			{
-				JpegReaderProcess<gray16_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthFloat:
-			{
-				JpegReaderProcess<gray32f_view_t> fred( *this );
-				fred.setupAndProcess( args );
-				break;
-			}
-			case OFX::eBitDepthNone:
-				COUT_FATALERROR( "BitDepthNone not recognize." );
-				return;
-			case OFX::eBitDepthCustom:
-				COUT_FATALERROR( "BitDepthCustom not recognize." );
-				return;
-		}
-	}
-	else
-	{
-		COUT_FATALERROR( dstComponents << " not recognize." );
-	}
 }
 
 void JpegReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName )
 {
-	if( paramName == kJpegReaderHelpButton )
-	{
-		sendMessage( OFX::Message::eMessageMessage,
-		             "", // No XML resources
-		             kJpegReaderHelpString );
-	}
-	else
-	{
-		ReaderPlugin::changedParam( args, paramName );
-	}
+	ReaderPlugin::changedParam( args, paramName );
 }
 
 bool JpegReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
@@ -132,34 +45,25 @@ bool JpegReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArgum
 void JpegReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPreferences )
 {
 	ReaderPlugin::getClipPreferences( clipPreferences );
-	const std::string filename( getAbsoluteFirstFilename() );
-
-	if( !bfs::exists( filename ) )
-	{
-		BOOST_THROW_EXCEPTION( exception::File()
-		    << exception::user( "No input file." )
-		    << exception::filename( filename )
-		                       );
-	}
 
 	switch( getExplicitConversion() )
 	{
-		case eReaderParamExplicitConversionAuto:
+		case eParamReaderExplicitConversionAuto:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUByte );
 			break;
 		}
-		case eReaderParamExplicitConversionByte:
+		case eParamReaderExplicitConversionByte:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUByte );
 			break;
 		}
-		case eReaderParamExplicitConversionShort:
+		case eParamReaderExplicitConversionShort:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUShort );
 			break;
 		}
-		case eReaderParamExplicitConversionFloat:
+		case eParamReaderExplicitConversionFloat:
 		{
 			clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthFloat );
 			break;
@@ -167,6 +71,16 @@ void JpegReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPrefe
 	}
 	clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentRGBA ); /// RGB
 	clipPreferences.setPixelAspectRatio( *this->_clipDst, 1.0 );
+}
+
+/**
+ * @brief The overridden render function
+ * @param[in]   args     Rendering parameters
+ */
+void JpegReaderPlugin::render( const OFX::RenderArguments& args )
+{
+	ReaderPlugin::render(args);
+	doGilRender<JpegReaderProcess>( *this, args );
 }
 
 }
