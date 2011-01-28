@@ -81,6 +81,22 @@ public:
 	OFX::BooleanParam*  _paramOverlayOut;
 	OFX::RGBParam*  _paramOverlayOutColor;
 
+//TODO-vince //
+	//boost::array<OFX::Double2DParam*,nbPoints> _paramPointIn; // yeahey !
+    OFX::GroupParam* _paramGroupSelect;
+    OFX::Double2DParam* _paramPointSelect0;
+    OFX::Double2DParam* _paramPointSelect1;
+    OFX::Double2DParam* _paramPointSelect2;
+    OFX::Double2DParam* _paramPointSelect3;
+    OFX::Double2DParam* _paramPointSelect4;
+    OFX::Double2DParam* _paramPointSelect5;
+    OFX::Double2DParam* _paramPointSelect6;
+    OFX::Double2DParam* _paramPointSelect7;
+	OFX::BooleanParam*  _paramOverlaySelect;
+	OFX::RGBParam*  _paramOverlaySelectColor;
+/////////////////////	
+
+
     OFX::GroupParam* _paramGroupPerspMatrix;
 	OFX::Double3DParam* _paramPerspMatrixRow0;
 	OFX::Double3DParam* _paramPerspMatrixRow1;

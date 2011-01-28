@@ -136,6 +136,21 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 
 		// recompute the matrix
 		changedParam( args, kParamPointIn );
+
+        //TODO-vince //
+        /*
+	bounded_vector<double, 2> pSelect[8];
+	_paramPointSelect0->getValue( pSelect[0][0], pSelect[0][1] );
+	_paramPointSelect1->getValue( pSelect[1][0], pSelect[1][1] );
+	_paramPointSelect2->getValue( pSelect[2][0], pSelect[2][1] );
+	_paramPointSelect3->getValue( pSelect[3][0], pSelect[3][1] );
+	_paramPointSelect4->getValue( pSelect[4][0], pSelect[4][1] );
+	_paramPointSelect5->getValue( pSelect[5][0], pSelect[5][1] );
+	_paramPointSelect6->getValue( pSelect[6][0], pSelect[6][1] );
+	_paramPointSelect7->getValue( pSelect[7][0], pSelect[7][1] );
+        */
+	///////////
+	
 	}
 	else if( boost::starts_with( paramName, kParamPointIn ) ||
 	         boost::starts_with( paramName, kParamPointOut ) )
@@ -217,10 +232,122 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 				/// @todo vincent: compute "perspMatrix" from input/output points -> "_paramPoint*"
 				perspMatrix = identity_matrix<Scalar >( 3 );
 				////////////////////////////////////////
+				
+				
+				/* Calculates coefficients of perspective transformation
+				* which maps (xi,yi) to (ui,vi), (i=1,2,3,4):
+				*
+				* 	c00*xi + c01*yi + c02
+				* ui = ---------------------
+				* 	c20*xi + c21*yi + c22
+				*
+				* 	c10*xi + c11*yi + c12
+				* vi = ---------------------
+				* 	c20*xi + c21*yi + c22
+				*
+				* Coefficients are calculated by solving linear system:
+				* / x0 y0 1 0 0 0 -x0*u0 -y0*u0 \ /c00\ /u0\
+				* | x1 y1 1 0 0 0 -x1*u1 -y1*u1 | |c01| |u1|
+				* | x2 y2 1 0 0 0 -x2*u2 -y2*u2 | |c02| |u2|
+				* | x3 y3 1 0 0 0 -x3*u3 -y3*u3 |.|c10|=|u3|,
+				* | 0 0 0 x0 y0 1 -x0*v0 -y0*v0 | |c11| |v0|
+				* | 0 0 0 x1 y1 1 -x1*v1 -y1*v1 | |c12| |v1|
+				* | 0 0 0 x2 y2 1 -x2*v2 -y2*v2 | |c20| |v2|
+				* \ 0 0 0 x3 y3 1 -x3*v3 -y3*v3 / \c21/ \v3/
+				*
+				* where:
+				* cij - matrix coefficients, c22 = 1
+				*/
+				
+				static const int n = 8;
+				permutation_matrix<double> P( n );
+				matrix<double> A( n, n );
+				vector<double> x( n );
+				vector<double> b( n );
 
+				bounded_vector<double, 2> pIn[4];
+				_paramPointIn0->getValue( pIn[0][0], pIn[0][1] );
+				_paramPointIn1->getValue( pIn[1][0], pIn[1][1] );
+				_paramPointIn2->getValue( pIn[2][0], pIn[2][1] );
+				_paramPointIn3->getValue( pIn[3][0], pIn[3][1] );
+
+				bounded_vector<double, 2> pOut[4];
+				_paramPointOut0->getValue( pOut[0][0], pOut[0][1] );
+				_paramPointOut1->getValue( pOut[1][0], pOut[1][1] );
+				_paramPointOut2->getValue( pOut[2][0], pOut[2][1] );
+				_paramPointOut2->getValue( pOut[3][0], pOut[3][1] );
+
+								
+				/////////////////////
+				// fill A and b... //
+				for( int i = 0; i < 4; ++i )
+				{
+					A(i,0) = A(i+4,3) = pIn[i][0];
+					A(i,1) = A(i+4,4) = pIn[i][1];
+					A(i,2) = A(i+4,5) = 1;
+					A(i,3) = A(i,4) = A(i,5) = A(i+4,0) = A(i+4,1) = A(i+4,2) = 0;
+	
+					A(i,6) = -(pIn[i][0])*(pOut[i][0]);
+					A(i,7) = -(pIn[i][1])*(pOut[i][0]);
+					A(i+4,6) = -(pIn[i][0])*(pOut[i][1]);
+					A(i+4,7) = -(pIn[i][1])*(pOut[i][1]);
+					
+					b(i) = pOut[i][0];
+					b(i+4) = pOut[i][1];
+				}
+				
+				/*
+				for( int i = 0; i < 4; ++i )
+				{
+				*/
+				/*
+					* 	c00*xi + c01*yi + c02
+					* ui = ---------------------
+					* 	c20*xi + c21*yi + c22
+					*
+					* 	c10*xi + c11*yi + c12
+					* vi = ---------------------
+					* 	c20*xi + c21*yi + c22
+				*/
+				/*			
+					x(i)   = ( b(0)*(pIn[i][0]) + b(1)*(pIn[i][1]) + b(2) ) / ( b(6)*(pIn[i][0]) + b(7)*(pIn[i][1]) + 1 );
+					x(i+4) = ( b(3)*(pIn[i][0]) + b(4)*(pIn[i][1]) + b(5) ) / ( b(6)*(pIn[i][0]) + b(7)*(pIn[i][1]) + 1 );
+					
+				}
+				*/
+				
+				
+				
+				//COUT_VAR( A );
+				
+				lu_factorize( A, P );
+				// Now A and P contain the LU factorization of A
+				x = b;
+				lu_substitute( A, P, x );
+				// Now x contains the solution.
+				
+
+				
+				//solve( A, b, x, DECOMP_SVD );
+				//((double*)M.data)[8] = 1.;
+
+				
+				_paramPerspMatrixRow0->setValue( x( 0 ), x( 1 ), x( 2 ) );
+				_paramPerspMatrixRow1->setValue( x( 3 ), x( 4 ), x( 5 ) );
+				_paramPerspMatrixRow2->setValue( x( 6 ), x( 7 ), 1 );
+				
+				/*
+				_paramPerspMatrixRow0->setValue( x( 0 ), x( 3 ), x( 6 ) );
+				_paramPerspMatrixRow1->setValue( x( 1 ), x( 4 ), x( 7 ) );
+				_paramPerspMatrixRow2->setValue( x( 2 ), x( 5 ), 1 );
+				*/
+				/*
 				_paramPerspMatrixRow0->setValue( perspMatrix( 0, 0 ), perspMatrix( 1, 0 ), perspMatrix( 2, 0 ) );
 				_paramPerspMatrixRow1->setValue( perspMatrix( 0, 1 ), perspMatrix( 1, 1 ), perspMatrix( 2, 1 ) );
 				_paramPerspMatrixRow2->setValue( perspMatrix( 0, 2 ), perspMatrix( 1, 2 ), perspMatrix( 2, 2 ) );
+				*/
+				
+				
 				break;
 			}
 			case eParamMethodBilinear:
