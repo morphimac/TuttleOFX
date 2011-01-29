@@ -1,6 +1,7 @@
 #include "WarpOverlayInteract.hpp"
 #include "WarpDefinitions.hpp"
 #include "WarpPlugin.hpp"
+#include "Bezier/bezier.hpp"
 #include <tuttle/plugin/opengl/gl.h>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
@@ -55,19 +56,6 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
         }
 }
 
-bool WarpOverlayInteract::bezier( const std::vector< point2<double> > p1, std::vector< point2<double> > p2)
-{
-    /*
-    std::vector< point2<double> > pBezier;
-
-    for(double t= 0.0 ; t < 1.0 ; t+=0.02)
-    {
-        pBezier.x = ( (1-t)*(p1.x) ) + t*(p2.x);
-        pBezier.y = ( (1-t)*(p1.y) ) + t*(p2.x);
-    }
-    */
-}
-
 bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 {
 	if( !_plugin->_paramOverlay->getValue() || !_plugin->_clipSrc->isConnected() )
@@ -94,23 +82,10 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         }
                 }
                 glEnd();
-
-                glColor3f( 1.0f, 0.25f, 0.6f );
-
-                glBegin( GL_POINTS );
-                for(int i=0 ; i < nbPoints ; ++i)
+                /*for(int j = 0; j < nbPoints; ++j)
                 {
-                        for(int j = 0; j < kMaxNbPoints; ++j)
-                        {
-                                if(nbPoints > j)
-                                {
-                                    double ptx1 = _plugin->_paramPointIn[nbPoints-j-1]->getValue().x;
-                                    double pty1 = _plugin->_paramPointIn[nbPoints-j-1]->getValue().y;
-                                    glVertex2f( ptx1 + 50.0,pty1 + 50.0);
-                                }
-                        }
-                }
-                glEnd();
+                        bezier::dessinePointRecur(tabPts, nbPoints+1);
+                }*/
             }
 	displaySomething |= _interactScene.draw( args );
 
@@ -128,18 +103,14 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 
         if((nbPoints < kMaxNbPoints) && (_plugin->_paramMethod->getValue() == eParamMethodCreation))
         {
-		for(unsigned int i = 0; i<nbPoints; ++i)
-		{/*
-			/*boost::mt19937 rng;                 
-			boost::uniform_int<> randomX(0,640);     
-			boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(rng, randomX);             
-			int x = die();
-			std::cout<<"Aleatoire "<<x<<std::endl;*/
-                	_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
-                	_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
+                _plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
+                _plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
 
-                	_plugin->_paramNbPoints->setValue(nbPoints+1);
-		}
+                tmp.x = _plugin->_paramPointIn[nbPoints]->getValue().x;
+                tmp.y = _plugin->_paramPointIn[nbPoints]->getValue().y;
+                tabPts.push_back(tmp);
+
+                _plugin->_paramNbPoints->setValue(nbPoints+1);
 
                 return _interactScene.penDown( args );
         }

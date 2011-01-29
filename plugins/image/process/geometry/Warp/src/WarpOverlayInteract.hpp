@@ -22,11 +22,13 @@ class WarpOverlayInteract : public OFX::OverlayInteract
 
 	interact::InteractInfos _infos;
         interact::InteractScene _interactScene;
+        point2<double> tmp;
+        std::vector< point2<double> > tabPts;
 
 public:
 	WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
 
-        bool bezier( const std::vector< point2<double> > p1, std::vector< point2<double> > p2 );
+        bool bezier(const point2<double> _p1, const point2<double> _p2);
         bool draw( const OFX::DrawArgs& args );
         bool penDown( const OFX::PenArgs& args );
 	bool penUp( const OFX::PenArgs& args );
