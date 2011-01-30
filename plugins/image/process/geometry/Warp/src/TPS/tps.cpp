@@ -116,14 +116,15 @@ TPS_Morpher::TPS_Morpher( const std::vector< point2<double> > pIn, const std::ve
 void TPS_Morpher::morphTPS(point2<double> pt)
 {
 	// Nombre de colonnes de la matrice K
-	const unsigned m = mtx_orig_k.size2();
+	//const unsigned m = mtx_orig_k.size2();
 
 	double x = pt.x, y = pt.y;
 	//std::cout<<"X -> "<<pt.x<<" et Y -> "<<pt.y<<std::endl;
-
+/*
 	std::cout<<"L "<<mtx_l.size1()<<" - "<<mtx_l.size2()<<std::endl;
 	std::cout<<"V "<<mtx_v.size1()<<" - "<<mtx_v.size2()<<std::endl;
 	std::cout<<"K "<<mtx_orig_k.size1()<<" - "<<mtx_orig_k.size2()<<std::endl;
+*/
 
 	//std::cout<<"ALLO 1"<<std::endl;
 	double test = 0;

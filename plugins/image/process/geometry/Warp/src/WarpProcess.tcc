@@ -1,7 +1,7 @@
 #include "WarpAlgorithm.hpp"
 #include "WarpPlugin.hpp"
 #include "TPS/tps.hpp"
-#include "Bezier/bezier.hpp"
+//#include "Bezier/bezier.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
 #include <tuttle/plugin/image/gil/resample.hpp>

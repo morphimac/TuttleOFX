@@ -1,7 +1,7 @@
 #include "WarpOverlayInteract.hpp"
 #include "WarpDefinitions.hpp"
 #include "WarpPlugin.hpp"
-#include "Bezier/bezier.hpp"
+//#include "Bezier/bezier.hpp"
 #include <tuttle/plugin/opengl/gl.h>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
@@ -102,15 +102,11 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
                 _plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
                 _plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
 
-<<<<<<< HEAD
-		_plugin->_paramNbPoints->setValue(nbPoints+1);
-=======
                 tmp.x = _plugin->_paramPointIn[nbPoints]->getValue().x;
                 tmp.y = _plugin->_paramPointIn[nbPoints]->getValue().y;
                 tabPts.push_back(tmp);
 
                 _plugin->_paramNbPoints->setValue(nbPoints+1);
->>>>>>> d3e497e5359dbdabef46545869157815cd0e6171
 
                 return _interactScene.penDown( args );
         }
@@ -123,6 +119,7 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
         {
                 //_plugin->_paramPointIn[2]->setIsSecretAndDisabled(true);
         }
+        return false;
 }
 
 bool WarpOverlayInteract::keyDown( const OFX::KeyArgs& args )
@@ -131,6 +128,7 @@ bool WarpOverlayInteract::keyDown( const OFX::KeyArgs& args )
             TUTTLE_COUT("test");
         else
             TUTTLE_COUT("test raté");
+        return false;
 }
 
 //bool WarpOverlayInteract::keyUp( const KeyArgs& args );
