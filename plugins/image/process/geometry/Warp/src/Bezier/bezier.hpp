@@ -17,11 +17,10 @@ namespace bezier {
 using namespace boost::gil;
 using namespace boost::numeric::ublas;
 
-    point2<double> barycentre(const point2<double> a, const point2<double> b, double t);
+    point2<double> barycentre(std::vector< point2<double> > quatrePoints, double t);
     void tracerPoint(const point2<double> p);
-    //void dessinePointsControle();
-    void tracePointRecur(std::vector< point2<double> > tabPts, int taille, double t);
-    void dessinePointRecur(std::vector< point2<double> > tabPts, int taille);
+    void tracePoint(std::vector< point2<double> > tabPts, int nbPointsTraces, double t);
+    void dessinePoint(std::vector< point2<double> > tabPts , int nbPointsTraces);
 
 }
 }

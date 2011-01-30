@@ -24,18 +24,19 @@ namespace plugin {
 namespace warp {
 namespace bezier {
 
-
-    int Nb_controle;
-    // declaration pts de controle
-    std::vector< point2<double> > tabPts;
-
-    point2<double> barycentre(const point2<double> a, const point2<double> b, double t)
+    point2<double> barycentre(std::vector< point2<double> > quatrePoints, double t)
     {
         //std::cout<<"--------------BARYCENTRE--------------"<<std::endl;
         point2<double> p;
 
-        p.x= ( (1-t)*(a.x) ) + t*(b.x);
-        p.y= ( (1-t)*(a.y) ) + t*(b.y);
+        point2<double> a = quatrePoints[0];
+        point2<double> b = quatrePoints[1];
+        point2<double> c = quatrePoints[2];
+        point2<double> d = quatrePoints[3];
+
+        //B(t) = P0(1-t)^3 + 3 P1 t (1-t)^2 + 3 P2 t^2 (1-t) + P3 t^3;
+        p.x= ((a.x)*(1-t)*(1-t)*(1-t))+(3*(b.x)*t*(1-t)*(1-t))+(3*(c.x)*t*t*(t-1))+((d.x)*t*t*t);
+        p.y= ((a.y)*(1-t)*(1-t)*(1-t))+(3*(b.y)*t*(1-t)*(1-t))+(3*(c.y)*t*t*(t-1))+((d.y)*t*t*t);
 
         return p;
     }
@@ -45,73 +46,22 @@ namespace bezier {
             //std::cout<<"--------------TracePoints--------------"<<std::endl;
             glVertex2f(p.x,p.y);
     }
-/*
-    void dessinePointsControle()
-    {
-        //unsigned int nbPoints = _plugin->_paramNbPoints->getValue();
-        glColor3ub(90,0,0);
-        glBegin(GL_LINES);
-        unsigned int i = 0;
-        //for(; i< Nb_controle;i++)
-        for(; i< Nb_controle;i++)
-        {
-            tracerPoint(tabPts[i]);
-            tracerPoint(tabPts[i+1]);
-        }
-        glEnd();
-    }
-*/
 
-    void tracePointRecur(std::vector< point2<double> > tabPts, int taille, double t)
-    {
-        //std::cout<<"--------------TracePointRecur--------------"<<std::endl;
-        if(taille == 1)
-        {
-            glColor3ub(255,0,255);
-            glBegin(GL_POINTS);
-            tracerPoint(tabPts[0]);
-            glEnd();
-        }
-        else
-        {
-            std::vector< point2<double> > tab;
-            for(int i=0; i<taille-1; i++)
-               tab[i] = barycentre(tabPts[i],tabPts[i+1],t);
-            tracePointRecur(tab, taille-1,t);
-        }
-    }
-
-    void dessinePointRecur(std::vector< point2<double> > tabPts, int taille)
+    void dessinePoint(std::vector< point2<double> > tabPts , int nbPointsTraces)
     {
         //std::cout<<"--------------DessineRecur--------------"<<std::endl;
-        double t;
-        for(t=0.00;t<1.00;t+=kPasBezier)
+        for(int i = 0; i < 100 ; ++i)
         {
-            tracePointRecur(tabPts, Nb_controle, t);
+            double t = (100.0-i)/100.0;
+
+            point2<double> tab = barycentre(tabPts,t);
+
+            glColor3ub(0,255,255);
+            glBegin(GL_POINTS);
+                tracerPoint(tab);
+            glEnd();
         }
     }
-/*
-    void display(void){
-
-        glClear(GL_COLOR_BUFFER_BIT);
-        if(Nb_controle != 0)
-        {
-                dessinePointsControle();
-                dessinePointRecur(tabPts, Nb_controle);
-        }
-        glutSwapBuffers();
-    }
-
-    void mouse(int key, int state, int x, int y){
-      if(key==GLUT_LEFT_BUTTON && state==GLUT_DOWN)
-      {
-            tabPts = realloc(tabPts, sizeof(point*)*(Nb_controle+1));
-            tabPts[Nb_controle] = allocpt(x/2,300-(y/2));
-            Nb_controle++;
-      }
-      display();
-    }
-*/
 }
 }
 }
