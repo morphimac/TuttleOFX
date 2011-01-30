@@ -11,6 +11,7 @@
 #include <ofxsParam.h>
 
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <utility>
 
 namespace tuttle {
 namespace plugin {
@@ -26,28 +27,35 @@ typedef boost::gil::point2<double> Point2;
 typedef boost::ptr_vector<InteractObject> InteractObjectsVector;
 typedef boost::ptr_vector<IsActiveFunctor> IsActiveFunctorVector;
 typedef boost::ptr_vector<IColor> ColorVector;
-typedef std::vector<InteractObject*> InteractObjectsVectorLink;
+typedef std::pair<InteractObject*, Point2> SelectedObject;
+typedef std::vector<SelectedObject> SelectedObjectsLinkVector;
 
 public:
 	InteractScene( OFX::ParamSet& params, const InteractInfos& infos );
-	~InteractScene();
+	virtual ~InteractScene();
 
 private:
 	OFX::ParamSet& _params;
 	const InteractInfos& _infos;
+	bool _multiSelectionEnabled;
+	bool _hasSelection;
+
 	InteractObjectsVector _objects;
 	IsActiveFunctorVector _isActive;
 	ColorVector _colors;
-	InteractObjectsVectorLink _selected;
-        EMoveType _moveType;
-        bool _mouseDown;
 
-        EMoveType _keyType;
-        bool _keyDown;
+	SelectedObjectsLinkVector _selected;
+	EMoveType _moveType;
+	bool _mouseDown;
+	bool _beginSelection;
+	OfxRectD _selectionRect;
 
 public:
 	InteractObjectsVector&       getObjects()       { return _objects; }
 	const InteractObjectsVector& getObjects() const { return _objects; }
+	
+	SelectedObjectsLinkVector&       getSelectedObjects()       { return _selected; }
+	const SelectedObjectsLinkVector& getSelectedObjects() const { return _selected; }
 
 	void push_back( InteractObject* obj, IsActiveFunctor* isActive = new AlwaysActiveFunctor<>(), IColor* color = new Color() )
 	{
