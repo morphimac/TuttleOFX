@@ -22,8 +22,6 @@ void WarpProcess<View>::setup( const OFX::RenderArguments& args )
 {
 	ImageGilFilterProcessor<View>::setup( args );
 	_params = _plugin.getProcessParams( args.renderScale );
-
-	
 }
 
 /**
@@ -35,7 +33,7 @@ void WarpProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW 
 {
 	using namespace boost::gil;
 	OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
-	
+
 	for( int y = procWindowOutput.y1;
 			 y < procWindowOutput.y2;
 			 ++y )
