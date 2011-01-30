@@ -7,6 +7,7 @@
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/InteractInfos.hpp>
 #include <tuttle/plugin/interact/InteractScene.hpp>
+//#include <tuttle/plugin/interact/InteractObject.hpp>
 #include <ofxsImageEffect.h>
 #include <ofxsInteract.h>
 
@@ -23,12 +24,13 @@ class PinningOverlayInteract : public OFX::OverlayInteract
 	interact::InteractInfos _infos;
 	interact::InteractScene _interactScene;
 
-        bool _beginSelection;
-        OfxRectD _multiSelectionRec;
-
-        bool _keyPressed_ctrl;
-        bool _keyPressed_shift;
-
+      bool _beginSelection;
+      OfxRectD _multiSelectionRec;
+      bool _multiSelection;
+/*
+       bool _keyPressed_ctrl;
+       bool _keyPressed_shift;
+*/
 public:
 	PinningOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );
 
@@ -38,9 +40,11 @@ public:
 	bool penUp( const OFX::PenArgs& args );
 	bool penMotion( const OFX::PenArgs& args );
 
+/*
         bool keyDown( const KeyArgs& args );
         bool keyUp( const KeyArgs& args );
         bool keyRepeat( const KeyArgs& args );
+*/
 };
 
 

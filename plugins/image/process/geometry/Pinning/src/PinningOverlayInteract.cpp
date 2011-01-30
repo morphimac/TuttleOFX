@@ -1,4 +1,4 @@
-#include "PinningOverlayInteract.hpp"
+ #include "PinningOverlayInteract.hpp"
 #include "PinningDefinitions.hpp"
 #include "PinningPlugin.hpp"
 #include <tuttle/plugin/opengl/gl.h>
@@ -17,6 +17,8 @@
 namespace tuttle {
 namespace plugin {
 namespace pinning {
+
+using namespace boost::numeric::ublas;
 
 PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect )
 	: OFX::OverlayInteract( handle )
@@ -57,6 +59,8 @@ PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::I
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn3, _plugin->_clipSrc ),
 							  activeIn3,
 							  new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
+
+
 }
 
 bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
@@ -86,29 +90,11 @@ bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
 	//std::cout<<"pen down"<<std::endl;
 	OfxPointD pos = args.penPosition;
 	std::cout<<pos.x<<";"<<pos.y<<std::endl;
-	double pres = args.penPressure; // lorsque l'on utilise une tablette graphique, on peut récupérer la pression du stylo
-	OfxTime time = args.time;
+//	double pres = args.penPressure; // lorsque l'on utilise une tablette graphique, on peut récupérer la pression du stylo
+//	OfxTime time = args.time;
 	
-        int width = _plugin->_clipSrc->getCanonicalRodSize(args.time, args.renderScale).x;
-        _plugin->_paramPointIn0->setValue( args.penPosition.x / width, args.penPosition.y / width );
-	
-
-        /*
-	double seuil = 10;
-	
-	for( int i; i < 50; ++i )
-	{
-		if( (abs(pos.x - pIn[i][0]) < seuil) &&  (abs(pos.y - pIn[i][1]) < seuil) )
-		{
-			pSelect[i] = pIn[i];
-		}
-		if( (abs(pos.x - pOut[i][0]) < seuil) &&  (abs(pos.y - pOut[i][1]) < seuil) )
-		{
-			pSelect[i] = pOut[i];
-		}
-	}
-        */
-	
+//        int width = _plugin->_clipSrc->getCanonicalRodSize(args.time, args.renderScale).x;
+//      _plugin->_paramPointIn0->setValue( args.penPosition.x / width, args.penPosition.y / width );
 	
         bool selObj = _interactScene.penDown( args );
         if( selObj )
@@ -121,11 +107,12 @@ bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
             _multiSelectionRec.x1 = args.penPosition.x;
             _multiSelectionRec.y1 = args.penPosition.y;
 
-            if(_keyPressed_ctrl)
+            //if(_keyPressed_ctrl)
             {
                 _multiSelection = true;
             }
         }
+return _interactScene.penDown( args );
 }
 
 bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
@@ -140,7 +127,8 @@ bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
         //??
 
         _multiSelection = false;
-        BOOST_FOREACH( const interact::InteractObject& p, _interactScene.getObjects() )
+	       
+	BOOST_FOREACH( interact::InteractObject& p, _interactScene.getObjects() )
         {
             bool b = p.selectIfIsIn( _multiSelectionRec );
             _multiSelection = _multiSelection || b;
@@ -148,14 +136,15 @@ bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
     }
 
     // x , y
-    _interactScene.moveXYSelected( x, y );
+    //_interactScene.moveXYSelected( x, y );
 
 	//std::cout<<"pen up"<<std::endl;
+
     return _interactScene.penUp( args );
 }
 
-
-bool PinningOverlayInteract::keyDown( const KeyArgs& args )
+/*
+bool PinningOverlayInteract::keyDown( const OFX::KeyArgs& args )
 {
    if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
    {
@@ -163,18 +152,104 @@ bool PinningOverlayInteract::keyDown( const KeyArgs& args )
    }
 }
 
-bool keyUp( const KeyArgs& args )
+bool PinningOverlayInteract::keyUp( const OFX::KeyArgs& args )
 {
-   if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
+  if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
+
    {
          _keyPressed_ctrl = false;
    }
 }
 
+bool PinningOverlayInteract::keyRepeat( const OFX::KeyArgs& args )
+{
+
+}
+*/
+
+
+OfxPointD calculCentre( const std::vector< bounded_vector<double, 2> > pSelect )
+{
+	double minX,maxX,minY,maxY = 0.0;
+	
+        for(int i=0 ; i<pSelect.size() ; ++i)
+	{
+		if(minX > pSelect[i][0] )
+		{
+			minX = pSelect[i][0];
+		}
+		if(maxX < pSelect[i][0] )
+		{
+			maxX = pSelect[i][0];
+		}
+		if(minY > pSelect[i][1] )
+		{
+			minX = pSelect[i][1];
+		}
+		if(maxY < pSelect[i][1] )
+		{
+			maxY = pSelect[i][1];
+		}
+	}
+	
+	OfxPointD centre;
+	centre.x = (minX + maxX)/2;
+	centre.y = (minY + maxY)/2;
+	
+	return centre;	
+
+}
+
+void rotatePts( std::vector< bounded_vector<double, 2> > pSelect, double angle)
+{
+	//calcul centre
+	OfxPointD centre;
+	centre = calculCentre(pSelect);
+	
+        for(int i=0 ; i<pSelect.size() ; ++i)
+	{
+            //deplace a l'origine
+            pSelect[i][0] -= centre.x;
+            pSelect[i][1] -= centre.y;
+	
+            //effectue la rotation
+            pSelect[i][0] = pSelect[i][0]*cos(angle) - pSelect[i][1]*sin(angle);
+            pSelect[i][1] = pSelect[i][0]*sin(angle) - pSelect[i][1]*cos(angle);
+	
+            //retour position initiale
+            pSelect[i][0] += centre.x;
+            pSelect[i][1] += centre.y;
+	}
+}
+
+void scalePts( std::vector< bounded_vector<double, 2> > pSelect, double coef)
+{
+	//calcul centre
+	OfxPointD centre;
+	centre = calculCentre(pSelect);
+	
+        for(int i=0 ; i<pSelect.size() ; ++i)
+	{
+            //deplace a l'origine
+            pSelect[i][0] -= centre.x;
+            pSelect[i][1] -= centre.y;
+
+            //effectue le scale
+            pSelect[i][0] *= coef;
+            pSelect[i][1] *= coef;
+
+            //retour position initiale
+            pSelect[i][0] += centre.x;
+            pSelect[i][1] += centre.y;
+	}
+}
+
+/*
 bool keyRepeat( const KeyArgs& args )
 {
 
 }
+*/
 
 /*
 void movePts(pSelect)
@@ -182,26 +257,6 @@ void movePts(pSelect)
 	for(int i=0 ; i<pSelect.size() ; ++i)
 	{
 		pIn[i][...] += n;
-	}
-}
-*/
-/*
-void rotatePts(pSelect, double angle)
-{
-	OfxPointD centreRotation;
-	
-	for(int i=0 ; i<pSelect.size() ; ++i)
-	{
-		centreRotation.x += pSelect[i][0];
-		centreRotation.y += pSelect[i][1];
-	}
-	centreRotation.x /= pSelect.size();
-	centreRotation.y /= pSelect.size();
-	
-	for(int i=0 ; i<pSelect.size() ; ++i)
-	{
-		pSelect[i][0] = pSelect[i][0]*cos(angle) - pSelect[i][1]*sin(angle);
-		pSelect[i][1] = pSelect[i][0]*sin(angle) - pSelect[i][1]*cos(angle);
 	}
 }
 */

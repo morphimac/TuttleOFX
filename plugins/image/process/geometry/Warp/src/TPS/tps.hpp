@@ -22,16 +22,17 @@ class TPS_Morpher
 {
 public:
 
-	TPS_Morpher( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut, std::vector< point2<double> > pToBuild);
-	void morphTPS(point2<double> pt);	
-
 	const std::vector< point2<double> > _pIn;
 	const std::vector< point2<double> > _pOut;
 	std::vector< point2<double> > _pToBuild;
 
+	Matrix mtx_l, mtx_v, mtx_orig_k;
+
+	TPS_Morpher( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut, std::vector< point2<double> > pToBuild);
+	void morphTPS(point2<double> pt);	
+
 private:
 
-	Matrix mtx_l, mtx_v, mtx_orig_k;
 };
 
 }
