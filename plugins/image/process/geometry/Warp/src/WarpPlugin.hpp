@@ -18,11 +18,11 @@ using namespace boost::gil;
 template<typename Scalar>
 struct WarpProcessParams
 {
-	std::vector< point2<double> > _inPoints;
-	std::vector< point2<double> > _outPoints;
-	std::vector< point2<double> > _buildPoints;
+	std::vector< point2<Scalar> > _inPoints;
+	std::vector< point2<Scalar> > _outPoints;
+	std::vector< point2<Scalar> > _buildPoints;
 
-        EParamMethod _method;
+	EParamMethod _method;
 };
 
 /**
@@ -31,7 +31,7 @@ struct WarpProcessParams
 class WarpPlugin : public OFX::ImageEffect
 {
 public:
-	typedef float Scalar;
+	typedef double Scalar;
 public:
     WarpPlugin( OfxImageEffectHandle handle );
 
