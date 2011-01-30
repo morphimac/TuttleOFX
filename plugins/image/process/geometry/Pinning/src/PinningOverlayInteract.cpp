@@ -79,67 +79,16 @@ bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
 
 bool PinningOverlayInteract::penMotion( const OFX::PenArgs& args )
 {
-
-	//std::cout<<"pen move"<<std::endl;
-	
         return _interactScene.penMotion( args );
 }
 
 bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
 {
-	//std::cout<<"pen down"<<std::endl;
-	OfxPointD pos = args.penPosition;
-	std::cout<<pos.x<<";"<<pos.y<<std::endl;
-//	double pres = args.penPressure; // lorsque l'on utilise une tablette graphique, on peut récupérer la pression du stylo
-//	OfxTime time = args.time;
-	
-//        int width = _plugin->_clipSrc->getCanonicalRodSize(args.time, args.renderScale).x;
-//      _plugin->_paramPointIn0->setValue( args.penPosition.x / width, args.penPosition.y / width );
-	
-        bool selObj = _interactScene.penDown( args );
-        if( selObj )
-        {
-            return true;
-        }
-        else
-        {
-            _beginSelection = true;
-            _multiSelectionRec.x1 = args.penPosition.x;
-            _multiSelectionRec.y1 = args.penPosition.y;
-
-            //if(_keyPressed_ctrl)
-            {
-                _multiSelection = true;
-            }
-        }
-return _interactScene.penDown( args );
+        return _interactScene.penDown( args );
 }
 
 bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
 {
-    if( _multiSelection )
-    {
-        _multiSelectionRec.x2 = args.penPosition.x;
-        _multiSelectionRec.y2 = args.penPosition.y;
-        _beginSelection = false;
-
-        // parcours Points
-        //??
-
-        _multiSelection = false;
-	       
-	BOOST_FOREACH( interact::InteractObject& p, _interactScene.getObjects() )
-        {
-            bool b = p.selectIfIsIn( _multiSelectionRec );
-            _multiSelection = _multiSelection || b;
-        }
-    }
-
-    // x , y
-    //_interactScene.moveXYSelected( x, y );
-
-	//std::cout<<"pen up"<<std::endl;
-
     return _interactScene.penUp( args );
 }
 
