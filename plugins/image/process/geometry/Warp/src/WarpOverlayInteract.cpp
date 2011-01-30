@@ -1,7 +1,7 @@
 #include "WarpOverlayInteract.hpp"
 #include "WarpDefinitions.hpp"
 #include "WarpPlugin.hpp"
-#include "Bezier/bezier.hpp"
+//#include "Bezier/bezier.hpp"
 #include <tuttle/plugin/opengl/gl.h>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
@@ -12,10 +12,6 @@
 #include <ofxsImageEffect.h>
 #include <ofxsInteract.h>
 #include <boost/gil/gil_all.hpp>
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/variate_generator.hpp>
 
 #include <vector>
 

@@ -31,15 +31,10 @@ double base_func( const double r2 )
 }
 
 TPS_Morpher::TPS_Morpher( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut, std::vector< point2<double> > pToBuild) :
-		_pIn(pIn), _pOut(pOut), _pToBuild(pToBuild)
+		_pIn(pIn), _pOut(pOut), _pToBuild(pToBuild), mtx_l(pIn.size()+3, pIn.size()+3), mtx_v(pIn.size()+3, 2), mtx_orig_k(pIn.size(), pIn.size())
 {
 	// Nombre de points d'entrée
 	std::size_t p = _pIn.size();
-
-	// Initialisation des matrices
- 	matrix<double> mtx_l(p+3, p+3);
-  	matrix<double> mtx_v(p+3, 2);
-  	matrix<double> mtx_orig_k(p, p);
 
 	/// @param regularization Amount of "relaxation", 0.0 = exact interpolation
 	double regularization = 0.0;
@@ -58,18 +53,11 @@ TPS_Morpher::TPS_Morpher( const std::vector< point2<double> > pIn, const std::ve
 	for (unsigned i=0; i<p; ++i)
 	{
       		const point2<double>& point_i = _pIn[i];
-		//std::cout<<"point i x "<<point_i.x<<std::endl;
-		//std::cout<<"point i y "<<point_i.y<<std::endl;
       		for (unsigned j=0; j<p; ++j)
       		{
-        		const point2<double>& point_j = _pIn[j]; 
-			//std::cout<<"point j x "<<point_j.x<<std::endl;
-			//std::cout<<"point j y "<<point_j.y<<std::endl;
+        		const point2<double>& point_j = _pIn[j];
         		double sum = boost::math::pow<2>(point_i.x-point_j.x) + boost::math::pow<2>(point_i.y-point_j.y);
-			//std::cout<<"Sum "<<sum<<std::endl;
         		mtx_l(i,j) = mtx_orig_k(i,j) = base_func(sum);
-			//std::cout<<"remplit k "<<mtx_l(i,j)<<std::endl;
-			//std::cout<<"remplit l "<<mtx_orig_k(i,j)<<std::endl;
       		}
     	}
 	
@@ -118,21 +106,31 @@ TPS_Morpher::TPS_Morpher( const std::vector< point2<double> > pIn, const std::ve
 	lu_factorize(mtx_l, P);
 	x = mtx_v;
 	lu_substitute(mtx_l, P, x);
+
+	std::cout<<"L "<<mtx_l.size1()<<" - "<<mtx_l.size2()<<std::endl;
+	std::cout<<"V "<<mtx_v.size1()<<" - "<<mtx_v.size2()<<std::endl;
+	std::cout<<"K "<<mtx_orig_k.size1()<<" - "<<mtx_orig_k.size2()<<std::endl;
 	
 }
 
 void TPS_Morpher::morphTPS(point2<double> pt)
 {
 	// Nombre de colonnes de la matrice K
-	const unsigned m = mtx_orig_k.size2();
+	//const unsigned m = mtx_orig_k.size2();
 
 	double x = pt.x, y = pt.y;
 	//std::cout<<"X -> "<<pt.x<<" et Y -> "<<pt.y<<std::endl;
+/*
+	std::cout<<"L "<<mtx_l.size1()<<" - "<<mtx_l.size2()<<std::endl;
+	std::cout<<"V "<<mtx_v.size1()<<" - "<<mtx_v.size2()<<std::endl;
+	std::cout<<"K "<<mtx_orig_k.size1()<<" - "<<mtx_orig_k.size2()<<std::endl;
+*/
+
 	//std::cout<<"ALLO 1"<<std::endl;
 	double test = 0;
 	//std::cout<<"B test "<<test<<std::endl;
 	//test = mtx_v(m+0, 0); 
-	//std::cout<<"A test "<<test<<std::endl;
+	//std::cout<<"M 2 "<<mtx_orig_k.size2()<<std::endl;
       	//double dx = mtx_v(m+0, 0) + mtx_v(m+1, 0)*x + mtx_v(m+2, 0)*y;
       	//double dy = mtx_v(m+0, 1) + mtx_v(m+1, 1)*x + mtx_v(m+2, 1)*y;
 /*	
