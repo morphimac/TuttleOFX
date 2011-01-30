@@ -18,18 +18,23 @@ typedef	matrix<double> Matrix;
 typedef matrix_row<Matrix> Matrix_Row;
 typedef matrix_column<Matrix> Matrix_Col;
 
+template<typename SCALAR>
 class TPS_Morpher
 {
 public:
+    typedef SCALAR Scalar;
+    typedef point2<Scalar> Point2;
 
-	const std::vector< point2<double> > _pIn;
-	const std::vector< point2<double> > _pOut;
-	std::vector< point2<double> > _pToBuild;
+    const std::vector< Point2> _pIn;
+    const std::vector< Point2 > _pOut;
+    //std::vector< Point2> _pToBuild;
 
-	Matrix mtx_l, mtx_v, mtx_orig_k;
+    Matrix mtx_l, mtx_v, mtx_orig_k;
 
-	TPS_Morpher( const std::vector< point2<double> > pIn, const std::vector< point2<double> > pOut, std::vector< point2<double> > pToBuild);
-	void morphTPS(point2<double> pt);	
+    TPS_Morpher( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut );
+
+    template<typename S2>
+    Point2 operator()( const point2<S2>& pt ) const;
 
 private:
 
@@ -38,5 +43,7 @@ private:
 }
 }
 }
+
+#include "tps.tcc"
 
 #endif

@@ -14,6 +14,7 @@ namespace plugin {
 namespace warp {
 
 using namespace boost::gil;
+
 template<typename Scalar>
 struct WarpProcessParams
 {

@@ -18,7 +18,7 @@ class WarpProcess : public ImageGilFilterProcessor<View>
 public:
 	typedef typename View::value_type Pixel;
 	typedef typename boost::gil::channel_type<View>::type Channel;
-	typedef float Scalar;
+        typedef double Scalar;
 protected :
     WarpPlugin&    _plugin;            ///< Rendering plugin
 	WarpProcessParams<Scalar> _params; ///< parameters
