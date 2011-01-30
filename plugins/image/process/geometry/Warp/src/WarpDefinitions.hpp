@@ -9,6 +9,7 @@ namespace plugin {
 namespace warp {
 
 const static std::size_t kMaxNbPoints = 10;
+const static std::size_t kPasBezier = 0.2;
 
 const static std::string kParamMethod = "method";
 const static std::string kParamMethodCreation = "creation";

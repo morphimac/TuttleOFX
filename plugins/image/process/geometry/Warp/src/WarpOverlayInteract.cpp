@@ -1,6 +1,7 @@
 #include "WarpOverlayInteract.hpp"
 #include "WarpDefinitions.hpp"
 #include "WarpPlugin.hpp"
+#include "Bezier/bezier.hpp"
 #include <tuttle/plugin/opengl/gl.h>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
@@ -63,9 +64,9 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 	typedef boost::gil::point2<Scalar> Point2;
 	bool displaySomething        = false;
 
-	std::size_t nbPoints = _plugin->_paramNbPoints->getValue();
+	const std::size_t nbPoints = _plugin->_paramNbPoints->getValue();
 
-	if( nbPoints > 1 )
+	if(nbPoints >1)
 	{
 		static const float lineWidth = 1.0;
 		glLineWidth( lineWidth );
@@ -76,11 +77,15 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 		{
 			for( std::size_t j = 0; j < kMaxNbPoints; ++j )
 			{
-				if( nbPoints > j )
+				if(nbPoints > j)
 					glVertex2f( _plugin->_paramPointIn[nbPoints-j-1]->getValue().x, _plugin->_paramPointIn[nbPoints-j-1]->getValue().y);
 			}
 		}
 		glEnd();
+		/*for(int j = 0; j < nbPoints; ++j)
+		{
+				bezier::dessinePointRecur(tabPts, nbPoints+1);
+		}*/
 	}
 	displaySomething |= _interactScene.draw( args );
 
@@ -98,20 +103,15 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 
 	if( (nbPoints < kMaxNbPoints) && (_plugin->_paramMethod->getValue() == eParamMethodCreation) )
 	{
-		for(unsigned int i = 0; i<nbPoints; ++i)
-		{
-			/*
-			boost::mt19937 rng;
-			boost::uniform_int<> randomX(0,640);
-			boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(rng, randomX);
-			int x = die();
-			std::cout<<"Aleatoire "<<x<<std::endl;
-			*/
-			_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
-			_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
+		_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
+		_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
 
-			_plugin->_paramNbPoints->setValue(nbPoints+1);
-		}
+		tmp.x = _plugin->_paramPointIn[nbPoints]->getValue().x;
+		tmp.y = _plugin->_paramPointIn[nbPoints]->getValue().y;
+		tabPts.push_back(tmp);
+
+		_plugin->_paramNbPoints->setValue(nbPoints+1);
+
 		return _interactScene.penDown( args );
 	}
 	else if(_plugin->_paramMethod->getValue() == eParamMethodMove)
@@ -120,8 +120,7 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 	}
 	else if(_plugin->_paramMethod->getValue() == eParamMethodDelete)
 	{
-			//_interactScene;
-			//_plugin->_paramPointIn[2]->setIsSecretAndDisabled(true);
+		//_plugin->_paramPointIn[2]->setIsSecretAndDisabled(true);
 	}
 	return false;
 }
