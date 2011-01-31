@@ -35,8 +35,8 @@ namespace bezier {
         point2<double> d = quatrePoints[3];
 
         //B(t) = P0(1-t)^3 + 3 P1 t (1-t)^2 + 3 P2 t^2 (1-t) + P3 t^3;
-        p.x= ((a.x)*(1-t)*(1-t)*(1-t))+(3*(b.x)*t*(1-t)*(1-t))+(3*(c.x)*t*t*(t-1))+((d.x)*t*t*t);
-        p.y= ((a.y)*(1-t)*(1-t)*(1-t))+(3*(b.y)*t*(1-t)*(1-t))+(3*(c.y)*t*t*(t-1))+((d.y)*t*t*t);
+        p.x= ((a.x)*(1-t)*(1-t)*(1-t))+(3*(b.x)*t*(1-t)*(1-t))+(3*(c.x)*t*t*(1-t))+((d.x)*t*t*t);
+        p.y= ((a.y)*(1-t)*(1-t)*(1-t))+(3*(b.y)*t*(1-t)*(1-t))+(3*(c.y)*t*t*(1-t))+((d.y)*t*t*t);
 
         return p;
     }

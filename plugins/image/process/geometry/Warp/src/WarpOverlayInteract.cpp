@@ -77,13 +77,8 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 
                 TUTTLE_COUT(nbPoints);
 
-                std::vector< point2<double> > tabPts;
-                tabPts.push_back(point2<double>(100.0,100.0));
-                tabPts.push_back(point2<double>(200.0,200.0));
-                tabPts.push_back(point2<double>(300.0,200.0));
-                tabPts.push_back(point2<double>(400.0,100.0));
-
-                bezier::dessinePoint(tabPts,4);
+                if(nbPoints==4)
+                    bezier::dessinePoint(tabPts,4);
 	}
 	displaySomething |= _interactScene.draw( args );
 
@@ -104,9 +99,7 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 		_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
 		_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
 
-		tmp.x = _plugin->_paramPointIn[nbPoints]->getValue().x;
-		tmp.y = _plugin->_paramPointIn[nbPoints]->getValue().y;
-		tabPts.push_back(tmp);
+                tabPts.push_back(point2<double>(args.penPosition.x,args.penPosition.y));
 
 		_plugin->_paramNbPoints->setValue(nbPoints+1);
 
