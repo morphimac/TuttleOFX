@@ -268,6 +268,10 @@ EPixelComponent mapPixelComponentStringToEnum( const std::string& str )
 	{
 		return ePixelComponentRGBA;
 	}
+	else if( str == kOfxImageComponentRGB )
+	{
+		return ePixelComponentRGB;
+	}
 	else if( str == kOfxImageComponentAlpha )
 	{
 		return ePixelComponentAlpha;
@@ -288,6 +292,8 @@ std::string mapPixelComponentEnumToString( const EPixelComponent e )
 	{
 		case ePixelComponentRGBA:
 			return kOfxImageComponentRGBA;
+		case ePixelComponentRGB:
+			return kOfxImageComponentRGB;
 		case ePixelComponentAlpha:
 			return kOfxImageComponentAlpha;
 		case ePixelComponentNone:
@@ -420,6 +426,9 @@ void ClipDescriptor::addSupportedComponent( EPixelComponent v )
 		case ePixelComponentRGBA:
 			_clipProps.propSetString( kOfxImageEffectPropSupportedComponents, kOfxImageComponentRGBA, n );
 			break;
+		case ePixelComponentRGB:
+			_clipProps.propSetString( kOfxImageEffectPropSupportedComponents, kOfxImageComponentRGB, n );
+			break;
 		case ePixelComponentAlpha:
 			_clipProps.propSetString( kOfxImageEffectPropSupportedComponents, kOfxImageComponentAlpha, n );
 			break;
@@ -484,7 +493,7 @@ ImageEffectDescriptor::ImageEffectDescriptor( OfxImageEffectHandle handle )
 	OfxParamSetHandle paramSetHandle;
 	stat = OFX::Private::gEffectSuite->getParamSet( handle, &paramSetHandle );
 	throwSuiteStatusException( stat );
-	setParamSetHandle( paramSetHandle );
+	setOfxParamSetHandle( paramSetHandle );
 }
 
 /** @brief dtor */
@@ -508,6 +517,11 @@ void ImageEffectDescriptor::setLabels( const std::string& label, const std::stri
 	_effectProps.propSetString( kOfxPropLabel, label );
 	_effectProps.propSetString( kOfxPropShortLabel, shortLabel, false );
 	_effectProps.propSetString( kOfxPropLongLabel, longLabel, false );
+}
+
+void ImageEffectDescriptor::setDescription( const std::string& description )
+{
+	_effectProps.propSetString( kOfxPropPluginDescription, description, false );
 }
 
 /** @brief Set the plugin grouping */
@@ -710,6 +724,7 @@ Image::Image( OfxPropertySetHandle props )
 	switch( _pixelComponents )
 	{
 		case ePixelComponentRGBA: _pixelBytes   = 4; break;
+		case ePixelComponentRGB: _pixelBytes   = 3; break;
 		case ePixelComponentAlpha: _pixelBytes  = 1; break;
 		case ePixelComponentCustom: _pixelBytes = 0; break;
 		case ePixelComponentNone: _pixelBytes   = 0; break;
@@ -763,7 +778,7 @@ Image::Image( OfxPropertySetHandle props )
 	_uniqueID = _imageProps.propGetString( kOfxImagePropUniqueIdentifier );
 
 	//	std::string tuttleFullName = _imageProps.propGetString( "TuttleFullName" );
-	//	COUT("tuttleFullName: " << tuttleFullName );
+	//	TUTTLE_COUT("tuttleFullName: " << tuttleFullName );
 
 	_renderScale.x = _imageProps.propGetDouble( kOfxImageEffectPropRenderScale, 0 );
 	_renderScale.y = _imageProps.propGetDouble( kOfxImageEffectPropRenderScale, 1 );
@@ -1463,6 +1478,9 @@ void ClipPreferencesSetter::setClipComponents( Clip& clip, EPixelComponent comps
 		case ePixelComponentRGBA:
 			outArgs_.propSetString( propName.c_str(), kOfxImageComponentRGBA );
 			break;
+		case ePixelComponentRGB:
+			outArgs_.propSetString( propName.c_str(), kOfxImageComponentRGB );
+			break;
 		case ePixelComponentAlpha:
 			outArgs_.propSetString( propName.c_str(), kOfxImageComponentAlpha );
 			break;
@@ -1639,25 +1657,27 @@ void fetchHostDescription( OfxHost* host )
 		PropertySet hostProps( host->host );
 
 		// and get some properties
-		gHostDescription.hostName                   = hostProps.propGetString( kOfxPropName );
-		gHostDescription.hostIsBackground           = hostProps.propGetInt( kOfxImageEffectHostPropIsBackground ) != 0;
-		gHostDescription.supportsOverlays           = hostProps.propGetInt( kOfxImageEffectPropSupportsOverlays ) != 0;
-		gHostDescription.supportsMultiResolution    = hostProps.propGetInt( kOfxImageEffectPropSupportsMultiResolution ) != 0;
-		gHostDescription.supportsTiles              = hostProps.propGetInt( kOfxImageEffectPropSupportsTiles ) != 0;
-		gHostDescription.temporalClipAccess         = hostProps.propGetInt( kOfxImageEffectPropTemporalClipAccess ) != 0;
-		gHostDescription.supportsMultipleClipDepths = hostProps.propGetInt( kOfxImageEffectPropSupportsMultipleClipDepths ) != 0;
-		gHostDescription.supportsMultipleClipPARs   = hostProps.propGetInt( kOfxImageEffectPropSupportsMultipleClipPARs ) != 0;
-		gHostDescription.supportsSetableFrameRate   = hostProps.propGetInt( kOfxImageEffectPropSetableFrameRate ) != 0;
-		gHostDescription.supportsSetableFielding    = hostProps.propGetInt( kOfxImageEffectPropSetableFielding ) != 0;
-		gHostDescription.supportsStringAnimation    = hostProps.propGetInt( kOfxParamHostPropSupportsStringAnimation ) != 0;
-		gHostDescription.supportsCustomInteract     = hostProps.propGetInt( kOfxParamHostPropSupportsCustomInteract ) != 0;
-		gHostDescription.supportsChoiceAnimation    = hostProps.propGetInt( kOfxParamHostPropSupportsChoiceAnimation ) != 0;
-		gHostDescription.supportsBooleanAnimation   = hostProps.propGetInt( kOfxParamHostPropSupportsBooleanAnimation ) != 0;
-		gHostDescription.supportsCustomAnimation    = hostProps.propGetInt( kOfxParamHostPropSupportsCustomAnimation ) != 0;
-		gHostDescription.maxParameters              = hostProps.propGetInt( kOfxParamHostPropMaxParameters );
-		gHostDescription.maxPages                   = hostProps.propGetInt( kOfxParamHostPropMaxPages );
-		gHostDescription.pageRowCount               = hostProps.propGetInt( kOfxParamHostPropPageRowColumnCount, 0 );
-		gHostDescription.pageColumnCount            = hostProps.propGetInt( kOfxParamHostPropPageRowColumnCount, 1 );
+		gHostDescription.hostName                    = hostProps.propGetString( kOfxPropName );
+		gHostDescription.hostIsBackground            = hostProps.propGetInt( kOfxImageEffectHostPropIsBackground ) != 0;
+		gHostDescription.supportsOverlays            = hostProps.propGetInt( kOfxImageEffectPropSupportsOverlays ) != 0;
+		gHostDescription.supportsMultiResolution     = hostProps.propGetInt( kOfxImageEffectPropSupportsMultiResolution ) != 0;
+		gHostDescription.supportsTiles               = hostProps.propGetInt( kOfxImageEffectPropSupportsTiles ) != 0;
+		gHostDescription.temporalClipAccess          = hostProps.propGetInt( kOfxImageEffectPropTemporalClipAccess ) != 0;
+		gHostDescription.supportsMultipleClipDepths  = hostProps.propGetInt( kOfxImageEffectPropSupportsMultipleClipDepths ) != 0;
+		gHostDescription.supportsMultipleClipPARs    = hostProps.propGetInt( kOfxImageEffectPropSupportsMultipleClipPARs ) != 0;
+		gHostDescription.supportsSetableFrameRate    = hostProps.propGetInt( kOfxImageEffectPropSetableFrameRate ) != 0;
+		gHostDescription.supportsSetableFielding     = hostProps.propGetInt( kOfxImageEffectPropSetableFielding ) != 0;
+		gHostDescription.supportsStringAnimation     = hostProps.propGetInt( kOfxParamHostPropSupportsStringAnimation ) != 0;
+		gHostDescription.supportsCustomInteract      = hostProps.propGetInt( kOfxParamHostPropSupportsCustomInteract ) != 0;
+		gHostDescription.supportsChoiceAnimation     = hostProps.propGetInt( kOfxParamHostPropSupportsChoiceAnimation ) != 0;
+		gHostDescription.supportsBooleanAnimation    = hostProps.propGetInt( kOfxParamHostPropSupportsBooleanAnimation ) != 0;
+		gHostDescription.supportsCustomAnimation     = hostProps.propGetInt( kOfxParamHostPropSupportsCustomAnimation ) != 0;
+		gHostDescription.supportsParametricParameter = gParametricParameterSuite != NULL;
+		gHostDescription.supportsCameraParameter     = gCameraParameterSuite != NULL;
+		gHostDescription.maxParameters               = hostProps.propGetInt( kOfxParamHostPropMaxParameters );
+		gHostDescription.maxPages                    = hostProps.propGetInt( kOfxParamHostPropMaxPages );
+		gHostDescription.pageRowCount                = hostProps.propGetInt( kOfxParamHostPropPageRowColumnCount, 0 );
+		gHostDescription.pageColumnCount             = hostProps.propGetInt( kOfxParamHostPropPageRowColumnCount, 1 );
 		int numComponents = hostProps.propGetDimension( kOfxImageEffectPropSupportedComponents );
 		for( int i = 0; i < numComponents; ++i )
 			gHostDescription._supportedComponents.push_back( mapPixelComponentStringToEnum( hostProps.propGetString( kOfxImageEffectPropSupportedComponents, i ) ) );
@@ -2224,6 +2244,14 @@ OfxStatus mainEntryStr( const char*          actionRaw,
 	OFX::Log::print( "START mainEntry (%s)", actionRaw );
 	OFX::Log::indent();
 	OfxStatus stat = kOfxStatReplyDefault;
+
+	// Cast the raw handle to be an image effect handle, because that is what it is
+	OfxImageEffectHandle handle = (OfxImageEffectHandle) handleRaw;
+
+	// Turn the arguments into wrapper objects to make our lives easier
+	OFX::PropertySet inArgs( inArgsRaw );
+	OFX::PropertySet outArgs( outArgsRaw );
+
 	try
 	{
 		// turn the action into a std::string
@@ -2231,15 +2259,7 @@ OfxStatus mainEntryStr( const char*          actionRaw,
 		OfxPlugInfoMap::iterator it = plugInfoMap.find( plugname );
 		if( it == plugInfoMap.end() )
 			BOOST_THROW_EXCEPTION( std::logic_error( "Action not recognized: " + action ) );
-
 		OFX::PluginFactory* factory = it->second._factory;
-
-		// Cast the raw handle to be an image effect handle, because that is what it is
-		OfxImageEffectHandle handle = (OfxImageEffectHandle) handleRaw;
-
-		// Turn the arguments into wrapper objects to make our lives easier
-		OFX::PropertySet inArgs( inArgsRaw );
-		OFX::PropertySet outArgs( outArgsRaw );
 
 		// figure the actions
 		if( action == kOfxActionLoad )
@@ -2491,6 +2511,25 @@ OfxStatus mainEntryStr( const char*          actionRaw,
 		}
 	}
 
+	catch( boost::exception& e )
+	{
+		typedef ::boost::error_info< ::OFX::tag_ofxStatus, ::OfxStatus> ofxStatus;
+
+		std::cerr << "----------" << std::endl;
+		std::cerr << "* Caught boost::exception on action " << actionRaw << std::endl;
+		if( const OfxStatus* const status = boost::get_error_info<ofxStatus>( e ) )
+		{
+			stat = *status;
+		}
+		else
+		{
+			stat = kOfxStatFailed;
+		}
+		std::cerr << boost::diagnostic_information(e);
+//		std::cerr << "* inArgs: " << inArgs << std::endl;
+		std::cerr << "----------" << std::endl;
+	}
+	
 	// catch suite exceptions
 	catch( OFX::Exception::Suite& e )
 	{
@@ -2528,12 +2567,6 @@ OfxStatus mainEntryStr( const char*          actionRaw,
 	}
 	#endif
 
-	catch( boost::exception& e )
-	{
-		std::cerr << "Caught boost::exception on action " << actionRaw << std::endl;
-		std::cerr << boost::diagnostic_information(e);
-		stat = kOfxStatFailed;
-	}
 	// catch all exceptions
 	catch( std::exception& e )
 	{
@@ -2542,7 +2575,7 @@ OfxStatus mainEntryStr( const char*          actionRaw,
 	}
 
 	// Catch anything else, unknown
-	catch(... )
+	catch( ... )
 	{
 		std::cerr << "Caught Unknown exception (file:" << __FILE__ << " line:" << __LINE__ << ")" << std::endl;
 		stat = kOfxStatFailed;

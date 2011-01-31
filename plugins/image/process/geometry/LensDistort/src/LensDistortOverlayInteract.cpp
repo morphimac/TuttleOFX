@@ -143,8 +143,8 @@ bool LensDistortOverlayInteract::draw( const OFX::DrawArgs& args )
 		shiftGrid( grid, rodCorner ); // to move in RoW coordinates
 
 		glLineWidth( lineWidth );
-		glColor3f( 1.0f, 1.0f, 0.0f );
-		overlay::drawCurves( grid );
+                glColor3f( 0.0f, 1.0f, 0.0f );
+                overlay::drawCurves( grid );
 	}
 	return displaySomething;
 }

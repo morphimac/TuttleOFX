@@ -231,7 +231,7 @@ void ValueParamDescriptor::setCacheInvalidation( CacheInvalidationEnum v )
 	}
 }
 
-  void ValueParamDescriptor::setInteractDescriptor(ParamInteractWrap* desc)
+void ValueParamDescriptor::setInteractDescriptor( ParamInteractWrap* desc)
 {
 	_interact.reset( desc );
 	getProps().propSetPointer( kOfxParamPropInteractV1, (void*)desc->getMainEntry() );
@@ -679,12 +679,17 @@ GroupParamDescriptor::GroupParamDescriptor( const std::string& name, OfxProperty
 	: ParamDescriptor( name, eGroupParam, props )
 {}
 
+void GroupParamDescriptor::setOpen( const bool open )
+{
+	getProps().propSetInt( kOfxParamPropGroupOpen, open );
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // page param descriptor
 
 /** @brief hidden constructor */
 PageParamDescriptor::PageParamDescriptor( const std::string& name, OfxPropertySetHandle props )
-	: ParamDescriptor( name, eGroupParam, props )
+	: ParamDescriptor( name, ePageParam, props )
 {}
 
 /** @brief adds a child parameter. Note the two existing pseudo params, gColumnSkip  and gRowSkip */
@@ -712,7 +717,19 @@ ParametricParamDescriptor::ParametricParamDescriptor( const std::string& name, O
 {
 }
 
-void ParametricParamDescriptor::setDimension( const std::size_t dimension )
+void ParametricParamDescriptor::setParamSet( ParamSetDescriptor& paramSet )
+{
+	_paramSet = &paramSet;
+	OFX::Private::gParamSuite->paramGetHandle( _paramSet->getOfxParamSetHandle(), getName().c_str(), &_ofxParamHandle, NULL );
+}
+
+void ParametricParamDescriptor::setRange( const double min, const double max )
+{
+	getProps().propSetDouble( kOfxParamPropParametricRange, min, 0 );
+	getProps().propSetDouble( kOfxParamPropParametricRange, max, 1 );
+}
+
+void ParametricParamDescriptor::setDimension( const int dimension )
 {
 	getProps().propSetInt( kOfxParamPropParametricDimension, dimension );
 }
@@ -722,9 +739,49 @@ void ParametricParamDescriptor::setLabel( const std::string label )
 	getProps().propSetString( kOfxPropLabel, label );
 }
 
-void ParametricParamDescriptor::setDimensionLabel( const std::string label, const std::size_t id )
+void ParametricParamDescriptor::setDimensionLabel( const std::string label, const int id )
 {
-	getProps().propSetString( kOfxParamPropDimensionLabel, label, (int)id );
+	getProps().propSetString( kOfxParamPropDimensionLabel, label, id );
+}
+
+void ParametricParamDescriptor::setUIColour( const int id, const OfxRGBColourD color )
+{
+	getProps().propSetDouble( kOfxParamPropParametricUIColour, color.r, id*3 + 0 );
+	getProps().propSetDouble( kOfxParamPropParametricUIColour, color.g, id*3 + 1 );
+	getProps().propSetDouble( kOfxParamPropParametricUIColour, color.b, id*3 + 2 );
+}
+
+void ParametricParamDescriptor::addControlPoint( const int id, const OfxTime time, const double x, const double y, const bool addKey )
+{
+	OFX::Private::gParametricParameterSuite->parametricParamAddControlPoint(
+		_ofxParamHandle,
+		id,
+		time,
+		x,
+		y,
+		addKey );
+}
+
+void ParametricParamDescriptor::setIdentity( const int id )
+{
+	addControlPoint( id, 0, 0, 0, false );
+	addControlPoint( id, 0, 1, 1, false );
+}
+
+void ParametricParamDescriptor::setIdentity()
+{
+	const int nbCurves = getProps().propGetInt( kOfxParamPropParametricDimension );
+	for( int i = 0; i < nbCurves; ++i )
+	{
+		setIdentity( i );
+	}
+}
+
+void ParametricParamDescriptor::setInteractDescriptor( ParamInteractWrap* desc )
+{
+	_interact.reset( desc );
+	getProps().propSetPointer( kOfxParamPropParametricInteractBackground, (void*)desc->getMainEntry() );
+    desc->getDescriptor().setParamName( getName() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -743,7 +800,7 @@ ParamDescriptor* ParamSetDescriptor::getParamDescriptor( const std::string& name
 }
 
 /** @brief set the param set handle */
-void ParamSetDescriptor::setParamSetHandle( OfxParamSetHandle h )
+void ParamSetDescriptor::setOfxParamSetHandle( OfxParamSetHandle h )
 {
 	// set me handle
 	_paramSetHandle = h;
@@ -936,6 +993,10 @@ ParametricParamDescriptor* ParamSetDescriptor::defineParametricParam( const std:
 	ParametricParamDescriptor* param = NULL;
 
 	defineParamDescriptor( name, eParametricParam, param );
+
+	// Parametric parameters need the ParamSet !
+	param->setParamSet( *this ); ///< @todo tuttle: more generic way for all param types ?
+
 	return param;
 }
 

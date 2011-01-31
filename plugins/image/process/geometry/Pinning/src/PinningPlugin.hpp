@@ -91,7 +91,6 @@ public:
 	OFX::RGBParam*  _paramOverlayOutColor;
 
 //TODO-vince //
-        //boost::array<OFX::Double2DParam*,nbPoints> _paramPointSelect; // yeahey !
     OFX::GroupParam* _paramGroupSelect;
     OFX::Double2DParam* _paramPointSelect0;
     OFX::Double2DParam* _paramPointSelect1;

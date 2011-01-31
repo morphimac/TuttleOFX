@@ -30,7 +30,7 @@ void IfftProcess<View>::setup( const OFX::RenderArguments& args )
 	this->_srcMod.reset( _clipSrcRe->fetchImage( args.time ) );
 	if( !this->_srcMod.get() )
 		BOOST_THROW_EXCEPTION( exception::ImageNotReady() );
-	if( this->_srcMod->getRowBytes() <= 0 )
+	if( this->_srcMod->getRowBytes() == 0 )
 		BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
 	this->_srcViewRe = this->getView( this->_srcMod.get(), _clipSrcRe->getPixelRod( args.time ) );
 
@@ -43,7 +43,7 @@ void IfftProcess<View>::setup( const OFX::RenderArguments& args )
 	this->_srcPhase.reset( _clipSrcIm->fetchImage( args.time ) );
 	if( !this->_srcPhase.get() )
 		BOOST_THROW_EXCEPTION( exception::ImageNotReady() );
-	if( this->_srcPhase->getRowBytes() <= 0 )
+	if( this->_srcPhase->getRowBytes() == 0 )
 		BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
 	this->_srcViewIm = this->getView( this->_srcPhase.get(), _clipSrcIm->getPixelRod( args.time ) );
 
@@ -63,15 +63,15 @@ void IfftProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW 
 {
 	using namespace boost::gil;
 
-	View srcMod = subimage_view( this->_srcViewRe, procWindow.x1, procWindow.y1,
-	                             procWindow.x2 - procWindow.x1,
-	                             procWindow.y2 - procWindow.y1 );
-	View srcPhase = subimage_view( this->_srcViewRe, procWindow.x1, procWindow.y1,
-	                               procWindow.x2 - procWindow.x1,
-	                               procWindow.y2 - procWindow.y1 );
-	View dst = subimage_view( this->_dstView, procWindow.x1, procWindow.y1,
-	                          procWindow.x2 - procWindow.x1,
-	                          procWindow.y2 - procWindow.y1 );
+	View srcMod = subimage_view( this->_srcViewRe, procWindowRoW.x1, procWindowRoW.y1,
+	                             procWindowRoW.x2 - procWindowRoW.x1,
+	                             procWindowRoW.y2 - procWindowRoW.y1 );
+	View srcPhase = subimage_view( this->_srcViewRe, procWindowRoW.x1, procWindowRoW.y1,
+	                               procWindowRoW.x2 - procWindowRoW.x1,
+	                               procWindowRoW.y2 - procWindowRoW.y1 );
+	View dst = subimage_view( this->_dstView, procWindowRoW.x1, procWindowRoW.y1,
+	                          procWindowRoW.x2 - procWindowRoW.x1,
+	                          procWindowRoW.y2 - procWindowRoW.y1 );
 
 	// Create a planar floating point view
 	//	typedef pixel<bits32f, layout<typename color_space_type<View>::type> > Pixel32f;
@@ -91,7 +91,7 @@ void IfftProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW 
 	copy_and_convert_pixels( srcMod, svwMod );
 	copy_and_convert_pixels( srcPhase, svwPhase );
 	// Apply fft on each plane
-	tuttle::filter::fft::FftwWrapperCPU fft;
+	fft::FftwWrapperCPU fft;
 
 	for( int c = 0; c < num_channels<Pixel32f>::value; ++c )
 	{

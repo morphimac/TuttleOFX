@@ -56,8 +56,8 @@ public:
 
 	ESelectType selectType( const OFX::PenArgs& args ) const;
 
-	EMoveType selectIfIntesect( const OFX::PenArgs& args );
-	bool      selectIfIsIn( const OfxRectD& );
+	MotionType intersect( const OFX::PenArgs& args );
+	bool      isIn( const OfxRectD& );
 
 	Point2 getPoint() const
 	{
@@ -205,24 +205,29 @@ typename ParamRectangleFromTwoCorners<TFrame, coord>::ESelectType ParamRectangle
 }
 
 template<class TFrame, ECoordonateSystem coord>
-EMoveType ParamRectangleFromTwoCorners<TFrame, coord>::selectIfIntesect( const OFX::PenArgs& args )
+MotionType ParamRectangleFromTwoCorners<TFrame, coord>::intersect( const OFX::PenArgs& args )
 {
-	this->_offset.x = 0;
-	this->_offset.y = 0;
+	MotionType m;
+	m._mode = eMotionTranslate;
 	_selectType     = selectType( args );
 	if( _selectType != eSelectTypeNone )
-		return eMoveTypeXY;
-	EMoveType m = PointInteract::selectIfIntesect( args );
-	if( m != eMoveTypeNone )
+	{
+		m._axis = eAxisXY;
+		return m;
+	}
+	m = PointInteract::intersect( args );
+	if( m._axis != eAxisNone )
+	{
 		_selectType = eSelectTypeC;
+	}
 	return m;
 }
 
 template<class TFrame, ECoordonateSystem coord>
-bool ParamRectangleFromTwoCorners<TFrame, coord>::selectIfIsIn( const OfxRectD& rect )
+bool ParamRectangleFromTwoCorners<TFrame, coord>::isIn( const OfxRectD& rect )
 {
 	_selectType = eSelectTypeNone;
-	OfxRectD rod = _relativeFrame.getFrame( this->getTime() );
+	const OfxRectD rod = _relativeFrame.getFrame( this->getTime() );
 	Point2 rodSize( rod.x2 - rod.x1, rod.y2 - rod.y1 );
 	Point2 a = pointNormalizedXXcToCanonicalXY( ofxToGil( _paramA->getValue() ), rodSize ) + Point2( rod.x1, rod.y1 );
 	Point2 b = pointNormalizedXXcToCanonicalXY( ofxToGil( _paramB->getValue() ), rodSize ) + Point2( rod.x1, rod.y1 );
@@ -234,7 +239,6 @@ bool ParamRectangleFromTwoCorners<TFrame, coord>::selectIfIsIn( const OfxRectD& 
 	if( rect.x1 <= min.x  && rect.x2 >= max.x &&
 	    rect.y1 <= min.y  && rect.y2 >= max.y )
 	{
-		_offset = Point2( 0, 0 );
 		return true;
 	}
 	return false;

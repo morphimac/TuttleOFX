@@ -67,7 +67,6 @@ PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::I
               new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayCentre ),
               new interact::ColorRGBParam(_plugin->_paramOverlayCentreColor)
          );
-
 }
 
 bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
@@ -84,73 +83,43 @@ bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
 	return displaySomething;
 }
 
-bool PinningOverlayInteract::penMotion( const OFX::PenArgs& args )
+/*
+bool PinningOverlayInteract::keyDown( const OFX::KeyArgs& args )
+{
+   if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
+   {
+         _keyPressed_ctrl = true;
+   }
+}
+
+bool PinningOverlayInteract::keyUp( const OFX::KeyArgs& args )
+{
+  if( (args.keySymbol == kOfxKey_Control_L) || (args.keySymbol == kOfxKey_Control_R) )
+
+   {
+         _keyPressed_ctrl = false;
+   }
+}
+
+bool PinningOverlayInteract::keyRepeat( const OFX::KeyArgs& args )
 {
 
-	//std::cout<<"pen move"<<std::endl;
-	
+}
+*/
+bool PinningOverlayInteract::penMotion( const OFX::PenArgs& args )
+{
         return _interactScene.penMotion( args );
 }
 
 bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
 {
-	//std::cout<<"pen down"<<std::endl;
-	OfxPointD pos = args.penPosition;
-        //std::cout<<pos.x<<";"<<pos.y<<std::endl;
-//	double pres = args.penPressure; // lorsque l'on utilise une tablette graphique, on peut récupérer la pression du stylo
-//	OfxTime time = args.time;
-	
-//        int width = _plugin->_clipSrc->getCanonicalRodSize(args.time, args.renderScale).x;
-//      _plugin->_paramPointIn0->setValue( args.penPosition.x / width, args.penPosition.y / width );
-	
-        bool selObj = _interactScene.penDown( args );
-        if( selObj )
-        {
-            return true;
-        }
-        else
-        {
-            _beginSelection = true;
-            _multiSelectionRec.x1 = args.penPosition.x;
-            _multiSelectionRec.y1 = args.penPosition.y;
-
-            //if(_keyPressed_ctrl)
-            {
-                _multiSelection = true;
-            }
-        }
-return _interactScene.penDown( args );
+        return _interactScene.penDown( args );
 }
 
 bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
 {
-    if( _multiSelection )
-    {
-        _multiSelectionRec.x2 = args.penPosition.x;
-        _multiSelectionRec.y2 = args.penPosition.y;
-        _beginSelection = false;
-
-        // parcours Points
-        //??
-
-        _multiSelection = false;
-	       
-	BOOST_FOREACH( interact::InteractObject& p, _interactScene.getObjects() )
-        {
-            bool b = p.selectIfIsIn( _multiSelectionRec );
-            _multiSelection = _multiSelection || b;
-        }
-    }
-
-    // x , y
-    //_interactScene.moveXYSelected( x, y );
-
-	//std::cout<<"pen up"<<std::endl;
-
     return _interactScene.penUp( args );
 }
-
-
 
 void PinningOverlayInteract::calculCentre( const std::vector< bounded_vector<double, 2> > pSelect)
 {
@@ -175,20 +144,21 @@ void PinningOverlayInteract::calculCentre( const std::vector< bounded_vector<dou
 			maxY = pSelect[i][1];
 		}
 	}
-
         _plugin->_paramPointCentre->setValue((minX + maxX)/2, (minY + maxY)/2);
-
-
 }
 
 void PinningOverlayInteract::rotatePts( std::vector< bounded_vector<double, 2> > pSelect, double angle)
 {
+	//calcul centre
+	//OfxPointD centre;
+	//centre = calculCentre(pSelect);
 	
         for(int i=0 ; i<pSelect.size() ; ++i)
 	{
             //deplace a l'origine
             pSelect[i][0] -=  _plugin->_paramPointCentre->getValue().x;
             pSelect[i][1] -=  _plugin->_paramPointCentre->getValue().y;
+
 	
             //effectue la rotation
             pSelect[i][0] = pSelect[i][0]*cos(angle) - pSelect[i][1]*sin(angle);

@@ -1,5 +1,5 @@
-#ifndef __TUTTLE_GLOBAL__
-#define __TUTTLE_GLOBAL__
+#ifndef _TUTTLE_COMMON_UTILS_GLOBAL_HPP_
+#define _TUTTLE_COMMON_UTILS_GLOBAL_HPP_
 
 //#define TUTTLE_NO_COUT
 
@@ -29,23 +29,19 @@ namespace std {
 // Define functions to display infos in the console
 #include <iostream>
 
-#ifdef _DEBUG
- #    define TUTTLE_FORCEINLINE inline
+#ifdef NDEBUG
+#  if defined( _MSC_VER )
+#    define TUTTLE_FORCEINLINE __forceinline
+#  elif defined( __GNUC__ ) && __GNUC__ > 3
+#    define TUTTLE_FORCEINLINE inline __attribute__ ( ( always_inline ) )
+#  else
+#    define TUTTLE_FORCEINLINE inline
+#  endif
 #else
- #ifdef NDEBUG
-  #if   defined( _MSC_VER )
-   #    define TUTTLE_FORCEINLINE __forceinline
-  #elif defined( __GNUC__ ) && __GNUC__ > 3
-   #    define TUTTLE_FORCEINLINE inline __attribute__ ( ( always_inline ) )
-  #else
-   #    define TUTTLE_FORCEINLINE inline
-  #endif
- #else
-  #    define TUTTLE_FORCEINLINE inline
- #endif
+#  define TUTTLE_FORCEINLINE inline
 #endif
 
-#ifndef COUT
+#ifndef TUTTLE_COUT
 
 /**
  * @def   INFOS
@@ -64,49 +60,49 @@ namespace std {
  * @param[in] ... : all parameters with an operator << defined
  * @brief terminal display
  **/
- #define COUT(... )  ::std::cout << __VA_ARGS__ << ::std::endl
+ #define TUTTLE_COUT(... )  ::std::cout << __VA_ARGS__ << ::std::endl
  #define CERR(... )  ::std::cerr << __VA_ARGS__ << ::std::endl
 
- #define COUT_X( N, ... ) \
+ #define TUTTLE_COUT_X( N, ... ) \
     for( unsigned int i = 0; i < N; ++i ) { ::std::cout << __VA_ARGS__; } \
     ::std::cout << ::std::endl
 
 #else
- #define COUT(...)
+ #define TUTTLE_COUT(...)
  #define CERR(...)
- #define COUT_X( N, ... )
+ #define TUTTLE_COUT_X( N, ... )
 #endif
 
 
- #define COUT_VAR( a )  COUT( VAR( a ) )
- #define COUT_VAR2( a, b )  COUT( VAR2( a, b ) )
- #define COUT_VAR3( a, b, c )  COUT( VAR3( a, b, c ) )
- #define COUT_VAR4( a, b, c, d )  COUT( VAR4( a, b, c, d ) )
+ #define TUTTLE_COUT_VAR( a )  TUTTLE_COUT( VAR( a ) )
+ #define TUTTLE_COUT_VAR2( a, b )  TUTTLE_COUT( VAR2( a, b ) )
+ #define TUTTLE_COUT_VAR3( a, b, c )  TUTTLE_COUT( VAR3( a, b, c ) )
+ #define TUTTLE_COUT_VAR4( a, b, c, d )  TUTTLE_COUT( VAR4( a, b, c, d ) )
 
 /**
  * @brief terminal information display
  **/
- #define COUT_INFOS COUT( INFOS )
+ #define TUTTLE_COUT_INFOS TUTTLE_COUT( INFOS )
 
 /**
  * @param[in] ... : all parameters with an operator << defined
  * @brief terminal information display
  **/
- #define COUT_WITHINFOS(... )  \
-    COUT( INFOS << \
+ #define TUTTLE_COUT_WITHINFOS(... )  \
+    TUTTLE_COUT( INFOS << \
           ::std::endl << "\t" << __VA_ARGS__ )
 
- #define COUT_WARNING(... )  \
+ #define TUTTLE_COUT_WARNING(... )  \
     CERR( "Warning:" << \
     ::std::endl << INFOS << \
     ::std::endl << "\t" << __VA_ARGS__  )
 
- #define COUT_ERROR(... )  \
+ #define TUTTLE_COUT_ERROR(... )  \
     CERR( "Error:" << \
     ::std::endl << INFOS << \
     ::std::endl << "\t" << __VA_ARGS__  )
 
- #define COUT_FATALERROR(... )  \
+ #define TUTTLE_COUT_FATALERROR(... )  \
     CERR( "Fatal error:" << \
     ::std::endl << INFOS << \
     ::std::endl << "\t" << __VA_ARGS__  )
@@ -122,15 +118,28 @@ namespace std {
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-
-#define TCOUT COUT
-#define TCOUT_X COUT_X
-#define TCOUT_VAR COUT_VAR
-#define TCOUT_VAR2 COUT_VAR2
-#define TCOUT_VAR3 COUT_VAR3
-#define TCOUT_VAR4 COUT_VAR4
-#define TCOUT_INFOS COUT_INFOS
-#define TCOUT_WITHINFOS COUT_WITHINFOS
-#define TCOUT_EXCEPTION COUT_EXCEPTION
+// TUTTLE_TCOUT* defines are used by developpers for temporary displays during development stages.
+// They are removed in production mode.
+#ifndef TUTTLE_PRODUCTION
+	#define TUTTLE_TCOUT TUTTLE_COUT
+	#define TUTTLE_TCOUT_X TUTTLE_COUT_X
+	#define TUTTLE_TCOUT_VAR TUTTLE_COUT_VAR
+	#define TUTTLE_TCOUT_VAR2 TUTTLE_COUT_VAR2
+	#define TUTTLE_TCOUT_VAR3 TUTTLE_COUT_VAR3
+	#define TUTTLE_TCOUT_VAR4 TUTTLE_COUT_VAR4
+	#define TUTTLE_TCOUT_INFOS TUTTLE_COUT_INFOS
+	#define TUTTLE_TCOUT_WITHINFOS TUTTLE_COUT_WITHINFOS
+	#define TUTTLE_TCOUT_EXCEPTION TUTTLE_COUT_EXCEPTION
+#else
+	#define TUTTLE_TCOUT TUTTLE_COUT_DEBUG
+	#define TUTTLE_TCOUT_X TUTTLE_COUT_X_DEBUG
+	#define TUTTLE_TCOUT_VAR TUTTLE_COUT_VAR_DEBUG
+	#define TUTTLE_TCOUT_VAR2 TUTTLE_COUT_VAR2_DEBUG
+	#define TUTTLE_TCOUT_VAR3 TUTTLE_COUT_VAR3_DEBUG
+	#define TUTTLE_TCOUT_VAR4 TUTTLE_COUT_VAR4_DEBUG
+	#define TUTTLE_TCOUT_INFOS TUTTLE_COUT_INFOS_DEBUG
+	#define TUTTLE_TCOUT_WITHINFOS TUTTLE_COUT_WITHINFOS_DEBUG
+	#define TUTTLE_TCOUT_EXCEPTION TUTTLE_COUT_EXCEPTION_DEBUG
+#endif
 
 #endif

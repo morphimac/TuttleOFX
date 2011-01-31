@@ -1,15 +1,20 @@
 #ifndef _TUTTLE_PLUGIN_IMAGEGILPROCESSOR_HPP_
 #define _TUTTLE_PLUGIN_IMAGEGILPROCESSOR_HPP_
 
-#include "ofxsImageEffect.h"
-#include "ofxsMultiThread.h"
-#include "ofxsUtilities.h"
 #include "exceptions.hpp"
 #include "OfxProgress.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
+#include <tuttle/plugin/exceptions.hpp>
+#include <tuttle/common/math/rectOp.hpp>
+
+#include <ofxsImageEffect.h>
+#include <ofxsMultiThread.h>
+#include <ofxsUtilities.h>
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/exception/info.hpp>
+#include <boost/exception/error_info.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <cstdlib>
@@ -65,7 +70,7 @@ public:
 		_dst.reset( _clipDst->fetchImage( args.time ) );
 		if( !_dst.get() )
 			BOOST_THROW_EXCEPTION( exception::ImageNotReady() );
-		if( _dst->getRowBytes() <= 0 )
+		if( _dst->getRowBytes() == 0 )
 			BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
 		//		_dstPixelRod = _dst->getRegionOfDefinition(); // bug in nuke, returns bounds
 		_dstPixelRod       = _clipDst->getPixelRod( args.time, args.renderScale );
@@ -92,23 +97,26 @@ public:
 		{
 			setup( args );
 		}
-		catch( exception::ImageNotReady& e )
-		{
-			// stop the process but don't display an error
-			COUT_ERROR_DEBUG( boost::diagnostic_information( e ) );
-			progressEnd();
-			return;
-		}
 		catch( exception::Common& e )
 		{
-			COUT_ERROR( boost::diagnostic_information( e ) );
 			progressEnd();
+
+			// if the host is trying to abort the rendering return without error
+			if( _effect.abort() )
+			{
+				return;
+			}
 			throw;
 		}
-		catch(... )
+		catch(...)
 		{
-			COUT_ERROR( boost::current_exception_diagnostic_information() );
 			progressEnd();
+
+			// if the host is trying to abort the rendering return without error
+			if( _effect.abort() )
+			{
+				return;
+			}
 			throw;
 		}
 
@@ -144,17 +152,6 @@ public:
 
 	/** @brief this is called by multiThreadFunction to actually process images, override in derived classes */
 	virtual void multiThreadProcessImages( const OfxRectI& windowRoW ) = 0;
-
-	OfxRectI translateRegion( const OfxRectI& windowRoW, const OfxRectI& dependingTo ) const
-	{
-		OfxRectI windowOutput = windowRoW;
-
-		windowOutput.x1 -= dependingTo.x1; // to output clip coordinates
-		windowOutput.y1 -= dependingTo.y1;
-		windowOutput.x2 -= dependingTo.x1;
-		windowOutput.y2 -= dependingTo.y1;
-		return windowOutput;
-	}
 
 	// to output clip coordinates
 	OfxRectI translateRoWToOutputClipCoordinates( const OfxRectI& windowRoW ) const
@@ -220,9 +217,9 @@ View getView( OFX::Image* img, const OfxRectI& rod )
 
 	//	OfxRectI imgrod = img->getRegionOfDefinition(); // bug in nuke returns bounds... not the clip rod with renderscale...
 	OfxRectI bounds = img->getBounds();
-	//	COUT_VAR( bounds );
-	//	COUT_VAR( imgrod );
-	//	COUT_VAR( rod );
+	//	TUTTLE_COUT_VAR( bounds );
+	//	TUTTLE_COUT_VAR( imgrod );
+	//	TUTTLE_COUT_VAR( rod );
 	point2<int> tileSize = point2<int>( bounds.x2 - bounds.x1,
 	                                    bounds.y2 - bounds.y1 );
 

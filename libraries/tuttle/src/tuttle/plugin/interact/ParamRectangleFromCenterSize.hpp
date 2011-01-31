@@ -103,8 +103,8 @@ public:
 
 	ESelectType selectType( const OFX::PenArgs& args ) const;
 
-	EMoveType selectIfIntesect( const OFX::PenArgs& args );
-	bool      selectIfIsIn( const OfxRectD& );
+	MotionType intersect( const OFX::PenArgs& args );
+	bool      isIn( const OfxRectD& );
 
 	Point2 getPoint() const
 	{
@@ -204,9 +204,9 @@ typename ParamRectangleFromCenterSize<TFrame, coord>::ESelectType ParamRectangle
 	const Point2 p              = ofxToGil( args.penPosition );
 	const double margeCanonical = this->getMarge() * args.pixelScale.x;
 
-	COUT_VAR( this->getMarge() );
-	COUT_VAR( args.pixelScale.x );
-	COUT_VAR( margeCanonical );
+	TUTTLE_COUT_VAR( this->getMarge() );
+	TUTTLE_COUT_VAR( args.pixelScale.x );
+	TUTTLE_COUT_VAR( margeCanonical );
 	const OfxRectD rod = _frame.getFrame( this->getTime() );
 	const Point2 rodSize( rod.x2 - rod.x1, rod.y2 - rod.y1 );
 	const Point2 pCenter = _center.getPoint();
@@ -240,31 +240,32 @@ typename ParamRectangleFromCenterSize<TFrame, coord>::ESelectType ParamRectangle
 }
 
 template<class TFrame, ECoordonateSystem coord>
-EMoveType ParamRectangleFromCenterSize<TFrame, coord>::selectIfIntesect( const OFX::PenArgs& args )
+MotionType ParamRectangleFromCenterSize<TFrame, coord>::intersect( const OFX::PenArgs& args )
 {
-	this->_offset.x = 0;
-	this->_offset.y = 0;
 	// intersect center point
-	EMoveType m = _center.selectIfIntesect( args );
-	if( m != eMoveTypeNone )
+	MotionType m = _center.intersect( args );
+	if( m._mode != eMotionNone )
 	{
-		COUT( "intersect center." );
+		TUTTLE_TCOUT( "intersect center." );
 		_selectType = eSelectTypeC;
 		return m;
 	}
 	// intersect borders
 	_selectType = selectType( args );
-	COUT( "_selectType : " << mapESelectTypeToString( _selectType ) );
+	TUTTLE_TCOUT( "_selectType : " << mapESelectTypeToString( _selectType ) );
 	if( _selectType != eSelectTypeNone )
 	{
-		COUT( "intersect border." );
-		return eMoveTypeXY;
+		m._mode = eMotionTranslate;
+		m._axis = eAxisXY;
+		return m;
 	}
-	return eMoveTypeNone;
+	m._mode = eMotionNone;
+	m._axis = eAxisNone;
+	return m;
 }
 
 template<class TFrame, ECoordonateSystem coord>
-bool ParamRectangleFromCenterSize<TFrame, coord>::selectIfIsIn( const OfxRectD& rect )
+bool ParamRectangleFromCenterSize<TFrame, coord>::isIn( const OfxRectD& rect )
 {
 	_selectType = eSelectTypeNone;
 	Point2 pCenter = _center.getPoint();
@@ -274,7 +275,6 @@ bool ParamRectangleFromCenterSize<TFrame, coord>::selectIfIsIn( const OfxRectD& 
 	if( rect.x1 <= min.x  && rect.x2 >= max.x &&
 	    rect.y1 <= min.y  && rect.y2 >= max.y )
 	{
-		this->_offset = Point2( 0, 0 );
 		return true;
 	}
 	return false;

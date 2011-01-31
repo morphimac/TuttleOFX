@@ -25,6 +25,7 @@
 #include <boost/array.hpp>
 #include <boost/gil/gil_config.hpp>
 #include <boost/gil/utilities.hpp>
+#include <boost/mpl/bool.hpp>
 
 namespace boost { namespace gil {
 
@@ -49,8 +50,8 @@ public:
         _center=k_in._center;
         return *this;
     }
-    std::size_t left_size() const {assert(_center<this->size());return _center;}
-    std::size_t right_size() const {assert(_center<this->size());return this->size()?this->size()-_center-1:0;}
+    std::size_t left_size() const {assert((_center<this->size()) || (this->size()==0));return _center;}
+    std::size_t right_size() const {assert((_center<this->size()) || (this->size()==0));return this->size()?this->size()-_center-1:0;}
           std::size_t& center()       {return _center;}
     const std::size_t& center() const {return _center;}
     void set_center( const std::size_t center ) { _center = center; }
@@ -62,6 +63,9 @@ public:
 template <typename T, typename Alloc = std::allocator<T> >
 class kernel_1d : public detail::kernel_1d_adaptor<std::vector<T,Alloc> > {
     typedef detail::kernel_1d_adaptor<std::vector<T,Alloc> > parent_t;
+public:
+	typedef T value_type;
+	typedef boost::mpl::false_ is_fixed_size_t;
 public:
     kernel_1d() {}
     kernel_1d(std::size_t size_in,std::size_t center_in) : parent_t(size_in,center_in) {}
@@ -76,6 +80,9 @@ public:
 template <typename T,std::size_t Size>
 class kernel_1d_fixed : public detail::kernel_1d_adaptor<array<T,Size> > {
     typedef detail::kernel_1d_adaptor<array<T,Size> > parent_t;
+public:
+	typedef T value_type;
+	typedef boost::mpl::true_ is_fixed_size_t;
 public:
     kernel_1d_fixed() {}
     explicit kernel_1d_fixed(std::size_t center_in) : parent_t(center_in) {}
