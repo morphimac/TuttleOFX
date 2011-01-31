@@ -99,7 +99,7 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 		_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
 		_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
 
-                tabPts.push_back(point2<double>(args.penPosition.x,args.penPosition.y));
+                tabPts.push_back(point2<double>(_plugin->_paramPointIn[nbPoints]->getValue().x, _plugin->_paramPointIn[nbPoints]->getValue().y));
 
 		_plugin->_paramNbPoints->setValue(nbPoints+1);
 
