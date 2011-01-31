@@ -25,9 +25,9 @@ public:
 	typedef SCALAR Scalar;
 	typedef point2<Scalar> Point2;
 
-	typedef	matrix<Scalar> Matrix;
-	typedef matrix_row<Matrix> Matrix_Row;
-	typedef matrix_column<Matrix> Matrix_Col;
+        typedef	matrix<Scalar> Matrix;
+        typedef matrix_row<const Matrix> Const_Matrix_Row;
+        typedef matrix_column<const Matrix> Const_Matrix_Col;
 
 public:
 	TPS_Morpher( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut );
@@ -38,9 +38,8 @@ public:
 private:
 	const std::vector<Point2> _pIn;
 	const std::vector<Point2> _pOut;
-	//std::vector<Point2> _pToBuild;
 
-	Matrix mtx_l, mtx_v, mtx_orig_k;
+        Matrix mtx_l, mtx_v, mtx_orig_k;
 };
 
 }
