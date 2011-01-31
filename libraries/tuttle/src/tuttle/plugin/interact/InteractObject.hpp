@@ -24,21 +24,26 @@ public:
 
 	/** @brief the function called to draw in the interact */
 	virtual bool draw( const OFX::DrawArgs& args ) const { return false; }
-
-	virtual Point2 getDistance( const Point2& p ) const { return Point2(0.0, 0.0); }
 	
-	virtual EMoveType intersect( const OFX::PenArgs& args ) { return eMoveTypeNone; }
-	virtual bool      isIn( const OfxRectD& )              { return false; }
+	virtual MotionType intersect( const OFX::PenArgs& args )
+	{
+		MotionType m;
+		m._axis = eAxisNone;
+		m._mode = eMotionNone;
+		return m;
+	}
+	virtual bool isIn( const OfxRectD& ) { return false; }
+
+	virtual Point2 getPosition() const { return Point2(0.0, 0.0); }
+	virtual void setPosition( const Point2& ) {}
+	virtual void setPositionX( const Scalar x ) {}
+	virtual void setPositionY( const Scalar y ) {}
+	
+	virtual void beginMove( const Point2& penPosition ) {}
+	virtual void endMove( const Point2& penPosition ) {}
 
 	bool getSelected() const { return _selected; }
 	void setSelected( const bool s ) { _selected = s; }
-
-	virtual bool moveXYSelected( const Point2& ) { return false; }
-	virtual bool moveXSelected( const Scalar& x )  { return false; }
-	virtual bool moveYSelected( const Scalar& y )  { return false; }
-	
-	virtual void beginMove()                     {}
-	virtual void endMove()                       {}
 
 private:
 	bool _selected;

@@ -5,6 +5,7 @@
 #include "InteractObject.hpp"
 #include "IsActiveFunctor.hpp"
 #include "Color.hpp"
+#include "SelectionManipulator.hpp"
 
 #include <tuttle/plugin/image/gil/globals.hpp>
 
@@ -23,40 +24,43 @@ namespace interact {
  */
 class InteractScene : public InteractObject
 {
-typedef boost::gil::point2<double> Point2;
-typedef boost::ptr_vector<InteractObject> InteractObjectsVector;
-typedef boost::ptr_vector<IsActiveFunctor> IsActiveFunctorVector;
-typedef boost::ptr_vector<IColor> ColorVector;
-typedef std::pair<InteractObject*, Point2> SelectedObject;
-typedef std::vector<SelectedObject> SelectedObjectsLinkVector;
+public:
+	typedef double Scalar;
+	typedef boost::gil::point2<Scalar> Point2;
+	typedef boost::ptr_vector<InteractObject> InteractObjectsVector;
+	typedef boost::ptr_vector<IsActiveFunctor> IsActiveFunctorVector;
+	typedef boost::ptr_vector<IColor> ColorVector;
+
+	typedef std::pair< InteractObject*, Point2 > SelectedObject;
+	typedef std::vector< SelectedObject > SelectedObjectVector;
 
 public:
 	InteractScene( OFX::ParamSet& params, const InteractInfos& infos );
 	virtual ~InteractScene();
-
+	
 private:
 	OFX::ParamSet& _params;
 	const InteractInfos& _infos;
-	bool _multiSelectionEnabled;
-	bool _hasSelection;
+	bool _mouseDown;
+	MotionType _motionType;
 
 	InteractObjectsVector _objects;
 	IsActiveFunctorVector _isActive;
 	ColorVector _colors;
 
-	SelectedObjectsLinkVector _selected;
-	EMoveType _moveType;
-	bool _mouseDown;
-	bool _beginSelection;
-	OfxRectD _selectionRect;
+	Point2 _beginPenPosition;
 
+	bool _multiSelectionEnabled;
+	bool _creatingSelection;
+	SelectionManipulator _manipulator;
+	bool _hasSelection;
+	SelectedObjectVector _selected;
+	OfxRectD _selectionRect;
+	
 public:
 	InteractObjectsVector&       getObjects()       { return _objects; }
 	const InteractObjectsVector& getObjects() const { return _objects; }
 	
-	SelectedObjectsLinkVector&       getSelectedObjects()       { return _selected; }
-	const SelectedObjectsLinkVector& getSelectedObjects() const { return _selected; }
-
 	void push_back( InteractObject* obj, IsActiveFunctor* isActive = new AlwaysActiveFunctor<>(), IColor* color = new Color() )
 	{
 		_objects.push_back( obj );
@@ -72,30 +76,15 @@ public:
 
 	bool penUp( const OFX::PenArgs& args );
 
-        bool keyDown( const OFX::KeyArgs& args );
+private:
+	SelectedObjectVector&       getSelectedObjects()       { return _selected; }
+	const SelectedObjectVector& getSelectedObjects() const { return _selected; }
 
-   /*     bool moveXYSelected( const Point2& p )
-        {
-            bool bb = false;
-            BOOST_FOREACH( const interact::InteractObject& p, _interactScene.getObjects() )
-            {
-                bool b = p.moveXYSelected( p );
-                bb = (bb || b);
-            }
-            return bb;
-        }
-   */
-        bool moveXSelected( const Point2& )
-        {
-            return false;
-        }
-        bool moveYSelected( const Point2& )
-        {
-            return false;
-        }
+	bool drawSelection( const OFX::DrawArgs& args );
 
-        void beginMove()                     {}
-        void endMove()                       {}
+	void translate( const Point2& vec );
+	void rotate( const Point2& center, const Scalar angle );
+	void scale( const Point2& center, const Scalar factor );
 };
 
 }
