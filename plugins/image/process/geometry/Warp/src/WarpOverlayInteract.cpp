@@ -69,17 +69,34 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 		glColor3f( 0.0f, 1.0f, 0.0f );
 
 		glBegin( GL_LINE_STRIP );
+		for( std::size_t i=0 ; i < nbPoints ; ++i )
+		{
+			OfxPointD p = _plugin->_paramPointIn[i]->getValue();
+			glVertex2f( p.x, p.y);
+		}
+                glEnd();
+
                 for( std::size_t i=0 ; i < nbPoints ; ++i )
                 {
-                        glVertex2f( _plugin->_paramPointIn[i]->getValue().x, _plugin->_paramPointIn[i]->getValue().y);
+                    glColor3ub(255,60,140);
+                    glBegin(GL_POINTS);
+                        glVertex2f(tabTgt[i].x,tabTgt[i].y);
+                        glVertex2f(tabTgt[i].x - _plugin->_paramPointIn[i]->getValue().x,tabTgt[i].y - _plugin->_paramPointIn[i]->getValue().y);
+                    glEnd();
                 }
-		glEnd();
 
-                TUTTLE_COUT(nbPoints);
+		for( std::size_t c = 0 ; c < nbPoints/4 ; ++c )
+		{
+			std::vector< point2<double> > tabPts;
+			for( std::size_t i=0 ; i < 4 ; ++i )
+			{
+				OfxPointD p = _plugin->_paramPointIn[c*4+i-(c?1:0)]->getValue();  
+				tabPts.push_back( point2<double>( p.x, p.y ) );
+			}
+			bezier::dessinePoint( tabPts, 4 );
+		}
+        }
 
-                if(nbPoints==4)
-                    bezier::dessinePoint(tabPts,4);
-	}
 	displaySomething |= _interactScene.draw( args );
 
 	return displaySomething;       
@@ -87,7 +104,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 
 bool WarpOverlayInteract::penMotion( const OFX::PenArgs& args )
 {
-	return _interactScene.penMotion( args );
+        //return _interactScene.penMotion( args );
 }
 
 bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
@@ -98,9 +115,6 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 	{
 		_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
 		_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
-
-                tabPts.push_back(point2<double>(_plugin->_paramPointIn[nbPoints]->getValue().x, _plugin->_paramPointIn[nbPoints]->getValue().y));
-
 		_plugin->_paramNbPoints->setValue(nbPoints+1);
 
 		return _interactScene.penDown( args );
@@ -134,7 +148,11 @@ bool WarpOverlayInteract::keyDown( const OFX::KeyArgs& args )
 
 bool WarpOverlayInteract::penUp( const OFX::PenArgs& args )
 {
+    if(_plugin->_paramMethod->getValue() == eParamMethodCreation)
+    {
+        tabTgt.push_back( point2<double>(args.penPosition.x,args.penPosition.y));
 	return _interactScene.penUp( args );
+    }
 }
 
 }
