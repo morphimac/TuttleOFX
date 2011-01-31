@@ -23,8 +23,8 @@ static const bool kSupportTiles = false;
 void PinningPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
 	desc.setLabels( "TuttlePinning", "Pinning",
-				 "Pinning" );
-	desc.setPluginGrouping( "tuttle" );
+			"Pinning" );
+	desc.setPluginGrouping( "tuttle/image/process/geometry" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextFilter );
@@ -47,7 +47,7 @@ void PinningPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
  * @param[in]        context    Application context
  */
 void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
-													  OFX::EContext context )
+                                              OFX::EContext context )
 {
 	OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
 	srcClip->addSupportedComponent( OFX::ePixelComponentRGBA );
@@ -80,6 +80,31 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	overlay->setLabel( "Overlay" );
 	overlay->setDefault( true );
 
+        //TODO-vince///////////
+        //////////////////// Transform Centre Point ////////////////////
+        OFX::GroupParamDescriptor* groupCentre = desc.defineGroupParam( kParamGroupCentre );
+        groupCentre->setLabel( "Centre point" );
+
+        OFX::Double2DParamDescriptor* pCentre = desc.defineDouble2DParam( kParamPointCentre);
+        pCentre->setLabel( "Centre point" );
+        pCentre->setHint( "Transform Centre point" );
+        pCentre->setDefault( 0.0, 0.0 );
+        pCentre->setParent( groupCentre );
+
+        OFX::BooleanParamDescriptor* overlayCentre = desc.defineBooleanParam( kParamOverlayCentre );
+        overlayCentre->setLabel( "Overlay" );
+        overlayCentre->setDefault( true );
+        overlayCentre->setParent( groupCentre );
+
+        OFX::RGBParamDescriptor* ouverlayCentreColor = desc.defineRGBParam( kParamOverlayCentreColor );
+        ouverlayCentreColor->setLabel( "Color" );
+        ouverlayCentreColor->setHint( "Centre point overlay color" );
+        ouverlayCentreColor->setDefault( 0.0, 1.0, 0.0 );
+        ouverlayCentreColor->setParent( groupCentre );
+
+        /////////////////////////////////////
+
+
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
 	groupIn->setLabel( "Input points" );
@@ -87,8 +112,8 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::Double2DParamDescriptor* pIn0 = desc.defineDouble2DParam( kParamPointIn + "0" );
 	pIn0->setLabel( "In 0" );
 	pIn0->setHint( "Input point 0" );
-	pIn0->setDefault( -0.5, -0.5 );
-	pIn0->setParent( groupIn );
+        pIn0->setDefault( -0.5, -0.5 );
+        pIn0->setParent( groupIn );
 
 	OFX::Double2DParamDescriptor* pIn1 = desc.defineDouble2DParam( kParamPointIn + "1" );
 	pIn1->setLabel( "In 1" );

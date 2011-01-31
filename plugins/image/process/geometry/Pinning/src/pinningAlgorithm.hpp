@@ -51,7 +51,8 @@ inline boost::gil::point2<F> transform( const Bilinear<F>& t, const boost::gil::
 	boost::gil::point2<F> res;
 
 	F hCenter = ((0.5*t._height)/t._width);
-	boost::gil::point2<F2> in( (src.x / t._width) - 0.5, (src.y / t._width) - hCenter );
+	boost::gil::point2<F> in( (src.x / t._width) - 0.5, (src.y / t._width) - hCenter );
+
 	res.x = t._matrix(0, 0) * in.x + t._matrix(0, 1) * in.y + t._matrix(0, 2) * in.x * in.y + t._matrix(0, 3);
 	res.y = t._matrix(1, 0) * in.x + t._matrix(1, 1) * in.y + t._matrix(1, 2) * in.x * in.y + t._matrix(1, 3);
 

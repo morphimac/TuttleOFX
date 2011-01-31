@@ -30,6 +30,10 @@ enum EParamInterpolation
 
 const static std::string kParamOverlay = "overlay";
 
+const static std::string kParamGroupCentre = "groupCentre";
+const static std::string kParamPointCentre = "pCentre";
+const static std::string kParamOverlayCentre = "overlayCentre";
+const static std::string kParamOverlayCentreColor = "overlayCentreColor";
 
 const static std::string kParamGroupIn = "groupIn";
 const static std::string kParamPointIn = "pIn";
@@ -40,6 +44,13 @@ const static std::string kParamGroupOut = "groupOut";
 const static std::string kParamPointOut = "pOut";
 const static std::string kParamOverlayOut = "overlayOut";
 const static std::string kParamOverlayOutColor = "overlayOutColor";
+
+/*
+const static std::string kParamGroupSelect = "groupSelect";
+const static std::string kParamPointSelect = "pSelect";
+const static std::string kParamOverlaySelect = "overlaySelect";
+const static std::string kParamOverlaySelectColor = "overlayInSelect";
+*/
 
 const static std::string kParamGroupPerspMatrix = "groupPerspMatrix";
 const static std::string kParamPerspMatrixRow = "perpMatrix";
