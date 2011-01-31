@@ -18,12 +18,11 @@ class WarpOverlayInteract : public OFX::OverlayInteract
 {
 	typedef double Scalar;
 
-        WarpPlugin* _plugin;
+	WarpPlugin* _plugin;
 
 	interact::InteractInfos _infos;
-        interact::InteractScene _interactScene;
-        point2<double> tmp;
-        std::vector< point2<double> > tabPts;
+	interact::InteractScene _interactScene;
+	point2<double> tmp;
 
 public:
 	WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );

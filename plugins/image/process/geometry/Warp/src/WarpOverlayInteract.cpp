@@ -1,7 +1,7 @@
 #include "WarpOverlayInteract.hpp"
 #include "WarpDefinitions.hpp"
 #include "WarpPlugin.hpp"
-//#include "Bezier/bezier.hpp"
+#include "Bezier/bezier.hpp"
 #include <tuttle/plugin/opengl/gl.h>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
@@ -71,17 +71,23 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 		glBegin( GL_LINE_STRIP );
 		for( std::size_t i=0 ; i < nbPoints ; ++i )
 		{
-			for( std::size_t j = 0; j < kMaxNbPoints; ++j )
-			{
-				if(nbPoints > j)
-					glVertex2f( _plugin->_paramPointIn[nbPoints-j-1]->getValue().x, _plugin->_paramPointIn[nbPoints-j-1]->getValue().y);
-			}
+			OfxPointD p = _plugin->_paramPointIn[i]->getValue();
+			glVertex2f( p.x, p.y);
 		}
 		glEnd();
-		/*for(int j = 0; j < nbPoints; ++j)
+
+		TUTTLE_COUT(nbPoints);
+
+		for( std::size_t c = 0 ; c < nbPoints/4 ; ++c )
 		{
-				bezier::dessinePointRecur(tabPts, nbPoints+1);
-		}*/
+			std::vector< point2<double> > tabPts;
+			for( std::size_t i=0 ; i < 4 ; ++i )
+			{
+				OfxPointD p = _plugin->_paramPointIn[c*4+i]->getValue();
+                tabPts.push_back( point2<double>( p.x, p.y ) );
+			}
+			bezier::dessinePoint( tabPts, 4 );
+		}
 	}
 	displaySomething |= _interactScene.draw( args );
 
@@ -101,10 +107,6 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 	{
 		_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
 		_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
-
-		tmp.x = _plugin->_paramPointIn[nbPoints]->getValue().x;
-		tmp.y = _plugin->_paramPointIn[nbPoints]->getValue().y;
-		tabPts.push_back(tmp);
 
 		_plugin->_paramNbPoints->setValue(nbPoints+1);
 
