@@ -10,6 +10,9 @@ namespace warp {
 
 const static std::size_t kMaxNbPoints = 10;
 const static std::size_t kPasBezier = 0.2;
+static const float lineWidth = 1.0;
+static const float pointWidth = 2.0;
+
 
 const static std::string kParamMethod = "method";
 const static std::string kParamMethodCreation = "creation";
@@ -34,6 +37,11 @@ const static std::string kParamGroupOut = "groupOut";
 const static std::string kParamPointOut = "pOut";
 const static std::string kParamOverlayOut = "overlayOut";
 const static std::string kParamOverlayOutColor = "overlayOutColor";
+
+const static std::string kParamGroupTgt = "groupTgt";
+const static std::string kParamPointTgt = "pTangente";
+const static std::string kParamOverlayTgt = "overlayTgt";
+const static std::string kParamOverlayTgtColor = "overlayTangentOutColor";
 }
 }
 }

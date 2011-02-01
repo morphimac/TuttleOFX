@@ -20,6 +20,7 @@ struct WarpProcessParams
 {
 	std::vector< point2<Scalar> > _inPoints;
 	std::vector< point2<Scalar> > _outPoints;
+        std::vector< point2<Scalar> > _tgtPoints;
 	std::vector< point2<Scalar> > _buildPoints;
 
 	EParamMethod _method;
@@ -68,6 +69,12 @@ public:
 
 	OFX::BooleanParam*  _paramOverlayOut;
 	OFX::RGBParam*  _paramOverlayOutColor;
+
+        OFX::GroupParam* _paramGroupTgt;
+        boost::array<OFX::Double2DParam*, 2*kMaxNbPoints> _paramPointTgt;
+
+        OFX::BooleanParam*  _paramOverlayTgt;
+        OFX::RGBParam*  _paramOverlayTgtColor;
 
 private:
 	OFX::InstanceChangedArgs _instanceChangedArgs;
