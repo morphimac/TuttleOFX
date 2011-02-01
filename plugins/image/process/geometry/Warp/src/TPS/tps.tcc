@@ -27,11 +27,9 @@ namespace warp {
 
 inline double base_func( const double r2 )
 {
-	// same as r*r * log(r), but for r^2:
 	if( r2==0 )
-		return 0.0; // function limit at 0
-	
-	return r2 * log(r2) * 0.217147241; // = 1/(2*log(10))
+                return 0.0;
+        return r2 * log(r2) * 0.217147241;
 }
 
 template<typename SCALAR>
@@ -52,7 +50,7 @@ TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn, const std::ve
 	const double a = 0.5;
 
 	/*------------ INITIALISATION DES MATRICES -----------*/
-	
+
 	// Remplit k et une partie de l
 	for (unsigned i=0; i<p; ++i)
 	{
@@ -63,8 +61,8 @@ TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn, const std::ve
         		Scalar sum = boost::math::pow<2>(point_i.x-point_j.x) + boost::math::pow<2>(point_i.y-point_j.y);
         		mtx_l(i,j) = mtx_orig_k(i,j) = base_func(sum);
       		}
-    	}
-	
+        }
+
 	// Remplit le reste de l
     	for (unsigned i=0; i<p; ++i)
     	{
@@ -90,7 +88,7 @@ TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn, const std::ve
 		{
         		mtx_l(i,j) = 0.0;
 		}
-	}
+        }
 
 	// Remplit une partie de v
 	for (unsigned i=0; i<p; ++i)
@@ -102,14 +100,13 @@ TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn, const std::ve
 
 	mtx_v(p+0, 0) = mtx_v(p+1, 0) = mtx_v(p+2, 0) = 0.0;
         mtx_v(p+0, 1) = mtx_v(p+1, 1) = mtx_v(p+2, 1) = 0.0;
-	
+
 	// Solve the linear system "inplace"	
 	permutation_matrix<Scalar> P(p+3);
-	matrix<Scalar> x(p+3, 2);
+        matrix<Scalar> x(p+3, 2);
 
-	lu_factorize(mtx_l, P);
-	x = mtx_v;
-	lu_substitute(mtx_l, P, x);
+        lu_factorize(mtx_l, P);
+        lu_substitute(mtx_l, P, mtx_v);
 }
 
 
@@ -125,6 +122,9 @@ typename TPS_Morpher<SCALAR>::Point2 TPS_Morpher<SCALAR>::operator()( const poin
         double dx = mtx_v(m+0, 0) + mtx_v(m+1, 0)*x + mtx_v(m+2, 0)*y;
         double dy = mtx_v(m+0, 1) + mtx_v(m+1, 1)*x + mtx_v(m+2, 1)*y;
 
+        //std::cout<<"Point "<<pt.x<<"  "<<pt.y<<std::endl;
+        //std::cout<<"DX debut "<<dx<<"  "<<dy<<std::endl;
+
 	std::vector< point2<double> >::const_iterator ite2 = _pOut.begin();
         Const_Matrix_Col cv0(mtx_v, 0), cv1(mtx_v,1);
 
@@ -133,19 +133,18 @@ typename TPS_Morpher<SCALAR>::Point2 TPS_Morpher<SCALAR>::operator()( const poin
 
         for ( unsigned i=0; i<m; ++i, ++ite2, ++cv0_ite, ++cv1_ite )
 	{
-	double d = base_func( boost::math::pow<2>(ite2->x - x) + boost::math::pow<2>(ite2->y - y) );
+        double d = base_func( boost::math::pow<2>(ite2->x - x) + boost::math::pow<2>(ite2->y - y) );
 	dx += (*cv0_ite) * d;
 	dy += (*cv1_ite) * d;
         }
 
-/*      pt.x += dx;
-        pt.y += dy;*/
+        //std::cout<<"DX fin "<<dx<<"  "<<dy<<std::endl;
 
-        //Point2 shift(30.0, 100.0);
 	Point2 res;
         res.x = pt.x + dx;
         res.y = pt.y + dy;
-//	return pt + shift;
+        //std::cout<<"res "<<res.x<<"  "<<res.y<<std::endl;
+
         return res;
 }
 

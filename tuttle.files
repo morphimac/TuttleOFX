@@ -64,6 +64,7 @@
 ./libraries/tuttle/src/tuttle/plugin/interact/Color.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamPoint.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamRectangleFromTwoCorners.cpp
+./libraries/tuttle/src/tuttle/plugin/interact/SelectionManipulator.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/InteractInfos.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamPoint.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamRectangleFromTwoCorners.hpp
@@ -83,6 +84,7 @@
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamPointRelativePoint.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/Frame.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/InteractObject.cpp
+./libraries/tuttle/src/tuttle/plugin/interact/SelectionManipulator.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/overlay.hpp
 ./libraries/tuttle/src/tuttle/plugin/param/gilColor.hpp
 ./libraries/tuttle/src/tuttle/plugin/memory/OfxAllocator.hpp
@@ -646,6 +648,8 @@
 ./plugins/image/process/geometry/Warp/src/WarpProcess.hpp
 ./plugins/image/process/geometry/Warp/src/TPS/tps.hpp
 ./plugins/image/process/geometry/Warp/src/TPS/tps.tcc
+./plugins/image/process/geometry/Warp/src/Bezier/bezier.hpp
+./plugins/image/process/geometry/Warp/src/Bezier/bezier.cpp
 ./plugins/image/process/geometry/Warp/src/WarpProcess.tcc
 ./plugins/image/process/geometry/Warp/src/WarpPlugin.cpp
 ./plugins/image/process/geometry/Warp/src/mainEntry.cpp
