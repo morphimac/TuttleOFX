@@ -50,13 +50,14 @@ namespace bezier {
     void dessinePoint(std::vector< point2<double> > tabPts , int nbPointsTraces)
     {
         //std::cout<<"--------------DessineRecur--------------"<<std::endl;
-        for(int i = 0; i < 100 ; ++i)
+        for(int i = 0; i < 200 ; ++i)
         {
-            double t = (100.0-i)/100.0;
+            double t = (200.0-i)/200.0;
 
             point2<double> tab = barycentre(tabPts,t);
 
-            glColor3ub(0,255,255);
+            glPointSize(pointWidth);
+            glColor3ub(255,0,0);
             glBegin(GL_POINTS);
                 tracerPoint(tab);
             glEnd();

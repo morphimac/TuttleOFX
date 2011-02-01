@@ -34,6 +34,7 @@ ImageEffect( handle )
         _paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramNbPoints       = fetchIntParam( kParamNbPoints );
 
+        //Param IN
 	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
 	for( std::size_t cptIn = 0; cptIn < kMaxNbPoints; ++cptIn )
 	{
@@ -42,6 +43,7 @@ ImageEffect( handle )
         _paramOverlayIn      = fetchBooleanParam( kParamOverlayIn );
 	_paramOverlayInColor = fetchRGBParam( kParamOverlayInColor );
 
+        //Param OUT
 	_paramGroupOut        = fetchGroupParam( kParamGroupIn );
 	for( std::size_t cptOut = 0; cptOut < kMaxNbPoints; ++cptOut )
 	{
@@ -50,6 +52,17 @@ ImageEffect( handle )
         _paramOverlayOut      = fetchBooleanParam( kParamOverlayOut );
 	_paramOverlayOutColor = fetchRGBParam( kParamOverlayOutColor );
 
+        //Param TGT
+        _paramGroupTgt        = fetchGroupParam( kParamGroupTgt );
+        for( std::size_t cptTgt = 0; cptTgt < kMaxNbPoints; ++cptTgt )
+        {
+                _paramPointTgt[2*cptTgt] = fetchDouble2DParam( kParamPointTgt + boost::lexical_cast<std::string>(2*cptTgt+1) );
+                _paramPointTgt[2*cptTgt+1] = fetchDouble2DParam( kParamPointTgt + boost::lexical_cast<std::string>(2*cptTgt+1) );
+        }
+        _paramOverlayTgt      = fetchBooleanParam( kParamOverlayTgt );
+        _paramOverlayTgtColor = fetchRGBParam( kParamOverlayTgtColor );
+
+        //Param speciaux
 	_instanceChangedArgs.time          = 0;
 	_instanceChangedArgs.renderScale.x = 1;
 	_instanceChangedArgs.renderScale.y = 1;
@@ -62,21 +75,28 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	WarpProcessParams<Scalar> params;
         std::size_t size = _paramNbPoints->getValue();
 
-	for( std::size_t i = 0; i < size; ++i )
+        for( std::size_t i = 0; i < size; ++i )
 	{
-		point2<double> pIn = ofxToGil( _paramPointIn[i]->getValue() );
+                point2<double> pIn = ofxToGil( _paramPointIn[i]->getValue() );
 		params._inPoints.push_back( pIn );
-		point2<double> pOut = ofxToGil( _paramPointOut[i]->getValue() );
+
+                point2<double> pOut = ofxToGil( _paramPointOut[i]->getValue() );
 		params._outPoints.push_back( pOut );
+
+                point2<double> pTgt  = ofxToGil( _paramPointTgt[2*i]->getValue() );
+                point2<double> pTgt2 = ofxToGil( _paramPointTgt[2*i+1]->getValue() );
+                params._tgtPoints.push_back( pTgt );
+                params._tgtPoints.push_back( pTgt2 );
+
                 params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
 	}
-
         return params;
 }
 
 void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
 {        if( boost::starts_with( paramName, kParamPointIn ) ||
 	    boost::starts_with( paramName, kParamPointOut ) ||
+            boost::starts_with( paramName, kParamPointTgt ) ||
 		paramName == kParamNbPoints )
         {
                 switch( static_cast < EParamMethod >( _paramMethod->getValue() ) )
@@ -89,11 +109,15 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( false );
                                         _paramPointOut[i]->setIsSecretAndDisabled( false );
+                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( false );
+                                        _paramPointTgt[(2*i)+1]->setIsSecretAndDisabled( false );
                                 }
-                                for( ; i < kMaxNbPoints; ++i )
+                                for(i=size ; i < kMaxNbPoints; ++i )
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( true );
                                         _paramPointOut[i]->setIsSecretAndDisabled( true );
+                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( true );
+                                        _paramPointTgt[(2*i)+1]->setIsSecretAndDisabled( true );
                                 }
                                 break;
                         }
