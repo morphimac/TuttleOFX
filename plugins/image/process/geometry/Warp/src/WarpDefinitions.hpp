@@ -27,6 +27,7 @@ enum EParamMethod
 };
 
 const static std::string kParamOverlay = "overlay";
+const static std::string kParamInverse = "inverse";
 const static std::string kParamNbPoints = "nbPoints";
 
 const static std::string kParamGroupIn = "groupIn";
@@ -48,6 +49,8 @@ const static std::string kParamGroupTgtOut = "groupTgtOut";
 const static std::string kParamPointTgtOut = "pTangenteOut";
 const static std::string kParamOverlayTgtOut = "overlayTgtOut";
 const static std::string kParamOverlayTgtOutColor = "overlayTangentOutColor";
+
+const static std::string kParamGroupOverlay = "groupOverlay";
 
 }
 }

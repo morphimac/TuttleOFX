@@ -55,6 +55,7 @@ public:
    	OFX::Clip* _clipDst; ///< Destination image clip
 
         OFX::BooleanParam*  _paramOverlay;
+        OFX::BooleanParam*  _paramInverse;
         OFX::ChoiceParam*  _paramMethod;
 
 	OFX::IntParam*  _paramNbPoints;

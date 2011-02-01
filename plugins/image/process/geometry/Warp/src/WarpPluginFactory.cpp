@@ -72,13 +72,42 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	method->setDefault( 0 );
 	method->setHint( "Points method" );
 
-	OFX::BooleanParamDescriptor* overlay = desc.defineBooleanParam( kParamOverlay );
-	overlay->setLabel( "Overlay" );
-	overlay->setDefault( true );
-
-	OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
-	nbPoints->setDefault( 0 );
+        OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
+        nbPoints->setDefault( 0 );
         nbPoints->setIsSecret( true );
+
+        OFX::BooleanParamDescriptor* inverse = desc.defineBooleanParam( kParamInverse );
+        inverse->setLabel( "Inverse" );
+        inverse->setDefault( false );
+
+        //Overlay Points et tangentes
+        OFX::GroupParamDescriptor* groupOverlay = desc.defineGroupParam( kParamGroupOverlay );
+        groupOverlay->setLabel( "Overlay points et tangentes" );
+
+	OFX::BooleanParamDescriptor* overlay = desc.defineBooleanParam( kParamOverlay );
+        overlay->setLabel( "Overlay" );
+	overlay->setDefault( true );
+        overlay->setParent( groupOverlay );
+
+        OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
+        overlayIn->setLabel( "Points In" );
+        overlayIn->setDefault( true );
+        overlayIn->setParent( groupOverlay );
+
+        OFX::BooleanParamDescriptor* overlayTgtIn = desc.defineBooleanParam( kParamOverlayTgtIn );
+        overlayTgtIn->setLabel( "Bezier et tangentes In" );
+        overlayTgtIn->setDefault( true );
+        overlayTgtIn->setParent( groupOverlay );
+
+        OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
+        overlayOut->setLabel( "Points Out" );
+        overlayOut->setDefault( false );
+        overlayOut->setParent( groupOverlay );
+
+        OFX::BooleanParamDescriptor* overlayTgtOut = desc.defineBooleanParam( kParamOverlayTgtOut );
+        overlayTgtOut->setLabel( "Bezier et tangentes Out" );
+        overlayTgtOut->setDefault( false );
+        overlayTgtOut->setParent( groupOverlay );
 
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
@@ -167,27 +196,6 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         ouverlayTgtOutColor->setHint( "Tangente point overlay Out color" );
         ouverlayTgtOutColor->setDefault( 0.2, 0.45, 0.95 );
         ouverlayTgtOutColor->setParent( groupTgtOut );
-
-        //Overlay Points et tangentes
-        OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
-        overlayIn->setLabel( "Points In" );
-        overlayIn->setDefault( true );
-        //overlayIn->setParent( groupIn );
-
-        OFX::BooleanParamDescriptor* overlayTgtIn = desc.defineBooleanParam( kParamOverlayTgtIn );
-        overlayTgtIn->setLabel( "Bezier et tangentes In" );
-        overlayTgtIn->setDefault( true );
-        //overlayTgtIn->setParent( groupTgtIn );
-
-        OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
-        overlayOut->setLabel( "Point Out" );
-        overlayOut->setDefault( false );
-        //overlayOut->setParent( groupOut );
-
-        OFX::BooleanParamDescriptor* overlayTgtOut = desc.defineBooleanParam( kParamOverlayTgtOut );
-        overlayTgtOut->setLabel( "Bezier et tangentes Out" );
-        overlayTgtOut->setDefault( false );
-        //overlayTgtOut->setParent( groupTgtOut );
 }
 
 /**

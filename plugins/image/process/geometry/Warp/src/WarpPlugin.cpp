@@ -30,6 +30,7 @@ ImageEffect( handle )
 	_clipDst = fetchClip( kOfxImageEffectOutputClipName );
 
         _paramOverlay       = fetchBooleanParam( kParamOverlay );
+        _paramInverse       = fetchBooleanParam( kParamInverse );
 
         _paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramNbPoints       = fetchIntParam( kParamNbPoints );
@@ -85,27 +86,54 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	WarpProcessParams<Scalar> params;
         std::size_t size = _paramNbPoints->getValue();
 
-        for( std::size_t i = 0; i < size; ++i )
-	{
-                point2<double> pIn = ofxToGil( _paramPointIn[i]->getValue() );
-		params._inPoints.push_back( pIn );
+        if(!_paramInverse->getValue())
+        {
+                for( std::size_t i = 0; i < size; ++i )
+                {
+                        point2<double> pIn = ofxToGil( _paramPointIn[i]->getValue() );
+                        params._inPoints.push_back( pIn );
 
-                point2<double> pOut = ofxToGil( _paramPointOut[i]->getValue() );
-		params._outPoints.push_back( pOut );
+                        point2<double> pOut = ofxToGil( _paramPointOut[i]->getValue() );
+                        params._outPoints.push_back( pOut );
 
-                point2<double> pTgtIn  = ofxToGil( _paramPointTgtIn[2*i]->getValue() );
-                point2<double> pTgtIn2 = ofxToGil( _paramPointTgtIn[2*i+1]->getValue() );
-                params._tgtPointsIn.push_back( pTgtIn );
-                params._tgtPointsIn.push_back( pTgtIn2 );
+                        point2<double> pTgtIn  = ofxToGil( _paramPointTgtIn[2*i]->getValue() );
+                        point2<double> pTgtIn2 = ofxToGil( _paramPointTgtIn[2*i+1]->getValue() );
+                        params._tgtPointsIn.push_back( pTgtIn );
+                        params._tgtPointsIn.push_back( pTgtIn2 );
 
-                point2<double> pTgtOut  = ofxToGil( _paramPointTgtOut[2*i]->getValue() );
-                point2<double> pTgtOut2 = ofxToGil( _paramPointTgtOut[2*i+1]->getValue() );
-                params._tgtPointsOut.push_back( pTgtOut );
-                params._tgtPointsOut.push_back( pTgtOut2 );
+                        point2<double> pTgtOut  = ofxToGil( _paramPointTgtOut[2*i]->getValue() );
+                        point2<double> pTgtOut2 = ofxToGil( _paramPointTgtOut[2*i+1]->getValue() );
+                        params._tgtPointsOut.push_back( pTgtOut );
+                        params._tgtPointsOut.push_back( pTgtOut2 );
 
-                params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
-	}
-        return params;
+                        params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
+                }
+                return params;
+        }
+        else
+        {
+                for( std::size_t i = 0; i < size; ++i )
+                {
+                        point2<double> pIn = ofxToGil( _paramPointOut[i]->getValue() );
+                        params._inPoints.push_back( pIn );
+
+                        point2<double> pOut = ofxToGil( _paramPointIn[i]->getValue() );
+                        params._outPoints.push_back( pOut );
+
+                        point2<double> pTgtIn  = ofxToGil( _paramPointTgtOut[2*i]->getValue() );
+                        point2<double> pTgtIn2 = ofxToGil( _paramPointTgtOut[2*i+1]->getValue() );
+                        params._tgtPointsIn.push_back( pTgtIn );
+                        params._tgtPointsIn.push_back( pTgtIn2 );
+
+                        point2<double> pTgtOut  = ofxToGil( _paramPointTgtIn[2*i]->getValue() );
+                        point2<double> pTgtOut2 = ofxToGil( _paramPointTgtIn[2*i+1]->getValue() );
+                        params._tgtPointsOut.push_back( pTgtOut );
+                        params._tgtPointsOut.push_back( pTgtOut2 );
+
+                        params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
+                }
+                return params;
+        }
 }
 
 void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
