@@ -79,10 +79,11 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
 	nbPoints->setDefault( 0 );
         nbPoints->setIsSecret( true );
-	
+
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
 	groupIn->setLabel( "Input points" );
+        groupIn->setOpen(false);
 
 	OFX::Double2DParamDescriptor* pIn[kMaxNbPoints];
 	for( std::size_t cptIn = 0; cptIn < kMaxNbPoints; ++cptIn )
@@ -95,46 +96,16 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 		pIn[cptIn]->setParent( groupIn );
 	}
 
-	OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
-	overlayIn->setLabel( "Overlay" );
-        overlayIn->setDefault( true );
-	overlayIn->setParent( groupIn );
-
 	OFX::RGBParamDescriptor* ouverlayInColor = desc.defineRGBParam( kParamOverlayInColor );
 	ouverlayInColor->setLabel( "Color" );
 	ouverlayInColor->setHint( "Input point overlay color" );
 	ouverlayInColor->setDefault( 1.0, 0.0, 0.0 );
 	ouverlayInColor->setParent( groupIn );
 
-	//////////////////// OUT Points ////////////////////
-	OFX::GroupParamDescriptor* groupOut = desc.defineGroupParam( kParamGroupOut );
-	groupOut->setLabel( "Output points" );
-
-	OFX::Double2DParamDescriptor* pOut[kMaxNbPoints];
-	for( std::size_t cptOut = 0; cptOut < kMaxNbPoints; ++cptOut )
-	{
-		std::string resultOut = boost::lexical_cast<std::string>(cptOut);
-		pOut[cptOut] = desc.defineDouble2DParam( kParamPointOut + resultOut );
-		pOut[cptOut]->setLabel( "In " + resultOut );
-		pOut[cptOut]->setHint( "Input point " + resultOut );
-		pOut[cptOut]->setDefault( -200.0, 240.0 );
-		pOut[cptOut]->setParent( groupOut );
-	}
-
-	OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
-	overlayOut->setLabel( "Overlay" );
-        overlayOut->setDefault( false );
-	overlayOut->setParent( groupOut );
-
-	OFX::RGBParamDescriptor* ouverlayOutColor = desc.defineRGBParam( kParamOverlayOutColor );
-	ouverlayOutColor->setLabel( "Color" );
-	ouverlayOutColor->setHint( "Output point overlay color" );
-	ouverlayOutColor->setDefault( 0.0, 0.0, 1.0 );
-	ouverlayOutColor->setParent( groupOut );
-
         //////////////////// TGT Points IN////////////////////
         OFX::GroupParamDescriptor* groupTgtIn = desc.defineGroupParam( kParamGroupTgtIn );
         groupTgtIn->setLabel( "Tangente points In" );
+        groupTgtIn->setOpen(false);
 
         OFX::Double2DParamDescriptor* pTgtIn[kMaxNbPoints*2];
         for( std::size_t cptTgtIn = 0; cptTgtIn < kMaxNbPoints*2; cptTgtIn++ )
@@ -147,20 +118,38 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
                 pTgtIn[cptTgtIn]->setParent( groupTgtIn );
         }
 
-        OFX::BooleanParamDescriptor* overlayTgtIn = desc.defineBooleanParam( kParamOverlayTgtIn );
-        overlayTgtIn->setLabel( "Overlay In" );
-        overlayTgtIn->setDefault( true );
-        overlayTgtIn->setParent( groupTgtIn );
-
         OFX::RGBParamDescriptor* ouverlayTgtInColor = desc.defineRGBParam( kParamOverlayTgtInColor );
         ouverlayTgtInColor->setLabel( "Color In" );
         ouverlayTgtInColor->setHint( "Tangente point overlay In color" );
-        ouverlayTgtInColor->setDefault( 1.0, 0.15, 0.95 );
+        ouverlayTgtInColor->setDefault( 0.95, 0.4, 0.4 );
         ouverlayTgtInColor->setParent( groupTgtIn );
+
+	//////////////////// OUT Points ////////////////////
+	OFX::GroupParamDescriptor* groupOut = desc.defineGroupParam( kParamGroupOut );
+	groupOut->setLabel( "Output points" );
+        groupOut->setOpen(false);
+
+	OFX::Double2DParamDescriptor* pOut[kMaxNbPoints];
+	for( std::size_t cptOut = 0; cptOut < kMaxNbPoints; ++cptOut )
+	{
+		std::string resultOut = boost::lexical_cast<std::string>(cptOut);
+		pOut[cptOut] = desc.defineDouble2DParam( kParamPointOut + resultOut );
+		pOut[cptOut]->setLabel( "In " + resultOut );
+		pOut[cptOut]->setHint( "Input point " + resultOut );
+		pOut[cptOut]->setDefault( -200.0, 240.0 );
+		pOut[cptOut]->setParent( groupOut );
+	}
+
+	OFX::RGBParamDescriptor* ouverlayOutColor = desc.defineRGBParam( kParamOverlayOutColor );
+	ouverlayOutColor->setLabel( "Color" );
+	ouverlayOutColor->setHint( "Output point overlay color" );
+	ouverlayOutColor->setDefault( 0.0, 0.0, 1.0 );
+	ouverlayOutColor->setParent( groupOut );
 
         //////////////////// TGT Points Out////////////////////
         OFX::GroupParamDescriptor* groupTgtOut = desc.defineGroupParam( kParamGroupTgtOut );
         groupTgtOut->setLabel( "Tangente points Out" );
+        groupTgtOut->setOpen(false);
 
         OFX::Double2DParamDescriptor* pTgtOut[kMaxNbPoints*2];
         for( std::size_t cptTgtOut = 0; cptTgtOut < kMaxNbPoints*2; cptTgtOut++ )
@@ -173,16 +162,33 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
                 pTgtOut[cptTgtOut]->setParent( groupTgtOut );
         }
 
-        OFX::BooleanParamDescriptor* overlayTgtOut = desc.defineBooleanParam( kParamOverlayTgtOut );
-        overlayTgtOut->setLabel( "Overlay Out" );
-        overlayTgtOut->setDefault( false );
-        overlayTgtOut->setParent( groupTgtOut );
+        //Overlay Points et tangentes
 
         OFX::RGBParamDescriptor* ouverlayTgtOutColor = desc.defineRGBParam( kParamOverlayTgtOutColor );
         ouverlayTgtOutColor->setLabel( "Color Out" );
         ouverlayTgtOutColor->setHint( "Tangente point overlay Out color" );
-        ouverlayTgtOutColor->setDefault( 0.0, 0.1, 0.95 );
+        ouverlayTgtOutColor->setDefault( 0.2, 0.45, 0.95 );
         ouverlayTgtOutColor->setParent( groupTgtOut );
+
+        OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
+        overlayIn->setLabel( "Points In" );
+        overlayIn->setDefault( true );
+        overlayIn->setParent( groupIn );
+
+        OFX::BooleanParamDescriptor* overlayTgtIn = desc.defineBooleanParam( kParamOverlayTgtIn );
+        overlayTgtIn->setLabel( "Bezier et tangentes In" );
+        overlayTgtIn->setDefault( true );
+        overlayTgtIn->setParent( groupTgtIn );
+
+        OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
+        overlayOut->setLabel( "Point Out" );
+        overlayOut->setDefault( false );
+        overlayOut->setParent( groupOut );
+
+        OFX::BooleanParamDescriptor* overlayTgtOut = desc.defineBooleanParam( kParamOverlayTgtOut );
+        overlayTgtOut->setLabel( "Bezier et tangentes Out" );
+        overlayTgtOut->setDefault( false );
+        overlayTgtOut->setParent( groupTgtOut );
 }
 
 /**

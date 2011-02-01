@@ -20,7 +20,7 @@ using namespace boost::numeric::ublas;
     point2<double> barycentre(std::vector< point2<double> > quatrePoints, double t);
     void tracerPoint(const point2<double> p);
     void tracePoint(std::vector< point2<double> > tabPts, int nbPointsTraces, double t);
-    void dessinePoint(std::vector< point2<double> > tabPts);
+    void dessinePoint(std::vector< point2<double> > tabPts, const double r, const double v, const double b);
     point2<double> rempliTabPoint(std::vector< point2<double> > tabPts, double t);
 
 

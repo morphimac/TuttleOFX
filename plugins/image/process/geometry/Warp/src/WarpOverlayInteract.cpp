@@ -109,9 +109,15 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         OfxPointD pIn1 = _plugin->_paramPointIn[c]->getValue();
                         OfxPointD pIn2 = _plugin->_paramPointIn[c+1]->getValue();
 
+                        OfxPointD pOut1 = _plugin->_paramPointOut[c]->getValue();
+                        OfxPointD pOut2 = _plugin->_paramPointOut[c+1]->getValue();
+
                         //Points de la tangente
                         OfxPointD tIn1 = _plugin->_paramPointTgtIn[(2*c)]->getValue();
                         OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+3]->getValue();
+
+                        OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)]->getValue();
+                        OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+3]->getValue();
 
                         //Création et remplissage du tableau necessaire à Bezier
                         std::vector< point2<double> > tabPtsIn;
@@ -120,15 +126,23 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         tabPtsIn.push_back( point2<double>( tIn2.x, tIn2.y ) );
                         tabPtsIn.push_back( point2<double>( pIn2.x, pIn2.y ) );
 
-                        //Utilisation de Bezier
-                        bezier::dessinePoint( tabPtsIn);
+                        std::vector< point2<double> > tabPtsOut;
+                        tabPtsOut.push_back( point2<double>( pOut1.x, pOut1.y ) );
+                        tabPtsOut.push_back( point2<double>( tOut1.x, tOut1.y ) );
+                        tabPtsOut.push_back( point2<double>( tOut2.x, tOut2.y ) );
+                        tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
 
+                        //Mise en place des points de bezier dans un tableau
                         point2<double> ptIn;
-                        for(std::size_t i = 0; i < 100 ; ++i)
+                        point2<double> ptOut;
+                        for(std::size_t i = 0; i < nbCoeffBezier ; ++i)
                         {
-                            double t = (100.0-i)/100.0;
+                            double t = (double(nbCoeffBezier)-i)/double(nbCoeffBezier);
                             ptIn = bezier::rempliTabPoint( tabPtsIn,t);
                             _tgtPointsBezierIn.push_back(point2<double> (ptIn.x,ptIn.y));
+
+                            ptOut = bezier::rempliTabPoint( tabPtsOut,t);
+                            _tgtPointsBezierOut.push_back(point2<double> (ptOut.x,ptOut.y));
                         }
 
                         //Choix de la couleur des tangentes dans nuke
@@ -139,6 +153,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         //Si "overlay tangente" est sur afficher
                         if(_plugin->_paramOverlayTgtIn->getValue())
                         {
+                            bezier::dessinePoint( tabPtsIn, rIn, vIn, bIn);
                             //Trace les lignes des tangentes
                             glBegin(GL_LINES);
                                 glVertex2f(_plugin->_paramPointTgtIn[0]->getValue().x,_plugin->_paramPointTgtIn[0]->getValue().y);
@@ -153,33 +168,6 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                                 glVertex2f(_plugin->_paramPointTgtIn[0]->getValue().x,_plugin->_paramPointTgtIn[0]->getValue().y);
                             glEnd();
                         }
-        //Tangente Out
-                        // Création des points et des ptTangente et recupération des valeurs
-                        //points à relier
-                        OfxPointD pOut1 = _plugin->_paramPointOut[c]->getValue();
-                        OfxPointD pOut2 = _plugin->_paramPointOut[c+1]->getValue();
-
-                        //Points de la tangente
-                        OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)]->getValue();
-                        OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+3]->getValue();
-
-                        //Création et remplissage du tableau necessaire à Bezier
-                        std::vector< point2<double> > tabPtsOut;
-                        tabPtsOut.push_back( point2<double>( pOut1.x, pOut1.y ) );
-                        tabPtsOut.push_back( point2<double>( tOut1.x, tOut1.y ) );
-                        tabPtsOut.push_back( point2<double>( tOut2.x, tOut2.y ) );
-                        tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
-
-                        //Utilisation de Bezier
-                        bezier::dessinePoint( tabPtsOut);
-
-                        point2<double> ptOut;
-                        for(std::size_t i = 0; i < 100 ; ++i)
-                        {
-                            double t = (100.0-i)/100.0;
-                            ptOut = bezier::rempliTabPoint( tabPtsOut,t);
-                            _tgtPointsBezierOut.push_back(point2<double> (ptOut.x,ptOut.y));
-                        }
 
                         //Choix de la couleur des tangentes dans nuke
                         double rOut,vOut,bOut;
@@ -189,6 +177,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         //Si "overlay tangente" est sur afficher
                         if(_plugin->_paramOverlayTgtOut->getValue())
                         {
+                            bezier::dessinePoint( tabPtsOut, rOut, vOut, bOut);
                             //Trace les lignes des tangentes
                             glBegin(GL_LINES);
                                 glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
