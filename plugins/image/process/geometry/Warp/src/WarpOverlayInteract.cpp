@@ -97,22 +97,6 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         OfxPointD t1 = _plugin->_paramPointTgt[(2*c)]->getValue();
                         OfxPointD t2 = _plugin->_paramPointTgt[(2*c)+3]->getValue();
 
-                        //Choix de la couleur des tangentes dans nuke
-                        double r,v,b;
-                        _plugin->_paramOverlayTgtColor->getValue(r,v,b);
-                        glColor3f(r,v,b);
-
-                        //Trace les lignes des tangentes
-                        glBegin(GL_LINES);
-                            glVertex2f(_plugin->_paramPointTgt[(2*c)]->getValue().x,_plugin->_paramPointTgt[(2*c)]->getValue().y);
-                            glVertex2f(_plugin->_paramPointTgt[(2*c)+1]->getValue().x,_plugin->_paramPointTgt[(2*c)+1]->getValue().y);
-                        glEnd();
-
-                        glPointSize(11.0);
-                        glBegin(GL_POINTS);
-                            glVertex2f(_plugin->_paramPointTgt[(2*c)]->getValue().x,_plugin->_paramPointTgt[(2*c)]->getValue().y);
-                        glEnd();
-
                         //Création et remplissage du tableau necessaire à Bezier
                         std::vector< point2<double> > tabPts;
                         tabPts.push_back( point2<double>( p1.x, p1.y ) );
@@ -122,6 +106,29 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 
                         //Utilisation de Bezier
 			bezier::dessinePoint( tabPts, 4 );
+
+                        //Choix de la couleur des tangentes dans nuke
+                        double r,v,b;
+                        _plugin->_paramOverlayTgtColor->getValue(r,v,b);
+                        glColor3f(r,v,b);
+
+                        //Si "overlay tangente" est sur afficher
+                        if(_plugin->_paramOverlayTgt->getValue())
+                        {
+                            //Trace les lignes des tangentes
+                            glBegin(GL_LINES);
+                                glVertex2f(_plugin->_paramPointTgt[0]->getValue().x,_plugin->_paramPointTgt[0]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgt[1]->getValue().x,_plugin->_paramPointTgt[1]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgt[(2*c)+2]->getValue().x,_plugin->_paramPointTgt[(2*c)+2]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgt[(2*c)+3]->getValue().x,_plugin->_paramPointTgt[(2*c)+3]->getValue().y);
+                            glEnd();
+
+                            glPointSize(11.0);
+                            glBegin(GL_POINTS);
+                                glVertex2f(_plugin->_paramPointTgt[(2*c)+2]->getValue().x,_plugin->_paramPointTgt[(2*c)+2]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgt[0]->getValue().x,_plugin->_paramPointTgt[0]->getValue().y);
+                            glEnd();
+                        }
                 }
         }
 
@@ -207,7 +214,6 @@ bool WarpOverlayInteract::penUp( const OFX::PenArgs& args )
         for( std::size_t i = 0 ; i < numPt ; ++i )
         {
             _plugin->_paramPointTgt[2*i+1]->setValue(2*_plugin->_paramPointIn[i]->getValue()-_plugin->_paramPointTgt[2*i]->getValue());
-            //_plugin->_paramPointTgt[2*i]->setValue(2*_plugin->_paramPointIn[i]->getValue()-_plugin->_paramPointTgt[2*i+1]->getValue());
         }
         return _interactScene.penUp( args );
     }

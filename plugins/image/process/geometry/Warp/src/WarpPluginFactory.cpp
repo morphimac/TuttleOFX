@@ -78,7 +78,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 
 	OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
 	nbPoints->setDefault( 0 );
-//	nbPoints->setIsSecret( true );
+        nbPoints->setIsSecret( true );
 	
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
