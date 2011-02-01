@@ -193,29 +193,6 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         }
                 }
         }
-
-        //Si le mode est Reset
-        if(_plugin->_paramMethod->getValue() == eParamMethodReset)
-        {
-            for( std::size_t i = 0; i < kMaxNbPoints; ++i )
-            {
-                    _plugin->_paramPointIn[i]->setIsSecretAndDisabled( true );
-                    _plugin->_paramPointIn[i]->setValue( positionOrigine , positionOrigine );
-                    _plugin->_paramPointOut[i]->setIsSecretAndDisabled( true );
-                    _plugin->_paramPointOut[i]->setValue( positionOrigine , positionOrigine);
-
-                    _plugin->_paramPointTgtIn[2*i]->setIsSecretAndDisabled( true );
-                    _plugin->_paramPointTgtIn[2*i]->setValue( positionOrigine, positionOrigine );
-                    _plugin->_paramPointTgtIn[(2*i)+1]->setIsSecretAndDisabled( true );
-                    _plugin->_paramPointTgtIn[(2*i)+1]->setValue( positionOrigine , positionOrigine );
-
-                    _plugin->_paramPointTgtOut[2*i]->setIsSecretAndDisabled( true );
-                    _plugin->_paramPointTgtOut[(2*i)+1]->setIsSecretAndDisabled( true );
-
-                    _plugin->_paramNbPoints->setValue( 0 );
-            }
-        }
-
 	displaySomething |= _interactScene.draw( args );
 
         return displaySomething;

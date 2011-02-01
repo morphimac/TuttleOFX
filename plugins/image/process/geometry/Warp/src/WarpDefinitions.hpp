@@ -21,19 +21,18 @@ const static std::string kParamMethod = "method";
 const static std::string kParamMethodCreation = "creation";
 const static std::string kParamMethodDelete = "delete";
 const static std::string kParamMethodMove = "move";
-const static std::string kParamMethodReset = "reset";
 enum EParamMethod
 {
         eParamMethodCreation = 0,
         eParamMethodDelete,
         eParamMethodMove,
-        eParamMethodReset
 
 };
 
 const static std::string kParamOverlay = "overlay";
 const static std::string kParamInverse = "inverse";
 const static std::string kParamNbPoints = "nbPoints";
+const static std::string kParamReset = "reset";
 
 const static std::string kParamGroupIn = "groupIn";
 const static std::string kParamPointIn = "pIn";

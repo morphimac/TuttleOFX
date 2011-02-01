@@ -31,6 +31,7 @@ ImageEffect( handle )
 
         _paramOverlay       = fetchBooleanParam( kParamOverlay );
         _paramInverse       = fetchBooleanParam( kParamInverse );
+        _paramReset         = fetchPushButtonParam( kParamReset );
 
         _paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramNbPoints       = fetchIntParam( kParamNbPoints );
@@ -177,12 +178,31 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
                         {
                                 break;
                         }
-                        case eParamMethodReset:
-                        {
-                                break;
-                        }
                 }
         }
+        //Si le mode est Reset
+        if(paramName == kParamReset)
+        {
+                TUTTLE_COUT("Reset");
+                for( std::size_t i = 0; i < kMaxNbPoints; ++i )
+                {
+                        _paramPointIn[i]->setIsSecretAndDisabled( true );
+                        _paramPointIn[i]->setValue( positionOrigine , positionOrigine );
+                        _paramPointOut[i]->setIsSecretAndDisabled( true );
+                        _paramPointOut[i]->setValue( positionOrigine , positionOrigine);
+
+                        _paramPointTgtIn[2*i]->setIsSecretAndDisabled( true );
+                        _paramPointTgtIn[2*i]->setValue( positionOrigine, positionOrigine );
+                        _paramPointTgtIn[(2*i)+1]->setIsSecretAndDisabled( true );
+                        _paramPointTgtIn[(2*i)+1]->setValue( positionOrigine , positionOrigine );
+
+                        _paramPointTgtOut[2*i]->setIsSecretAndDisabled( true );
+                        _paramPointTgtOut[(2*i)+1]->setIsSecretAndDisabled( true );
+
+                        _paramNbPoints->setValue( 0 );
+                }
+        }
+
 }
 
 bool WarpPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )

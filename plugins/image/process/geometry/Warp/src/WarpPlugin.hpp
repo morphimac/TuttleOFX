@@ -56,6 +56,7 @@ public:
 
         OFX::BooleanParam*  _paramOverlay;
         OFX::BooleanParam*  _paramInverse;
+        OFX::PushButtonParam* _paramReset;
         OFX::ChoiceParam*  _paramMethod;
 
 	OFX::IntParam*  _paramNbPoints;
