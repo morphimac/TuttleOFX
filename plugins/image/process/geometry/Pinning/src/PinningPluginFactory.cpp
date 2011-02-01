@@ -85,6 +85,11 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         OFX::GroupParamDescriptor* groupCentre = desc.defineGroupParam( kParamGroupCentre );
         groupCentre->setLabel( "Centre point" );
 
+        OFX::ChoiceParamDescriptor* manipulatorMode = desc.defineChoiceParam( kParamManipulatorMode );
+        manipulatorMode->appendOption( kParamManipulatorModeTranslate );
+        manipulatorMode->appendOption( kParamManipulatorModeRotate );
+        manipulatorMode->appendOption( kParamManipulatorModeScale );
+
         OFX::Double2DParamDescriptor* pCentre = desc.defineDouble2DParam( kParamPointCentre);
         pCentre->setLabel( "Centre point" );
         pCentre->setHint( "Transform Centre point" );

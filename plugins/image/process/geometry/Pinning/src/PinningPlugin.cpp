@@ -27,6 +27,8 @@ PinningPlugin::PinningPlugin( OfxImageEffectHandle handle )
 	_paramInterpolation = fetchChoiceParam( kParamInterpolation );
 	_paramOverlay       = fetchBooleanParam( kParamOverlay );
 
+        _ParamManipulatorMode = fetchChoiceParam( kParamManipulatorMode );
+
             //TODO-vince //
         _paramGroupCentre       = fetchGroupParam( kParamGroupCentre );
         _paramPointCentre       = fetchDouble2DParam( kParamPointCentre);

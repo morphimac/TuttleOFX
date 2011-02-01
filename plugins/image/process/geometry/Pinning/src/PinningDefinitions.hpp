@@ -58,6 +58,17 @@ const static std::string kParamGroupBilinearMatrix = "groupBilinearMatrix";
 const static std::string kParamBilinearMatrixRow = "bilinearMatrix";
 
 
+const static std::string kParamManipulatorMode = "manipulatorMode";
+const static std::string kParamManipulatorModeTranslate = "translate";
+const static std::string kParamManipulatorModeRotate = "rotate";
+const static std::string kParamManipulatorModeScale = "scale";
+enum EParamManipulatorMode
+{
+        eParamManipulatorModeTranslate = 0,
+        eParamManipulatorModeRotate,
+        eParamManipulatorModeScale,
+};
+
 }
 }
 }
