@@ -44,7 +44,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
             activeTgtA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgt ) );
             activeTgtA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgt[i*2] ) );
             _interactScene.push_back(new interact::ParamPointRelativePoint<interact::FrameClip,
-                                       eCoordonateSystemXXcn>( _infos, _plugin->_paramPointTgt[i*2], _plugin->_clipSrc, point ),
+                                       eCoordonateSystemXY>( _infos, _plugin->_paramPointTgt[i*2], _plugin->_clipSrc, point ),
                                        activeTgtA,
                                        new interact::ColorRGBParam(_plugin->_paramOverlayTgtColor ));
 
@@ -53,7 +53,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
             activeTgtB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgt ) );
             activeTgtB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgt[i*2+1] ) );
             _interactScene.push_back(new interact::ParamPointRelativePoint<interact::FrameClip,
-                                      eCoordonateSystemXXcn>( _infos, _plugin->_paramPointTgt[i*2+1], _plugin->_clipSrc, point ),
+                                      eCoordonateSystemXY>( _infos, _plugin->_paramPointTgt[i*2+1], _plugin->_clipSrc, point ),
                                       activeTgtB,
                                       new interact::ColorRGBParam(_plugin->_paramOverlayTgtColor ));
 
@@ -85,33 +85,29 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 
         if(nbPoints >2)
         {
-                for( std::size_t i=0 ; i < 2*nbPoints ; i+=2 )
-                {
-                    glColor3ub(255,60,140);
-
-                    glBegin(GL_POINTS);
-                        glVertex2f(tabTgt[i].x,tabTgt[i].y);
-                        glVertex2f(tabTgt[i+1].x,tabTgt[i+1].y);
-                    glEnd();
-
-                    glBegin(GL_LINES);
-                        glVertex2f(tabTgt[i].x,tabTgt[i].y);
-                        glVertex2f(tabTgt[i+1].x,tabTgt[i+1].y);
-                    glEnd();
-                }
-
                 for( std::size_t c = 0 ; c < nbPoints ; ++c )
 		{
                         std::vector< point2<double> > tabPts;
                         OfxPointD p1 = _plugin->_paramPointIn[c]->getValue();
                         OfxPointD p2 = _plugin->_paramPointIn[c+1]->getValue();
+                        OfxPointD t1 = _plugin->_paramPointTgt[2*c+1]->getValue();
+                        OfxPointD t2 = _plugin->_paramPointTgt[2*c+2]->getValue();
 
-                        //Recherche du point de la tangent le plus proche du point a relier
+                        glColor3ub(255,60,140);
+
+                        glBegin(GL_POINTS);
+                            glVertex2f(t1.x,t1.y);
+                            glVertex2f(t2.x,t2.y);
+                        glEnd();
+
+                        glBegin(GL_LINES);
+                            glVertex2f(t1.x,t1.y);
+                            glVertex2f(t2.x,t2.y);
+                        glEnd();
 
                         tabPts.push_back( point2<double>( p1.x, p1.y ) );
-                        tabPts.push_back( point2<double>( tabTgt[c*2+1].x, tabTgt[c*2+1].y ) );
-
-                        tabPts.push_back( point2<double>( tabTgt[c*2+2].x, tabTgt[c*2+2].y ) );
+                        tabPts.push_back( point2<double>( t1.x, t1.y ) );
+                        tabPts.push_back( point2<double>( t2.x, t2.y ) );
                         tabPts.push_back( point2<double>( p2.x, p2.y ) );
 
 			bezier::dessinePoint( tabPts, 4 );
@@ -174,19 +170,22 @@ bool WarpOverlayInteract::penUp( const OFX::PenArgs& args )
     if(_plugin->_paramMethod->getValue() == eParamMethodCreation)
     {
         unsigned int numPt = _plugin->_paramNbPoints->getValue();
-        TUTTLE_COUT(numPt);
 
         point2<double> ptCur;
         ptCur.x = _plugin->_paramPointIn[numPt-1]->getValue().x;
         ptCur.y = _plugin->_paramPointIn[numPt-1]->getValue().y;
 
         point2<double> ptTgt1;
-        ptTgt1.x = args.penPosition.x;
-        ptTgt1.y = args.penPosition.y;
+        _plugin->_paramPointTgt[2*numPt-1]->setIsSecretAndDisabled(false);
+        _plugin->_paramPointTgt[2*numPt-1]->setValue(args.penPosition.x,args.penPosition.y);
+        ptTgt1.x =_plugin->_paramPointTgt[2*numPt-1]->getValue().x;
+        ptTgt1.y =_plugin->_paramPointTgt[2*numPt-1]->getValue().y;
 
         point2<double> ptTgt2;
-        ptTgt2.x = (ptCur.x)+(ptCur.x - args.penPosition.x);
-        ptTgt2.y = (ptCur.y)+(ptCur.y - args.penPosition.y);
+        _plugin->_paramPointTgt[2*numPt-2]->setIsSecretAndDisabled(false);
+        _plugin->_paramPointTgt[2*numPt-2]->setValue(2*ptCur.x-args.penPosition.x,2*ptCur.y-args.penPosition.y);
+        ptTgt2.x =_plugin->_paramPointTgt[2*numPt-2]->getValue().x;
+        ptTgt2.y =_plugin->_paramPointTgt[2*numPt-2]->getValue().y;
 
         tabTgt.push_back( point2<double>(ptTgt1.x , ptTgt1.y) );
         tabTgt.push_back( point2<double>(ptTgt2.x , ptTgt2.y) );

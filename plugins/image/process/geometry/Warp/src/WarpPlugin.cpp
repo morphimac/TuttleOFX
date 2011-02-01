@@ -56,7 +56,7 @@ ImageEffect( handle )
         _paramGroupTgt        = fetchGroupParam( kParamGroupTgt );
         for( std::size_t cptTgt = 0; cptTgt < kMaxNbPoints; ++cptTgt )
         {
-                _paramPointTgt[2*cptTgt] = fetchDouble2DParam( kParamPointTgt + boost::lexical_cast<std::string>(2*cptTgt+1) );
+                _paramPointTgt[2*cptTgt] = fetchDouble2DParam( kParamPointTgt + boost::lexical_cast<std::string>(2*cptTgt) );
                 _paramPointTgt[2*cptTgt+1] = fetchDouble2DParam( kParamPointTgt + boost::lexical_cast<std::string>(2*cptTgt+1) );
         }
         _paramOverlayTgt      = fetchBooleanParam( kParamOverlayTgt );
@@ -109,15 +109,23 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( false );
                                         _paramPointOut[i]->setIsSecretAndDisabled( false );
-                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( false );
-                                        _paramPointTgt[(2*i)+1]->setIsSecretAndDisabled( false );
                                 }
-                                for(i=size ; i < kMaxNbPoints; ++i )
+                                for( ; i < kMaxNbPoints; ++i )
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( true );
                                         _paramPointOut[i]->setIsSecretAndDisabled( true );
-                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( true );
-                                        _paramPointTgt[(2*i)+1]->setIsSecretAndDisabled( true );
+                                }
+
+                                std::size_t j = 0;
+                                for(; j < size; ++j )
+                                {
+                                        _paramPointTgt[2*j]->setIsSecretAndDisabled( false );
+                                        _paramPointTgt[2*j+1]->setIsSecretAndDisabled( false );
+                                }
+                                for( ; j < kMaxNbPoints; ++j )
+                                {
+                                        _paramPointTgt[2*j]->setIsSecretAndDisabled( true );
+                                        _paramPointTgt[2*j+1]->setIsSecretAndDisabled( true );
                                 }
                                 break;
                         }
