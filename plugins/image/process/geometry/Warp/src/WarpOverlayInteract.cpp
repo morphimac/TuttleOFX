@@ -30,10 +30,10 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
         //Points out
         for( std::size_t i = 0; i < kMaxNbPoints; ++i )
         {
-            // main point
+            //Points out
             interact::AndActiveFunctor<>* activeOut = new interact::AndActiveFunctor<>();
             activeOut->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
-            activeOut->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointIn[i] ) );
+            activeOut->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointOut[i] ) );
             _interactScene.push_back( new interact::ParamPoint<interact::FrameClip,
                                       eCoordinateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc ),
                                       activeOut,
@@ -41,35 +41,50 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
 
             interact::PointInteract* point = new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc );
 
-            // tangente A
-            interact::AndActiveFunctor<>* activeTgtA = new interact::AndActiveFunctor<>();
-            activeTgtA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgt ) );
-            activeTgtA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgt[i*2] ) );
+            //Points In
+            interact::AndActiveFunctor<>* activeIn = new interact::AndActiveFunctor<>();
+            activeIn->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
+            activeIn->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointIn[i] ) );
+            _interactScene.push_back( new interact::ParamPoint<interact::FrameClip,
+                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointIn[i], _plugin->_clipSrc ),
+                                      activeIn,
+                                      new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
+
+            // tangente IN A
+            interact::AndActiveFunctor<>* activeTgtInA = new interact::AndActiveFunctor<>();
+            activeTgtInA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtIn ) );
+            activeTgtInA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtIn[i*2] ) );
             _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                       eCoordinateSystemXY>( _infos, _plugin->_paramPointTgt[i*2], _plugin->_clipSrc/*, point*/ ),
-                                       activeTgtA,
-                                       new interact::ColorRGBParam(_plugin->_paramOverlayTgtColor ));
+                                       eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtIn[i*2], _plugin->_clipSrc/*, point*/ ),
+                                       activeTgtInA,
+                                       new interact::ColorRGBParam(_plugin->_paramOverlayTgtInColor ));
 
-            // tangente B
-            interact::AndActiveFunctor<>* activeTgtB = new interact::AndActiveFunctor<>();
-            activeTgtB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgt ) );
-            activeTgtB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgt[i*2+1] ) );
+            // tangente IN B
+            interact::AndActiveFunctor<>* activeTgtInB = new interact::AndActiveFunctor<>();
+            activeTgtInB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtIn ) );
+            activeTgtInB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtIn[i*2+1] ) );
             _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointTgt[i*2+1], _plugin->_clipSrc/*, point*/ ),
-                                      activeTgtB,
-                                      new interact::ColorRGBParam(_plugin->_paramOverlayTgtColor ));
+                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtIn[i*2+1], _plugin->_clipSrc/*, point*/ ),
+                                      activeTgtInB,
+                                      new interact::ColorRGBParam(_plugin->_paramOverlayTgtInColor ));
 
-        }
+            // tangente Out A
+            interact::AndActiveFunctor<>* activeTgtOutA = new interact::AndActiveFunctor<>();
+            activeTgtOutA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtOut ) );
+            activeTgtOutA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtOut[i*2] ) );
+            _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
+                                       eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtOut[i*2], _plugin->_clipSrc/*, point*/ ),
+                                       activeTgtOutA,
+                                       new interact::ColorRGBParam(_plugin->_paramOverlayTgtOutColor ));
 
-        // Points in
-        for(unsigned int cptIn = 0; cptIn < kMaxNbPoints; ++cptIn)
-	{
-                interact::AndActiveFunctor<>* activeIn = new interact::AndActiveFunctor<>();
-                activeIn->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
-                activeIn->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointIn[cptIn] ) );
-                _interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXY>( _infos, _plugin->_paramPointIn[cptIn], _plugin->_clipSrc ),
-                                                                  activeIn,
-                                                                  new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
+            // tangente Out B
+            interact::AndActiveFunctor<>* activeTgtOutB = new interact::AndActiveFunctor<>();
+            activeTgtOutB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtOut ) );
+            activeTgtOutB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtOut[i*2+1] ) );
+            _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
+                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtOut[i*2+1], _plugin->_clipSrc/*, point*/ ),
+                                      activeTgtOutB,
+                                      new interact::ColorRGBParam(_plugin->_paramOverlayTgtOutColor ));
         }
 }
 
@@ -88,45 +103,104 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
         {
                 for( std::size_t c = 0 ; c < nbPoints-1 ; ++c )
 		{
+        //Tangente In
                         // Création des points et des ptTangente et recupération des valeurs
                         //points à relier
-                        OfxPointD p1 = _plugin->_paramPointIn[c]->getValue();
-                        OfxPointD p2 = _plugin->_paramPointIn[c+1]->getValue();
+                        OfxPointD pIn1 = _plugin->_paramPointIn[c]->getValue();
+                        OfxPointD pIn2 = _plugin->_paramPointIn[c+1]->getValue();
 
                         //Points de la tangente
-                        OfxPointD t1 = _plugin->_paramPointTgt[(2*c)]->getValue();
-                        OfxPointD t2 = _plugin->_paramPointTgt[(2*c)+3]->getValue();
+                        OfxPointD tIn1 = _plugin->_paramPointTgtIn[(2*c)]->getValue();
+                        OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+3]->getValue();
 
                         //Création et remplissage du tableau necessaire à Bezier
-                        std::vector< point2<double> > tabPts;
-                        tabPts.push_back( point2<double>( p1.x, p1.y ) );
-                        tabPts.push_back( point2<double>( t1.x, t1.y ) );
-                        tabPts.push_back( point2<double>( t2.x, t2.y ) );
-                        tabPts.push_back( point2<double>( p2.x, p2.y ) );
+                        std::vector< point2<double> > tabPtsIn;
+                        tabPtsIn.push_back( point2<double>( pIn1.x, pIn1.y ) );
+                        tabPtsIn.push_back( point2<double>( tIn1.x, tIn1.y ) );
+                        tabPtsIn.push_back( point2<double>( tIn2.x, tIn2.y ) );
+                        tabPtsIn.push_back( point2<double>( pIn2.x, pIn2.y ) );
 
                         //Utilisation de Bezier
-			bezier::dessinePoint( tabPts, 4 );
+                        bezier::dessinePoint( tabPtsIn);
+
+                        point2<double> ptIn;
+                        for(std::size_t i = 0; i < 100 ; ++i)
+                        {
+                            double t = (100.0-i)/100.0;
+                            ptIn = bezier::rempliTabPoint( tabPtsIn,t);
+                            _tgtPointsBezierIn.push_back(point2<double> (ptIn.x,ptIn.y));
+                        }
 
                         //Choix de la couleur des tangentes dans nuke
-                        double r,v,b;
-                        _plugin->_paramOverlayTgtColor->getValue(r,v,b);
-                        glColor3f(r,v,b);
+                        double rIn,vIn,bIn;
+                        _plugin->_paramOverlayTgtInColor->getValue(rIn,vIn,bIn);
+                        glColor3f(rIn,vIn,bIn);
 
                         //Si "overlay tangente" est sur afficher
-                        if(_plugin->_paramOverlayTgt->getValue())
+                        if(_plugin->_paramOverlayTgtIn->getValue())
                         {
                             //Trace les lignes des tangentes
                             glBegin(GL_LINES);
-                                glVertex2f(_plugin->_paramPointTgt[0]->getValue().x,_plugin->_paramPointTgt[0]->getValue().y);
-                                glVertex2f(_plugin->_paramPointTgt[1]->getValue().x,_plugin->_paramPointTgt[1]->getValue().y);
-                                glVertex2f(_plugin->_paramPointTgt[(2*c)+2]->getValue().x,_plugin->_paramPointTgt[(2*c)+2]->getValue().y);
-                                glVertex2f(_plugin->_paramPointTgt[(2*c)+3]->getValue().x,_plugin->_paramPointTgt[(2*c)+3]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtIn[0]->getValue().x,_plugin->_paramPointTgtIn[0]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtIn[1]->getValue().x,_plugin->_paramPointTgtIn[1]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtIn[(2*c)+2]->getValue().x,_plugin->_paramPointTgtIn[(2*c)+2]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtIn[(2*c)+3]->getValue().x,_plugin->_paramPointTgtIn[(2*c)+3]->getValue().y);
                             glEnd();
 
                             glPointSize(11.0);
                             glBegin(GL_POINTS);
-                                glVertex2f(_plugin->_paramPointTgt[(2*c)+2]->getValue().x,_plugin->_paramPointTgt[(2*c)+2]->getValue().y);
-                                glVertex2f(_plugin->_paramPointTgt[0]->getValue().x,_plugin->_paramPointTgt[0]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtIn[(2*c)+2]->getValue().x,_plugin->_paramPointTgtIn[(2*c)+2]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtIn[0]->getValue().x,_plugin->_paramPointTgtIn[0]->getValue().y);
+                            glEnd();
+                        }
+        //Tangente Out
+                        // Création des points et des ptTangente et recupération des valeurs
+                        //points à relier
+                        OfxPointD pOut1 = _plugin->_paramPointOut[c]->getValue();
+                        OfxPointD pOut2 = _plugin->_paramPointOut[c+1]->getValue();
+
+                        //Points de la tangente
+                        OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)]->getValue();
+                        OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+3]->getValue();
+
+                        //Création et remplissage du tableau necessaire à Bezier
+                        std::vector< point2<double> > tabPtsOut;
+                        tabPtsOut.push_back( point2<double>( pOut1.x, pOut1.y ) );
+                        tabPtsOut.push_back( point2<double>( tOut1.x, tOut1.y ) );
+                        tabPtsOut.push_back( point2<double>( tOut2.x, tOut2.y ) );
+                        tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
+
+                        //Utilisation de Bezier
+                        bezier::dessinePoint( tabPtsOut);
+
+                        point2<double> ptOut;
+                        for(std::size_t i = 0; i < 100 ; ++i)
+                        {
+                            double t = (100.0-i)/100.0;
+                            ptOut = bezier::rempliTabPoint( tabPtsOut,t);
+                            _tgtPointsBezierOut.push_back(point2<double> (ptOut.x,ptOut.y));
+                        }
+
+                        //Choix de la couleur des tangentes dans nuke
+                        double rOut,vOut,bOut;
+                        _plugin->_paramOverlayTgtOutColor->getValue(rOut,vOut,bOut);
+                        glColor3f(rOut,vOut,bOut);
+
+                        //Si "overlay tangente" est sur afficher
+                        if(_plugin->_paramOverlayTgtOut->getValue())
+                        {
+                            //Trace les lignes des tangentes
+                            glBegin(GL_LINES);
+                                glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtOut[1]->getValue().x,_plugin->_paramPointTgtOut[1]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)+2]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+2]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)+3]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+3]->getValue().y);
+                            glEnd();
+
+                            glPointSize(11.0);
+                            glBegin(GL_POINTS);
+                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)+2]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+2]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
                             glEnd();
                         }
                 }
@@ -196,20 +270,36 @@ bool WarpOverlayInteract::penUp( const OFX::PenArgs& args )
 
     if(_plugin->_paramMethod->getValue() == eParamMethodCreation)
     {
+        //Tangente In
+
         //Point courant
-        point2<double> ptCur;
-        ptCur.x = _plugin->_paramPointIn[numPt-1]->getValue().x;
-        ptCur.y = _plugin->_paramPointIn[numPt-1]->getValue().y;
+        point2<double> ptCurIn;
+        ptCurIn.x = _plugin->_paramPointIn[numPt-1]->getValue().x;
+        ptCurIn.y = _plugin->_paramPointIn[numPt-1]->getValue().y;
 
         //Point numéro 1 de la tangente
-        point2<double> ptTgt1;
-        _plugin->_paramPointTgt[2*(numPt-1)]->setIsSecretAndDisabled(false);
-        _plugin->_paramPointTgt[2*(numPt-1)]->setValue(args.penPosition.x,args.penPosition.y);
+        _plugin->_paramPointTgtIn[2*(numPt-1)]->setIsSecretAndDisabled(false);
+        _plugin->_paramPointTgtIn[2*(numPt-1)]->setValue(args.penPosition.x,args.penPosition.y);
 
         //Point numéro 2 de la tangente
-        point2<double> ptTgt2;
-        _plugin->_paramPointTgt[2*(numPt-1)+1]->setIsSecretAndDisabled(false);
-        _plugin->_paramPointTgt[2*(numPt-1)+1]->setValue(2*ptCur.x-args.penPosition.x,2*ptCur.y-args.penPosition.y);
+        _plugin->_paramPointTgtIn[2*(numPt-1)+1]->setIsSecretAndDisabled(false);
+        _plugin->_paramPointTgtIn[2*(numPt-1)+1]->setValue(2*ptCurIn.x-args.penPosition.x,2*ptCurIn.y-args.penPosition.y);
+
+        //Tangente Out
+
+        //Point courant
+        point2<double> ptCurOut;
+        ptCurOut.x = _plugin->_paramPointOut[numPt-1]->getValue().x;
+        ptCurOut.y = _plugin->_paramPointOut[numPt-1]->getValue().y;
+
+        //Point numéro 1 de la tangente
+        _plugin->_paramPointTgtOut[2*(numPt-1)]->setIsSecretAndDisabled(false);
+        _plugin->_paramPointTgtOut[2*(numPt-1)]->setValue(args.penPosition.x,args.penPosition.y);
+
+        //Point numéro 2 de la tangente
+        _plugin->_paramPointTgtOut[2*(numPt-1)+1]->setIsSecretAndDisabled(false);
+        _plugin->_paramPointTgtOut[2*(numPt-1)+1]->setValue(2*ptCurOut.x-args.penPosition.x,2*ptCurOut.y-args.penPosition.y);
+
 
         return _interactScene.penUp( args );
     }
@@ -217,8 +307,10 @@ bool WarpOverlayInteract::penUp( const OFX::PenArgs& args )
     {
         for( std::size_t i = 0 ; i < numPt ; ++i )
         {
-            _plugin->_paramPointTgt[2*i+1]->setValue(2*_plugin->_paramPointIn[i]->getValue()-_plugin->_paramPointTgt[2*i]->getValue());
+            _plugin->_paramPointTgtIn[2*i+1]->setValue(2*_plugin->_paramPointIn[i]->getValue()-_plugin->_paramPointTgtIn[2*i]->getValue());
+            _plugin->_paramPointTgtOut[2*i+1]->setValue(2*_plugin->_paramPointOut[i]->getValue()-_plugin->_paramPointTgtOut[2*i]->getValue());
         }
+
         return _interactScene.penUp( args );
     }
 	return false;

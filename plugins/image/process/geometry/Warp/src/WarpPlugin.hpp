@@ -20,7 +20,8 @@ struct WarpProcessParams
 {
 	std::vector< point2<Scalar> > _inPoints;
 	std::vector< point2<Scalar> > _outPoints;
-        std::vector< point2<Scalar> > _tgtPoints;
+        std::vector< point2<Scalar> > _tgtPointsIn;
+        std::vector< point2<Scalar> > _tgtPointsOut;
 	std::vector< point2<Scalar> > _buildPoints;
 
 	EParamMethod _method;
@@ -58,23 +59,33 @@ public:
 
 	OFX::IntParam*  _paramNbPoints;
 
+        //In
 	OFX::GroupParam* _paramGroupIn;
 	boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointIn;
 
 	OFX::BooleanParam*  _paramOverlayIn;
 	OFX::RGBParam*  _paramOverlayInColor;
 
+        //Out
 	OFX::GroupParam* _paramGroupOut;
 	boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointOut;
 
 	OFX::BooleanParam*  _paramOverlayOut;
 	OFX::RGBParam*  _paramOverlayOutColor;
 
-        OFX::GroupParam* _paramGroupTgt;
-        boost::array<OFX::Double2DParam*, 2*kMaxNbPoints> _paramPointTgt;
+        //Tgt In
+        OFX::GroupParam* _paramGroupTgtIn;
+        boost::array<OFX::Double2DParam*, 2*kMaxNbPoints> _paramPointTgtIn;
 
-        OFX::BooleanParam*  _paramOverlayTgt;
-        OFX::RGBParam*  _paramOverlayTgtColor;
+        OFX::BooleanParam*  _paramOverlayTgtIn;
+        OFX::RGBParam*  _paramOverlayTgtInColor;
+
+        //Tgt Out
+        OFX::GroupParam* _paramGroupTgtOut;
+        boost::array<OFX::Double2DParam*, 2*kMaxNbPoints> _paramPointTgtOut;
+
+        OFX::BooleanParam*  _paramOverlayTgtOut;
+        OFX::RGBParam*  _paramOverlayTgtOutColor;
 
 private:
 	OFX::InstanceChangedArgs _instanceChangedArgs;

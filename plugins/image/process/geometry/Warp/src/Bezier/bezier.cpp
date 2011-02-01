@@ -47,14 +47,16 @@ namespace bezier {
             glVertex2f(p.x,p.y);
     }
 
-    void dessinePoint(std::vector< point2<double> > tabPts , int nbPointsTraces)
+    void dessinePoint(std::vector< point2<double> > tabPts)
     {
         //std::cout<<"--------------DessineRecur--------------"<<std::endl;
-        for(int i = 0; i < 200 ; ++i)
+        for(int i = 0; i < 100 ; ++i)
         {
-            double t = (200.0-i)/200.0;
+            double t = (100.0-i)/100.0;
 
             point2<double> tab = barycentre(tabPts,t);
+
+            //_tgtPointsBezier.push_back( tab );
 
             glPointSize(pointWidth);
             glColor3ub(255,0,0);
@@ -62,6 +64,13 @@ namespace bezier {
                 tracerPoint(tab);
             glEnd();
         }
+    }
+
+    point2<double> rempliTabPoint(std::vector< point2<double> > tabPts, double t)
+    {
+        //std::cout<<"--------------RempliTabPoint--------------"<<std::endl;
+        point2<double> pt = barycentre(tabPts,t);
+        return pt;
     }
 }
 }

@@ -22,7 +22,8 @@ class WarpOverlayInteract : public OFX::OverlayInteract
 
 	interact::InteractInfos _infos;
         interact::InteractScene _interactScene;
-        std::vector< point2<double> > tabTgt;
+        std::vector< point2<double> > _tgtPointsBezierIn;
+        std::vector< point2<double> > _tgtPointsBezierOut;
 
 public:
 	WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect );

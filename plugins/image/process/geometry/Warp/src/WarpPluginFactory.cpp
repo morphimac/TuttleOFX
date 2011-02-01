@@ -97,7 +97,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 
 	OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
 	overlayIn->setLabel( "Overlay" );
-	overlayIn->setDefault( true );
+        overlayIn->setDefault( true );
 	overlayIn->setParent( groupIn );
 
 	OFX::RGBParamDescriptor* ouverlayInColor = desc.defineRGBParam( kParamOverlayInColor );
@@ -123,7 +123,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 
 	OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
 	overlayOut->setLabel( "Overlay" );
-	overlayOut->setDefault( true );
+        overlayOut->setDefault( false );
 	overlayOut->setParent( groupOut );
 
 	OFX::RGBParamDescriptor* ouverlayOutColor = desc.defineRGBParam( kParamOverlayOutColor );
@@ -132,31 +132,57 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	ouverlayOutColor->setDefault( 0.0, 0.0, 1.0 );
 	ouverlayOutColor->setParent( groupOut );
 
-        //////////////////// TGT Points ////////////////////
-        OFX::GroupParamDescriptor* groupTgt = desc.defineGroupParam( kParamGroupTgt );
-        groupTgt->setLabel( "Tangente points" );
+        //////////////////// TGT Points IN////////////////////
+        OFX::GroupParamDescriptor* groupTgtIn = desc.defineGroupParam( kParamGroupTgtIn );
+        groupTgtIn->setLabel( "Tangente points In" );
 
-        OFX::Double2DParamDescriptor* pTgt[kMaxNbPoints*2];
-        for( std::size_t cptTgt = 0; cptTgt < kMaxNbPoints*2; cptTgt++ )
+        OFX::Double2DParamDescriptor* pTgtIn[kMaxNbPoints*2];
+        for( std::size_t cptTgtIn = 0; cptTgtIn < kMaxNbPoints*2; cptTgtIn++ )
         {
-                std::string resultTgt = boost::lexical_cast<std::string>(cptTgt);
-                pTgt[cptTgt] = desc.defineDouble2DParam( kParamPointTgt + resultTgt );
-                pTgt[cptTgt]->setLabel( "Tgt " + resultTgt );
-                pTgt[cptTgt]->setHint( "Tgt point " + resultTgt );
-                pTgt[cptTgt]->setDefault( -200.0, 400.0 );
-                pTgt[cptTgt]->setParent( groupTgt );
+                std::string resultTgtIn = boost::lexical_cast<std::string>(cptTgtIn);
+                pTgtIn[cptTgtIn] = desc.defineDouble2DParam( kParamPointTgtIn + resultTgtIn );
+                pTgtIn[cptTgtIn]->setLabel( "Tgt In " + resultTgtIn );
+                pTgtIn[cptTgtIn]->setHint( "Tgt point In " + resultTgtIn );
+                pTgtIn[cptTgtIn]->setDefault( -200.0, 400.0 );
+                pTgtIn[cptTgtIn]->setParent( groupTgtIn );
         }
 
-        OFX::BooleanParamDescriptor* overlayTgt = desc.defineBooleanParam( kParamOverlayTgt );
-        overlayTgt->setLabel( "Overlay" );
-        overlayTgt->setDefault( true );
-        overlayTgt->setParent( groupTgt );
+        OFX::BooleanParamDescriptor* overlayTgtIn = desc.defineBooleanParam( kParamOverlayTgtIn );
+        overlayTgtIn->setLabel( "Overlay In" );
+        overlayTgtIn->setDefault( true );
+        overlayTgtIn->setParent( groupTgtIn );
 
-        OFX::RGBParamDescriptor* ouverlayTgtColor = desc.defineRGBParam( kParamOverlayTgtColor );
-        ouverlayTgtColor->setLabel( "Color" );
-        ouverlayTgtColor->setHint( "Tangente point overlay color" );
-        ouverlayTgtColor->setDefault( 1.0, 0.15, 0.95 );
-        ouverlayTgtColor->setParent( groupTgt );
+        OFX::RGBParamDescriptor* ouverlayTgtInColor = desc.defineRGBParam( kParamOverlayTgtInColor );
+        ouverlayTgtInColor->setLabel( "Color In" );
+        ouverlayTgtInColor->setHint( "Tangente point overlay In color" );
+        ouverlayTgtInColor->setDefault( 1.0, 0.15, 0.95 );
+        ouverlayTgtInColor->setParent( groupTgtIn );
+
+        //////////////////// TGT Points Out////////////////////
+        OFX::GroupParamDescriptor* groupTgtOut = desc.defineGroupParam( kParamGroupTgtOut );
+        groupTgtOut->setLabel( "Tangente points Out" );
+
+        OFX::Double2DParamDescriptor* pTgtOut[kMaxNbPoints*2];
+        for( std::size_t cptTgtOut = 0; cptTgtOut < kMaxNbPoints*2; cptTgtOut++ )
+        {
+                std::string resultTgtOut = boost::lexical_cast<std::string>(cptTgtOut);
+                pTgtOut[cptTgtOut] = desc.defineDouble2DParam( kParamPointTgtOut + resultTgtOut );
+                pTgtOut[cptTgtOut]->setLabel( "Tgt Out " + resultTgtOut );
+                pTgtOut[cptTgtOut]->setHint( "Tgt point Out " + resultTgtOut );
+                pTgtOut[cptTgtOut]->setDefault( -200.0, 400.0 );
+                pTgtOut[cptTgtOut]->setParent( groupTgtOut );
+        }
+
+        OFX::BooleanParamDescriptor* overlayTgtOut = desc.defineBooleanParam( kParamOverlayTgtOut );
+        overlayTgtOut->setLabel( "Overlay Out" );
+        overlayTgtOut->setDefault( false );
+        overlayTgtOut->setParent( groupTgtOut );
+
+        OFX::RGBParamDescriptor* ouverlayTgtOutColor = desc.defineRGBParam( kParamOverlayTgtOutColor );
+        ouverlayTgtOutColor->setLabel( "Color Out" );
+        ouverlayTgtOutColor->setHint( "Tangente point overlay Out color" );
+        ouverlayTgtOutColor->setDefault( 0.0, 0.1, 0.95 );
+        ouverlayTgtOutColor->setParent( groupTgtOut );
 }
 
 /**

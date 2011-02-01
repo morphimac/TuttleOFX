@@ -91,7 +91,7 @@ TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn, const std::ve
         }
 
 	// Remplit une partie de v
-	for (unsigned i=0; i<p; ++i)
+        for (unsigned i=0; i<p; ++i)
 	{
 		const Point2& point_i = _pOut[i];
 		mtx_v(i,0) = point_i.x;
@@ -143,8 +143,8 @@ typename TPS_Morpher<SCALAR>::Point2 TPS_Morpher<SCALAR>::operator()( const poin
         //std::cout<<"DX fin "<<dx<<"  "<<dy<<std::endl;
 
 	Point2 res;
-        res.x = pt.x + dx;
-        res.y = pt.y + dy;
+        res.x = (pt.x + dx)/2;
+        res.y = (pt.y + dy)/2;
         //std::cout<<"res "<<res.x<<"  "<<res.y<<std::endl;
 
         return res;

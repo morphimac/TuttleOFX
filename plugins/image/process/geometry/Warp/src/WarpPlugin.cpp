@@ -52,15 +52,25 @@ ImageEffect( handle )
         _paramOverlayOut      = fetchBooleanParam( kParamOverlayOut );
 	_paramOverlayOutColor = fetchRGBParam( kParamOverlayOutColor );
 
-        //Param TGT
-        _paramGroupTgt        = fetchGroupParam( kParamGroupTgt );
-        for( std::size_t cptTgt = 0; cptTgt < kMaxNbPoints; ++cptTgt )
+        //Param TGT IN
+        _paramGroupTgtIn        = fetchGroupParam( kParamGroupTgtIn );
+        for( std::size_t cptTgtIn = 0; cptTgtIn < kMaxNbPoints; ++cptTgtIn )
         {
-                _paramPointTgt[2*cptTgt] = fetchDouble2DParam( kParamPointTgt + boost::lexical_cast<std::string>(2*cptTgt) );
-                _paramPointTgt[2*cptTgt+1] = fetchDouble2DParam( kParamPointTgt + boost::lexical_cast<std::string>(2*cptTgt+1) );
+                _paramPointTgtIn[2*cptTgtIn] = fetchDouble2DParam( kParamPointTgtIn + boost::lexical_cast<std::string>(2*cptTgtIn) );
+                _paramPointTgtIn[2*cptTgtIn+1] = fetchDouble2DParam( kParamPointTgtIn + boost::lexical_cast<std::string>(2*cptTgtIn+1) );
         }
-        _paramOverlayTgt      = fetchBooleanParam( kParamOverlayTgt );
-        _paramOverlayTgtColor = fetchRGBParam( kParamOverlayTgtColor );
+        _paramOverlayTgtIn      = fetchBooleanParam( kParamOverlayTgtIn );
+        _paramOverlayTgtInColor = fetchRGBParam( kParamOverlayTgtInColor );
+
+        //Param TGT Out
+        _paramGroupTgtOut        = fetchGroupParam( kParamGroupTgtOut );
+        for( std::size_t cptTgtOut = 0; cptTgtOut < kMaxNbPoints; ++cptTgtOut )
+        {
+                _paramPointTgtOut[2*cptTgtOut] = fetchDouble2DParam( kParamPointTgtOut + boost::lexical_cast<std::string>(2*cptTgtOut) );
+                _paramPointTgtOut[2*cptTgtOut+1] = fetchDouble2DParam( kParamPointTgtOut + boost::lexical_cast<std::string>(2*cptTgtOut+1) );
+        }
+        _paramOverlayTgtOut      = fetchBooleanParam( kParamOverlayTgtOut );
+        _paramOverlayTgtOutColor = fetchRGBParam( kParamOverlayTgtOutColor );
 
         //Param speciaux
 	_instanceChangedArgs.time          = 0;
@@ -83,10 +93,15 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
                 point2<double> pOut = ofxToGil( _paramPointOut[i]->getValue() );
 		params._outPoints.push_back( pOut );
 
-                point2<double> pTgt  = ofxToGil( _paramPointTgt[2*i]->getValue() );
-                point2<double> pTgt2 = ofxToGil( _paramPointTgt[2*i+1]->getValue() );
-                params._tgtPoints.push_back( pTgt );
-                params._tgtPoints.push_back( pTgt2 );
+                point2<double> pTgtIn  = ofxToGil( _paramPointTgtIn[2*i]->getValue() );
+                point2<double> pTgtIn2 = ofxToGil( _paramPointTgtIn[2*i+1]->getValue() );
+                params._tgtPointsIn.push_back( pTgtIn );
+                params._tgtPointsIn.push_back( pTgtIn2 );
+
+                point2<double> pTgtOut  = ofxToGil( _paramPointTgtOut[2*i]->getValue() );
+                point2<double> pTgtOut2 = ofxToGil( _paramPointTgtOut[2*i+1]->getValue() );
+                params._tgtPointsOut.push_back( pTgtOut );
+                params._tgtPointsOut.push_back( pTgtOut2 );
 
                 params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
 	}
@@ -96,7 +111,8 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
 {        if( boost::starts_with( paramName, kParamPointIn ) ||
 	    boost::starts_with( paramName, kParamPointOut ) ||
-            boost::starts_with( paramName, kParamPointTgt ) ||
+            boost::starts_with( paramName, kParamPointTgtIn ) ||
+            boost::starts_with( paramName, kParamPointTgtOut ) ||
 		paramName == kParamNbPoints )
         {
                 switch( static_cast < EParamMethod >( _paramMethod->getValue() ) )
@@ -109,15 +125,19 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( false );
                                         _paramPointOut[i]->setIsSecretAndDisabled( false );
-                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( false );
-                                        _paramPointTgt[2*i+1]->setIsSecretAndDisabled( false );
+                                        _paramPointTgtIn[2*i]->setIsSecretAndDisabled( false );
+                                        _paramPointTgtIn[2*i+1]->setIsSecretAndDisabled( false );
+                                        _paramPointTgtOut[2*i]->setIsSecretAndDisabled( false );
+                                        _paramPointTgtOut[2*i+1]->setIsSecretAndDisabled( false );
                                 }
                                 for( ; i < kMaxNbPoints; ++i )
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( true );
                                         _paramPointOut[i]->setIsSecretAndDisabled( true );
-                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( true );
-                                        _paramPointTgt[2*i+1]->setIsSecretAndDisabled( true );
+                                        _paramPointTgtIn[2*i]->setIsSecretAndDisabled( true );
+                                        _paramPointTgtIn[2*i+1]->setIsSecretAndDisabled( true );
+                                        _paramPointTgtOut[2*i]->setIsSecretAndDisabled( true );
+                                        _paramPointTgtOut[2*i+1]->setIsSecretAndDisabled( true );
                                 }
                                 break;
                         }
