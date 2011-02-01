@@ -64,6 +64,7 @@
 ./libraries/tuttle/src/tuttle/plugin/interact/Color.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamPoint.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamRectangleFromTwoCorners.cpp
+./libraries/tuttle/src/tuttle/plugin/interact/SelectionManipulator.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/InteractInfos.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamPoint.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamRectangleFromTwoCorners.hpp
@@ -83,6 +84,7 @@
 ./libraries/tuttle/src/tuttle/plugin/interact/ParamPointRelativePoint.hpp
 ./libraries/tuttle/src/tuttle/plugin/interact/Frame.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/InteractObject.cpp
+./libraries/tuttle/src/tuttle/plugin/interact/SelectionManipulator.cpp
 ./libraries/tuttle/src/tuttle/plugin/interact/overlay.hpp
 ./libraries/tuttle/src/tuttle/plugin/param/gilColor.hpp
 ./libraries/tuttle/src/tuttle/plugin/memory/OfxAllocator.hpp
@@ -91,6 +93,7 @@
 ./libraries/tuttle/src/tuttle/plugin/ImageEffectGilPlugin.cpp
 ./libraries/tuttle/src/tuttle/plugin/NoProgress.cpp
 ./libraries/tuttle/src/tuttle/plugin/global.hpp
+./libraries/tuttle/src/tuttle/plugin/ImageEffectGilPlugin.tcc
 ./libraries/tuttle/src/tuttle/plugin/IProgress.hpp
 ./libraries/tuttle/src/tuttle/plugin/Plugin.hpp
 ./libraries/tuttle/src/tuttle/plugin/coordinateSystem.hpp
@@ -268,6 +271,7 @@
 ./libraries/tuttle/src/tuttle/host/graph/IVertex.hpp
 ./libraries/tuttle/src/tuttle/host/graph/IEdge.hpp
 ./libraries/tuttle/src/tuttle/host/graph/ProcessEdgeAtTime.cpp
+./libraries/tuttle/src/tuttle/host/graph/InternalGraph.tcc
 ./libraries/tuttle/src/tuttle/host/graph/ProcessVertexAtTimeData.cpp
 ./libraries/tuttle/src/tuttle/host/graph/IVertex.cpp
 ./libraries/tuttle/src/tuttle/host/graph/ProcessEdge.hpp
@@ -277,6 +281,7 @@
 ./libraries/tuttle/src/tuttle/host/graph/ProcessVertexAtTime.cpp
 ./libraries/tuttle/src/tuttle/host/graph/ProcessVisitors.hpp
 ./libraries/tuttle/src/tuttle/host/graph/ProcessVertex.hpp
+./libraries/tuttle/src/tuttle/host/graph/GraphExporter.tcc
 ./libraries/tuttle/src/tuttle/host/graph/ProcessEdgeAtTime.hpp
 ./libraries/tuttle/src/tuttle/host/graph/ProcessVertexAtTimeData.hpp
 ./libraries/tuttle/src/tuttle/host/graph/ProcessEdge.cpp
@@ -345,6 +350,7 @@
 ./plugins/param/analysis/Diff/src/DiffPlugin.cpp
 ./plugins/param/analysis/Diff/src/DiffDefinitions.hpp
 ./plugins/param/analysis/Diff/src/DiffPlugin.hpp
+./plugins/param/analysis/Diff/src/DiffProcess.tcc
 ./plugins/param/analysis/Diff/src/DiffPluginFactory.hpp
 ./plugins/param/analysis/Diff/src/mainEntry.cpp
 ./plugins/param/analysis/ImageStatistics/SConscript
@@ -355,10 +361,12 @@
 ./plugins/param/analysis/ImageStatistics/src/ImageStatisticsPlugin.cpp
 ./plugins/param/analysis/ImageStatistics/src/ImageStatisticsOverlayInteract.hpp
 ./plugins/param/analysis/ImageStatistics/src/ImageStatisticsPluginFactory.cpp
+./plugins/param/analysis/ImageStatistics/src/ImageStatisticsProcess.tcc
 ./plugins/param/analysis/ImageStatistics/src/mainEntry.cpp
 ./plugins/param/analysis/ImageStatistics/src/ImageStatisticsPluginFactory.hpp
 ./plugins/param/debug/DebugImageEffectApi/SConscript
 ./plugins/param/debug/DebugImageEffectApi/src/DebugImageEffectApiDefinitions.hpp
+./plugins/param/debug/DebugImageEffectApi/src/DebugImageEffectApiProcess.tcc
 ./plugins/param/debug/DebugImageEffectApi/src/DebugImageEffectApiPluginFactory.hpp
 ./plugins/param/debug/DebugImageEffectApi/src/DebugImageEffectApiProcess.hpp
 ./plugins/param/debug/DebugImageEffectApi/src/DebugImageEffectApiPlugin.hpp
@@ -368,6 +376,7 @@
 ./plugins/param/Math/src/ParamMath.cpp
 ./plugins/image/generator/ColorGradient/SConscript
 ./plugins/image/generator/ColorGradient/src/ColorGradientProcess.hpp
+./plugins/image/generator/ColorGradient/src/ColorGradientProcess.tcc
 ./plugins/image/generator/ColorGradient/src/ColorGradientPlugin.cpp
 ./plugins/image/generator/ColorGradient/src/algorithm/ColorGrandient2DLinearFunctor.hpp
 ./plugins/image/generator/ColorGradient/src/algorithm/ColorGrandient1DLinearFunctor.hpp
@@ -379,6 +388,7 @@
 ./plugins/image/generator/ColorGradient/src/mainEntry.cpp
 ./plugins/image/generator/Text/SConscript
 ./plugins/image/generator/Text/src/TextPlugin.hpp
+./plugins/image/generator/Text/src/TextProcess.tcc
 ./plugins/image/generator/Text/src/TextDefinitions.hpp
 ./plugins/image/generator/Text/src/TextProcess.hpp
 ./plugins/image/generator/Text/src/TextPluginFactory.cpp
@@ -393,6 +403,7 @@
 ./plugins/image/generator/Checkerboard/src/CheckerboardPlugin.hpp
 ./plugins/image/generator/Checkerboard/src/CheckerboardPluginFactory.cpp
 ./plugins/image/generator/Checkerboard/src/CheckerboardPluginFactory.hpp
+./plugins/image/generator/Checkerboard/src/CheckerboardProcess.tcc
 ./plugins/image/generator/Checkerboard/src/CheckerboardProcess.hpp
 ./plugins/image/generator/Checkerboard/src/CheckerboardDefinitions.hpp
 ./plugins/image/generator/Checkerboard/src/mainEntry.cpp
@@ -404,12 +415,14 @@
 ./plugins/image/process/color/BasicKeyer/src/BasicKeyerPluginFactory.cpp
 ./plugins/image/process/color/BasicKeyer/src/BasicKeyerDefinitions.hpp
 ./plugins/image/process/color/BasicKeyer/src/BasicKeyerPlugin.cpp
+./plugins/image/process/color/BasicKeyer/src/BasicKeyerProcess.tcc
 ./plugins/image/process/color/BasicKeyer/src/BasicKeyerProcess.hpp
 ./plugins/image/process/color/BasicKeyer/src/mainEntry.cpp
 ./plugins/image/process/color/Colorspace/SConscript
 ./plugins/image/process/color/Colorspace/src/lin2log/Lin2LogPluginFactory.hpp
 ./plugins/image/process/color/Colorspace/src/lin2log/Lin2LogPluginFactory.cpp
 ./plugins/image/process/color/Colorspace/src/lin2log/Lin2LogDefinitions.hpp
+./plugins/image/process/color/Colorspace/src/lin2log/Lin2LogProcess.tcc
 ./plugins/image/process/color/Colorspace/src/lin2log/Lin2LogProcess.hpp
 ./plugins/image/process/color/Colorspace/src/lin2log/Lin2LogPlugin.cpp
 ./plugins/image/process/color/Colorspace/src/lin2log/Lin2LogPlugin.hpp
@@ -419,9 +432,11 @@
 ./plugins/image/process/color/Colorspace/src/log2lin/Log2LinDefinitions.hpp
 ./plugins/image/process/color/Colorspace/src/log2lin/Log2LinPluginFactory.hpp
 ./plugins/image/process/color/Colorspace/src/log2lin/Log2LinPlugin.hpp
+./plugins/image/process/color/Colorspace/src/log2lin/Log2LinProcess.tcc
 ./plugins/image/process/color/Colorspace/src/mainEntry.cpp
 ./plugins/image/process/color/ColorDistribution/SConscript
 ./plugins/image/process/color/ColorDistribution/src/ColorDistributionProcess.hpp
+./plugins/image/process/color/ColorDistribution/src/ColorDistributionProcess.tcc
 ./plugins/image/process/color/ColorDistribution/src/ColorDistributionPluginFactory.cpp
 ./plugins/image/process/color/ColorDistribution/src/ColorDistributionDefinitions.hpp
 ./plugins/image/process/color/ColorDistribution/src/ColorDistributionPlugin.hpp
@@ -445,6 +460,7 @@
 ./plugins/image/process/color/Lut/src/lutEngine/AbstractLut.cpp
 ./plugins/image/process/color/Lut/src/LutPluginFactory.cpp
 ./plugins/image/process/color/Lut/src/LutPluginFactory.hpp
+./plugins/image/process/color/Lut/src/LutProcess.tcc
 ./plugins/image/process/color/Lut/src/LutPlugin.cpp
 ./plugins/image/process/color/Lut/src/LutPlugin.hpp
 ./plugins/image/process/color/Lut/src/mainEntry.cpp
@@ -457,10 +473,12 @@
 ./plugins/image/process/color/Normalize/src/NormalizePlugin.hpp
 ./plugins/image/process/color/Normalize/src/NormalizeProcess.hpp
 ./plugins/image/process/color/Normalize/src/NormalizeAlgorithm.hpp
+./plugins/image/process/color/Normalize/src/NormalizeProcess.tcc
 ./plugins/image/process/color/Normalize/src/NormalizePluginFactory.hpp
 ./plugins/image/process/color/Normalize/src/mainEntry.cpp
 ./plugins/image/process/color/BitDepth/SConscript
 ./plugins/image/process/color/BitDepth/src/BitDepthPluginFactory.hpp
+./plugins/image/process/color/BitDepth/src/BitDepthProcess.tcc
 ./plugins/image/process/color/BitDepth/src/BitDepthPlugin.cpp
 ./plugins/image/process/color/BitDepth/src/BitDepthProcess.hpp
 ./plugins/image/process/color/BitDepth/src/BitDepthPlugin.hpp
@@ -475,6 +493,7 @@
 ./plugins/image/process/color/Invert/src/InvertPlugin.hpp
 ./plugins/image/process/color/Invert/src/InvertPlugin.cpp
 ./plugins/image/process/color/Invert/src/InvertAlgorithm.hpp
+./plugins/image/process/color/Invert/src/InvertProcess.tcc
 ./plugins/image/process/color/Invert/src/InvertProcess.hpp
 ./plugins/image/process/color/Invert/src/mainEntry.cpp
 ./plugins/image/process/color/HistogramKeyer/SConscript
@@ -485,12 +504,14 @@
 ./plugins/image/process/color/HistogramKeyer/src/HistogramKeyerOverlay.cpp
 ./plugins/image/process/color/HistogramKeyer/src/HistogramKeyerProcess.hpp
 ./plugins/image/process/color/HistogramKeyer/src/HistogramKeyerPluginFactory.hpp
+./plugins/image/process/color/HistogramKeyer/src/HistogramKeyerProcess.tcc
 ./plugins/image/process/color/HistogramKeyer/src/mainEntry.cpp
 ./plugins/image/process/color/HistogramKeyer/src/HistogramKeyerPlugin.cpp
 ./plugins/image/process/color/HistogramKeyer/src/HistogramKeyerDefinitions.hpp
 ./plugins/image/process/color/Gamma/SConscript
 ./plugins/image/process/color/Gamma/src/GammaPlugin.cpp
 ./plugins/image/process/color/Gamma/src/GammaPluginFactory.cpp
+./plugins/image/process/color/Gamma/src/GammaProcess.tcc
 ./plugins/image/process/color/Gamma/src/GammaPlugin.hpp
 ./plugins/image/process/color/Gamma/src/GammaProcess.hpp
 ./plugins/image/process/color/Gamma/src/GammaDefinitions.hpp
@@ -504,10 +525,12 @@
 ./plugins/image/process/filter/Blur/src/BlurPlugin.hpp
 ./plugins/image/process/filter/Blur/src/mainEntry.cpp
 ./plugins/image/process/filter/Blur/src/BlurDefinitions.hpp
+./plugins/image/process/filter/Blur/src/BlurProcess.tcc
 ./plugins/image/process/filter/FloodFill/SConscript
 ./plugins/image/process/filter/FloodFill/src/FloodFillPlugin.hpp
 ./plugins/image/process/filter/FloodFill/src/FloodFillAlgorithm.hpp
 ./plugins/image/process/filter/FloodFill/src/FloodFillProcess.hpp
+./plugins/image/process/filter/FloodFill/src/FloodFillProcess.tcc
 ./plugins/image/process/filter/FloodFill/src/FloodFillPluginFactory.cpp
 ./plugins/image/process/filter/FloodFill/src/mainEntry.cpp
 ./plugins/image/process/filter/FloodFill/src/FloodFillDefinitions.hpp
@@ -520,10 +543,12 @@
 ./plugins/image/process/filter/Thinning/src/ThinningPlugin.hpp
 ./plugins/image/process/filter/Thinning/src/ThinningPlugin.cpp
 ./plugins/image/process/filter/Thinning/src/ThinningPluginFactory.hpp
+./plugins/image/process/filter/Thinning/src/ThinningProcess.tcc
 ./plugins/image/process/filter/Thinning/src/mainEntry.cpp
 ./plugins/image/process/filter/Thinning/src/ThinningPluginFactory.cpp
 ./plugins/image/process/filter/Sobel/SConscript
 ./plugins/image/process/filter/Sobel/src/SobelAlgorithm.hpp
+./plugins/image/process/filter/Sobel/src/SobelProcess.tcc
 ./plugins/image/process/filter/Sobel/src/SobelProcess.hpp
 ./plugins/image/process/filter/Sobel/src/SobelPlugin.hpp
 ./plugins/image/process/filter/Sobel/src/SobelPlugin.cpp
@@ -537,6 +562,7 @@
 ./plugins/image/process/filter/LocalMaxima/src/LocalMaximaDefinitions.hpp
 ./plugins/image/process/filter/LocalMaxima/src/LocalMaximaPlugin.hpp
 ./plugins/image/process/filter/LocalMaxima/src/LocalMaximaAlgorithm.hpp
+./plugins/image/process/filter/LocalMaxima/src/LocalMaximaProcess.tcc
 ./plugins/image/process/filter/LocalMaxima/src/mainEntry.cpp
 ./plugins/image/process/filter/LocalMaxima/src/LocalMaximaPluginFactory.cpp
 ./plugins/image/process/filter/LocalMaxima/src/LocalMaximaPlugin.cpp
@@ -546,6 +572,7 @@
 ./plugins/image/process/filter/Convolution/src/ConvolutionPlugin.cpp
 ./plugins/image/process/filter/Convolution/src/ConvolutionDefinitions.hpp
 ./plugins/image/process/filter/Convolution/src/ConvolutionPluginFactory.cpp
+./plugins/image/process/filter/Convolution/src/ConvolutionProcess.tcc
 ./plugins/image/process/filter/Convolution/src/ConvolutionProcess.hpp
 ./plugins/image/process/filter/Convolution/src/mainEntry.cpp
 ./plugins/image/process/filter/FftTransform/SConscript
@@ -554,6 +581,7 @@
 ./plugins/image/process/filter/FftTransform/src/ifft/IfftPluginFactory.hpp
 ./plugins/image/process/filter/FftTransform/src/ifft/IfftPlugin.cpp
 ./plugins/image/process/filter/FftTransform/src/ifft/IfftDefinitions.hpp
+./plugins/image/process/filter/FftTransform/src/ifft/IfftProcess.tcc
 ./plugins/image/process/filter/FftTransform/src/ifft/IfftPlugin.hpp
 ./plugins/image/process/filter/FftTransform/src/fftEngine/FftwWrapperGPU.cpp
 ./plugins/image/process/filter/FftTransform/src/fftEngine/FftwWrapperGPU.hpp
@@ -561,6 +589,7 @@
 ./plugins/image/process/filter/FftTransform/src/fftEngine/IfftwWrapper.cpp
 ./plugins/image/process/filter/FftTransform/src/fftEngine/FftwWrapperCPU.cpp
 ./plugins/image/process/filter/FftTransform/src/fftEngine/FftwWrapperCPU.hpp
+./plugins/image/process/filter/FftTransform/src/fft/FftProcess.tcc
 ./plugins/image/process/filter/FftTransform/src/fft/FftPlugin.cpp
 ./plugins/image/process/filter/FftTransform/src/fft/FftProcess.hpp
 ./plugins/image/process/filter/FftTransform/src/fft/FftPluginFactory.cpp
@@ -570,6 +599,7 @@
 ./plugins/image/process/filter/FftTransform/src/mainEntry.cpp
 ./plugins/image/process/transition/Merge/SConscript
 ./plugins/image/process/transition/Merge/src/MergeProcess.hpp
+./plugins/image/process/transition/Merge/src/MergeProcess.tcc
 ./plugins/image/process/transition/Merge/src/MergePluginFactory.hpp
 ./plugins/image/process/transition/Merge/src/MergePlugin.cpp
 ./plugins/image/process/transition/Merge/src/gil/toolbox/MergeFunctors.hpp
@@ -597,6 +627,7 @@
 ./plugins/image/process/geometry/Crop/src/CropPlugin.hpp
 ./plugins/image/process/geometry/Crop/src/CropPlugin.cpp
 ./plugins/image/process/geometry/Crop/src/mainEntry.cpp
+./plugins/image/process/geometry/Crop/src/CropProcess.tcc
 ./plugins/image/process/geometry/Pinning/SConscript
 ./plugins/image/process/geometry/Pinning/src/PinningPlugin.cpp
 ./plugins/image/process/geometry/Pinning/src/PinningDefinitions.hpp
@@ -604,6 +635,7 @@
 ./plugins/image/process/geometry/Pinning/src/PinningPluginFactory.hpp
 ./plugins/image/process/geometry/Pinning/src/PinningOverlayInteract.cpp
 ./plugins/image/process/geometry/Pinning/src/PinningPluginFactory.cpp
+./plugins/image/process/geometry/Pinning/src/PinningProcess.tcc
 ./plugins/image/process/geometry/Pinning/src/mainEntry.cpp
 ./plugins/image/process/geometry/Pinning/src/pinningAlgorithm.hpp
 ./plugins/image/process/geometry/Pinning/src/PinningProcess.hpp
@@ -615,7 +647,10 @@
 ./plugins/image/process/geometry/Warp/src/WarpPlugin.hpp
 ./plugins/image/process/geometry/Warp/src/WarpProcess.hpp
 ./plugins/image/process/geometry/Warp/src/TPS/tps.hpp
-./plugins/image/process/geometry/Warp/src/TPS/tps.cpp
+./plugins/image/process/geometry/Warp/src/TPS/tps.tcc
+./plugins/image/process/geometry/Warp/src/Bezier/bezier.hpp
+./plugins/image/process/geometry/Warp/src/Bezier/bezier.cpp
+./plugins/image/process/geometry/Warp/src/WarpProcess.tcc
 ./plugins/image/process/geometry/Warp/src/WarpPlugin.cpp
 ./plugins/image/process/geometry/Warp/src/mainEntry.cpp
 ./plugins/image/process/geometry/Warp/src/WarpOverlayInteract.cpp
@@ -629,6 +664,7 @@
 ./plugins/image/process/geometry/Resize/src/ResizePlugin.cpp
 ./plugins/image/process/geometry/Resize/src/ResizeProcess.hpp
 ./plugins/image/process/geometry/Resize/src/mainEntry.cpp
+./plugins/image/process/geometry/Resize/src/ResizeProcess.tcc
 ./plugins/image/process/geometry/Resize/src/ResizeDefinitions.hpp
 ./plugins/image/process/geometry/PinningBilinear/SConscript
 ./plugins/image/process/geometry/PinningBilinear/src/PinningPlugin.cpp
@@ -638,6 +674,7 @@
 ./plugins/image/process/geometry/PinningBilinear/src/PinningOverlayInteract.cpp
 ./plugins/image/process/geometry/PinningBilinear/src/PinningProcessParams.hpp
 ./plugins/image/process/geometry/PinningBilinear/src/PinningPluginFactory.cpp
+./plugins/image/process/geometry/PinningBilinear/src/PinningProcess.tcc
 ./plugins/image/process/geometry/PinningBilinear/src/mainEntry.cpp
 ./plugins/image/process/geometry/PinningBilinear/src/PinningProcess.hpp
 ./plugins/image/process/geometry/PinningBilinear/src/PinningPlugin.hpp
@@ -645,6 +682,7 @@
 ./plugins/image/process/geometry/PinningBilinear/tmp/PinningOverlayInteract.cpp
 ./plugins/image/process/geometry/Move2D/SConscript
 ./plugins/image/process/geometry/Move2D/src/Move2DProcess.hpp
+./plugins/image/process/geometry/Move2D/src/Move2DProcess.tcc
 ./plugins/image/process/geometry/Move2D/src/Move2DPluginFactory.cpp
 ./plugins/image/process/geometry/Move2D/src/Move2DAlgorithm.hpp
 ./plugins/image/process/geometry/Move2D/src/Move2DPlugin.hpp
@@ -656,6 +694,7 @@
 ./plugins/image/process/geometry/LensDistort/tests/src/main.cpp
 ./plugins/image/process/geometry/LensDistort/SConscript
 ./plugins/image/process/geometry/LensDistort/src/LensDistortOverlayInteract.cpp
+./plugins/image/process/geometry/LensDistort/src/LensDistortProcess.tcc
 ./plugins/image/process/geometry/LensDistort/src/LensDistortPlugin.cpp
 ./plugins/image/process/geometry/LensDistort/src/LensDistortPlugin.hpp
 ./plugins/image/process/geometry/LensDistort/src/LensDistortOverlayInteract.hpp
@@ -670,6 +709,8 @@
 ./plugins/image/io/Png/tests/io/SConscript
 ./plugins/image/io/Png/SConscript
 ./plugins/image/io/Png/src/PngEngine/png_adds.hpp
+./plugins/image/io/Png/src/PngEngine/pngDefinitions.hpp
+./plugins/image/io/Png/src/reader/PngReaderProcess.tcc
 ./plugins/image/io/Png/src/reader/PngReaderPlugin.cpp
 ./plugins/image/io/Png/src/reader/PngReaderPlugin.hpp
 ./plugins/image/io/Png/src/reader/PngReaderProcess.hpp
@@ -679,6 +720,7 @@
 ./plugins/image/io/Png/src/writer/PngWriterDefinitions.hpp
 ./plugins/image/io/Png/src/writer/PngWriterPluginFactory.hpp
 ./plugins/image/io/Png/src/writer/PngWriterProcess.hpp
+./plugins/image/io/Png/src/writer/PngWriterProcess.tcc
 ./plugins/image/io/Png/src/writer/PngWriterPluginFactory.cpp
 ./plugins/image/io/Png/src/writer/PngWriterPlugin.cpp
 ./plugins/image/io/Png/src/writer/PngWriterPlugin.hpp
@@ -688,10 +730,12 @@
 ./plugins/image/io/OpenImageIO/src/reader/OpenImageIOReaderProcess.hpp
 ./plugins/image/io/OpenImageIO/src/reader/OpenImageIOReaderPlugin.hpp
 ./plugins/image/io/OpenImageIO/src/reader/OpenImageIOReaderPluginFactory.cpp
+./plugins/image/io/OpenImageIO/src/reader/OpenImageIOReaderProcess.tcc
 ./plugins/image/io/OpenImageIO/src/reader/OpenImageIOReaderDefinitions.hpp
 ./plugins/image/io/OpenImageIO/src/reader/OpenImageIOReaderPlugin.cpp
 ./plugins/image/io/OpenImageIO/src/writer/OpenImageIOWriterPlugin.cpp
 ./plugins/image/io/OpenImageIO/src/writer/OpenImageIOWriterPluginFactory.cpp
+./plugins/image/io/OpenImageIO/src/writer/OpenImageIOWriterProcess.tcc
 ./plugins/image/io/OpenImageIO/src/writer/OpenImageIOWriterProcess.hpp
 ./plugins/image/io/OpenImageIO/src/writer/OpenImageIOWriterPlugin.hpp
 ./plugins/image/io/OpenImageIO/src/writer/OpenImageIOWriterPluginFactory.hpp
@@ -710,12 +754,14 @@
 ./plugins/image/io/Exr/src/reader/EXRReaderPlugin.cpp
 ./plugins/image/io/Exr/src/reader/EXRReaderDefinitions.hpp
 ./plugins/image/io/Exr/src/reader/EXRReaderPluginFactory.hpp
+./plugins/image/io/Exr/src/reader/EXRReaderProcess.tcc
 ./plugins/image/io/Exr/src/writer/EXRWriterDefinitions.hpp
 ./plugins/image/io/Exr/src/writer/EXRWriterPlugin.cpp
 ./plugins/image/io/Exr/src/writer/EXRWriterPluginFactory.cpp
 ./plugins/image/io/Exr/src/writer/EXRWriterProcess.hpp
 ./plugins/image/io/Exr/src/writer/EXRWriterPluginFactory.hpp
 ./plugins/image/io/Exr/src/writer/EXRWriterPlugin.hpp
+./plugins/image/io/Exr/src/writer/EXRWriterProcess.tcc
 ./plugins/image/io/Exr/src/mainEntry.cpp
 ./plugins/image/io/Dpx/tests/io/read.cpp
 ./plugins/image/io/Dpx/tests/io/SConscript
@@ -726,12 +772,14 @@
 ./plugins/image/io/Dpx/src/reader/gil_fixes/readme.txt
 ./plugins/image/io/Dpx/src/reader/gil_fixes/packed_pixel.hpp
 ./plugins/image/io/Dpx/src/reader/gil_fixes/channel.hpp
+./plugins/image/io/Dpx/src/reader/DPXReaderProcess.tcc
 ./plugins/image/io/Dpx/src/reader/DPXReaderPluginFactory.cpp
 ./plugins/image/io/Dpx/src/reader/DPXReaderPlugin.hpp
 ./plugins/image/io/Dpx/src/reader/DPXReaderDefinitions.hpp
 ./plugins/image/io/Dpx/src/reader/DPXReaderPlugin.cpp
 ./plugins/image/io/Dpx/src/reader/DPXReaderPluginFactory.hpp
 ./plugins/image/io/Dpx/src/reader/DPXReaderProcess.hpp
+./plugins/image/io/Dpx/src/writer/DPXWriterProcess.tcc
 ./plugins/image/io/Dpx/src/writer/DPXWriterDefinitions.hpp
 ./plugins/image/io/Dpx/src/writer/DPXWriterPluginFactory.cpp
 ./plugins/image/io/Dpx/src/writer/DPXWriterPluginFactory.hpp
@@ -741,11 +789,13 @@
 ./plugins/image/io/Dpx/src/mainEntry.cpp
 ./plugins/image/io/FFMpeg/SConscript
 ./plugins/image/io/FFMpeg/src/reader/FFMpegReaderPluginFactory.hpp
+./plugins/image/io/FFMpeg/src/reader/FFMpegReaderProcess.tcc
 ./plugins/image/io/FFMpeg/src/reader/FFMpegReaderPlugin.hpp
 ./plugins/image/io/FFMpeg/src/reader/FFMpegReaderPluginFactory.cpp
 ./plugins/image/io/FFMpeg/src/reader/FFMpegReaderProcess.hpp
 ./plugins/image/io/FFMpeg/src/reader/FFMpegReaderPlugin.cpp
 ./plugins/image/io/FFMpeg/src/reader/FFMpegReaderDefinitions.hpp
+./plugins/image/io/FFMpeg/src/writer/FFMpegWriterProcess.tcc
 ./plugins/image/io/FFMpeg/src/writer/FFMpegWriterPlugin.cpp
 ./plugins/image/io/FFMpeg/src/writer/FFMpegWriterPluginFactory.hpp
 ./plugins/image/io/FFMpeg/src/writer/FFMpegWriterPluginFactory.cpp
@@ -768,7 +818,9 @@
 ./plugins/image/io/ImageMagick/src/reader/ImageMagickReaderPlugin.hpp
 ./plugins/image/io/ImageMagick/src/reader/ImageMagickReaderProcess.hpp
 ./plugins/image/io/ImageMagick/src/reader/ImageMagickReaderDefinitions.hpp
+./plugins/image/io/ImageMagick/src/reader/ImageMagickReaderProcess.tcc
 ./plugins/image/io/ImageMagick/src/writer/ImageMagickWriterDefinitions.hpp
+./plugins/image/io/ImageMagick/src/writer/ImageMagickWriterProcess.tcc
 ./plugins/image/io/ImageMagick/src/writer/ImageMagickWriterPluginFactory.cpp
 ./plugins/image/io/ImageMagick/src/writer/ImageMagickWriterPlugin.cpp
 ./plugins/image/io/ImageMagick/src/writer/ImageMagickWriterProcess.hpp
@@ -780,6 +832,7 @@
 ./plugins/image/io/Jpeg/SConscript
 ./plugins/image/io/Jpeg/src/reader/JpegReaderPlugin.hpp
 ./plugins/image/io/Jpeg/src/reader/JpegReaderDefinitions.hpp
+./plugins/image/io/Jpeg/src/reader/JpegReaderProcess.tcc
 ./plugins/image/io/Jpeg/src/reader/JpegReaderPluginFactory.hpp
 ./plugins/image/io/Jpeg/src/reader/JpegReaderPluginFactory.cpp
 ./plugins/image/io/Jpeg/src/reader/JpegReaderProcess.hpp
@@ -787,6 +840,7 @@
 ./plugins/image/io/Jpeg/src/writer/JpegWriterPlugin.cpp
 ./plugins/image/io/Jpeg/src/writer/JpegWriterPlugin.hpp
 ./plugins/image/io/Jpeg/src/writer/JpegWriterProcess.hpp
+./plugins/image/io/Jpeg/src/writer/JpegWriterProcess.tcc
 ./plugins/image/io/Jpeg/src/writer/JpegWriterDefinitions.hpp
 ./plugins/image/io/Jpeg/src/writer/JpegWriterPluginFactory.hpp
 ./plugins/image/io/Jpeg/src/writer/JpegWriterPluginFactory.cpp
@@ -799,6 +853,7 @@
 ./plugins/image/io/Raw/src/reader/RawReaderPluginFactory.hpp
 ./plugins/image/io/Raw/src/reader/RawReaderProcess.hpp
 ./plugins/image/io/Raw/src/reader/RawReaderPlugin.cpp
+./plugins/image/io/Raw/src/reader/RawReaderProcess.tcc
 ./plugins/image/io/Raw/src/reader/RawReaderPlugin.hpp
 ./plugins/image/io/Raw/src/mainEntry.cpp
 ./3rdParty/boostHack/boost/gil/extension/typedefs.hpp
