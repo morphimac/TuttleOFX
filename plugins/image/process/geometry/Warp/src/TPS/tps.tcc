@@ -131,11 +131,13 @@ typename TPS_Morpher<SCALAR>::Point2 TPS_Morpher<SCALAR>::operator()( const poin
         typename Const_Matrix_Col::const_iterator cv0_ite(cv0.begin());
         typename Const_Matrix_Col::const_iterator cv1_ite(cv1.begin());
 
+        //std::cout<<"DX fin "<<dx<<"  "<<dy<<std::endl;
+
         for ( unsigned i=0; i<m; ++i, ++ite2, ++cv0_ite, ++cv1_ite )
 	{
-        double d = base_func( boost::math::pow<2>(ite2->x - x) + boost::math::pow<2>(ite2->y - y) );
-	dx += (*cv0_ite) * d;
-	dy += (*cv1_ite) * d;
+		double d = base_func( boost::math::pow<2>(ite2->x - x) + boost::math::pow<2>(ite2->y - y) );
+		dx += (*cv0_ite) * d;
+		dy += (*cv1_ite) * d;
         }
 
         //std::cout<<"DX fin "<<dx<<"  "<<dy<<std::endl;
