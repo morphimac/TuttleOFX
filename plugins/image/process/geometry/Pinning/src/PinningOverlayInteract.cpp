@@ -28,35 +28,35 @@ PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::I
 	_effect = effect;
 	_plugin = static_cast<PinningPlugin*>( _effect );
 
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut0, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointOut0, _plugin->_clipSrc ),
 							  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ),
 							  new interact::ColorRGBParam(_plugin->_paramOverlayOutColor) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut1, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointOut1, _plugin->_clipSrc ),
 							  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ),
 							  new interact::ColorRGBParam(_plugin->_paramOverlayOutColor) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut2, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointOut2, _plugin->_clipSrc ),
 							  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ),
 							  new interact::ColorRGBParam(_plugin->_paramOverlayOutColor) );
 	interact::AndActiveFunctor<>* activeOut3 = new interact::AndActiveFunctor<>();
 	activeOut3->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
 	activeOut3->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointOut3 ) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointOut3, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointOut3, _plugin->_clipSrc ),
 							  activeOut3,
 							  new interact::ColorRGBParam(_plugin->_paramOverlayOutColor) );
 
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn0, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointIn0, _plugin->_clipSrc ),
 							  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ),
 							  new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn1, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointIn1, _plugin->_clipSrc ),
 							  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ),
 							  new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn2, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointIn2, _plugin->_clipSrc ),
 							  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ),
 							  new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
 	interact::AndActiveFunctor<>* activeIn3 = new interact::AndActiveFunctor<>();
 	activeIn3->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
 	activeIn3->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointIn3 ) );
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXXcn>( _infos, _plugin->_paramPointIn3, _plugin->_clipSrc ),
+	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointIn3, _plugin->_clipSrc ),
 							  activeIn3,
 							  new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
 

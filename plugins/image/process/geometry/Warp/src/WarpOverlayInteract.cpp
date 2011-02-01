@@ -35,18 +35,18 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
             activeOut->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
             activeOut->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointIn[i] ) );
             _interactScene.push_back( new interact::ParamPoint<interact::FrameClip,
-                                      eCoordonateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc ),
+                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc ),
                                       activeOut,
                                       new interact::ColorRGBParam(_plugin->_paramOverlayOutColor));
 
-            interact::PointInteract* point = new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc );
+            interact::PointInteract* point = new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc );
 
             // tangente A
             interact::AndActiveFunctor<>* activeTgtA = new interact::AndActiveFunctor<>();
             activeTgtA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgt ) );
             activeTgtA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgt[i*2] ) );
             _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                       eCoordonateSystemXY>( _infos, _plugin->_paramPointTgt[i*2], _plugin->_clipSrc/*, point*/ ),
+                                       eCoordinateSystemXY>( _infos, _plugin->_paramPointTgt[i*2], _plugin->_clipSrc/*, point*/ ),
                                        activeTgtA,
                                        new interact::ColorRGBParam(_plugin->_paramOverlayTgtColor ));
 
@@ -55,7 +55,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
             activeTgtB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgt ) );
             activeTgtB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgt[i*2+1] ) );
             _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                      eCoordonateSystemXY>( _infos, _plugin->_paramPointTgt[i*2+1], _plugin->_clipSrc/*, point*/ ),
+                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointTgt[i*2+1], _plugin->_clipSrc/*, point*/ ),
                                       activeTgtB,
                                       new interact::ColorRGBParam(_plugin->_paramOverlayTgtColor ));
 
@@ -67,7 +67,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
                 interact::AndActiveFunctor<>* activeIn = new interact::AndActiveFunctor<>();
                 activeIn->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
                 activeIn->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointIn[cptIn] ) );
-                _interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordonateSystemXY>( _infos, _plugin->_paramPointIn[cptIn], _plugin->_clipSrc ),
+                _interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXY>( _infos, _plugin->_paramPointIn[cptIn], _plugin->_clipSrc ),
                                                                   activeIn,
                                                                   new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
         }
@@ -211,6 +211,7 @@ bool WarpOverlayInteract::penUp( const OFX::PenArgs& args )
         }
         return _interactScene.penUp( args );
     }
+	return false;
 }
 
 }
