@@ -68,9 +68,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	method->setLabel( "Method" );
 	method->appendOption( kParamMethodCreation );
 	method->appendOption( kParamMethodDelete );
-	method->appendOption( kParamMethodMove );
-        method->appendOption( kParamMethodReset );
-
+        method->appendOption( kParamMethodMove );
 	method->setDefault( 0 );
 	method->setHint( "Points method" );
 
@@ -81,6 +79,9 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         OFX::BooleanParamDescriptor* inverse = desc.defineBooleanParam( kParamInverse );
         inverse->setLabel( "Inverse" );
         inverse->setDefault( false );
+
+        OFX::PushButtonParamDescriptor* reset = desc.definePushButtonParam( kParamReset);
+        reset->setLabel( "Reset" );
 
         //Overlay Points et tangentes
         OFX::GroupParamDescriptor* groupOverlay = desc.defineGroupParam( kParamGroupOverlay );
