@@ -102,8 +102,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
         if(nbPoints >1)
         {
                 for( std::size_t c = 0 ; c < nbPoints-1 ; ++c )
-		{
-        //Tangente In
+                {
                         // Création des points et des ptTangente et recupération des valeurs
                         //points à relier
                         OfxPointD pIn1 = _plugin->_paramPointIn[c]->getValue();
@@ -193,6 +192,28 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                             glEnd();
                         }
                 }
+        }
+
+        //Si le mode est Reset
+        if(_plugin->_paramMethod->getValue() == eParamMethodReset)
+        {
+            for( std::size_t i = 0; i < kMaxNbPoints; ++i )
+            {
+                    _plugin->_paramPointIn[i]->setIsSecretAndDisabled( true );
+                    _plugin->_paramPointIn[i]->setValue( positionOrigine , positionOrigine );
+                    _plugin->_paramPointOut[i]->setIsSecretAndDisabled( true );
+                    _plugin->_paramPointOut[i]->setValue( positionOrigine , positionOrigine);
+
+                    _plugin->_paramPointTgtIn[2*i]->setIsSecretAndDisabled( true );
+                    _plugin->_paramPointTgtIn[2*i]->setValue( positionOrigine, positionOrigine );
+                    _plugin->_paramPointTgtIn[(2*i)+1]->setIsSecretAndDisabled( true );
+                    _plugin->_paramPointTgtIn[(2*i)+1]->setValue( positionOrigine , positionOrigine );
+
+                    _plugin->_paramPointTgtOut[2*i]->setIsSecretAndDisabled( true );
+                    _plugin->_paramPointTgtOut[(2*i)+1]->setIsSecretAndDisabled( true );
+
+                    _plugin->_paramNbPoints->setValue( 0 );
+            }
         }
 
 	displaySomething |= _interactScene.draw( args );

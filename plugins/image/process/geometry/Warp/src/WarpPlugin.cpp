@@ -177,6 +177,10 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
                         {
                                 break;
                         }
+                        case eParamMethodReset:
+                        {
+                                break;
+                        }
                 }
         }
 }

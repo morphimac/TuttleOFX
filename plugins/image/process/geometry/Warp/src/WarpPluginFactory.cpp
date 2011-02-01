@@ -69,6 +69,8 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	method->appendOption( kParamMethodCreation );
 	method->appendOption( kParamMethodDelete );
 	method->appendOption( kParamMethodMove );
+        method->appendOption( kParamMethodReset );
+
 	method->setDefault( 0 );
 	method->setHint( "Points method" );
 
@@ -121,7 +123,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 		pIn[cptIn] = desc.defineDouble2DParam( kParamPointIn + resultIn );
 		pIn[cptIn]->setLabel( "In " + resultIn );
 		pIn[cptIn]->setHint( "Input point " + resultIn );
-		pIn[cptIn]->setDefault( 840.0, 240.0 );
+                pIn[cptIn]->setDefault( positionOrigine, positionOrigine );
 		pIn[cptIn]->setParent( groupIn );
 	}
 
@@ -143,7 +145,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
                 pTgtIn[cptTgtIn] = desc.defineDouble2DParam( kParamPointTgtIn + resultTgtIn );
                 pTgtIn[cptTgtIn]->setLabel( "Tgt In " + resultTgtIn );
                 pTgtIn[cptTgtIn]->setHint( "Tgt point In " + resultTgtIn );
-                pTgtIn[cptTgtIn]->setDefault( -200.0, 400.0 );
+                pTgtIn[cptTgtIn]->setDefault( positionOrigine, positionOrigine );
                 pTgtIn[cptTgtIn]->setParent( groupTgtIn );
         }
 
@@ -165,7 +167,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 		pOut[cptOut] = desc.defineDouble2DParam( kParamPointOut + resultOut );
 		pOut[cptOut]->setLabel( "In " + resultOut );
 		pOut[cptOut]->setHint( "Input point " + resultOut );
-		pOut[cptOut]->setDefault( -200.0, 240.0 );
+                pOut[cptOut]->setDefault( positionOrigine, positionOrigine );
 		pOut[cptOut]->setParent( groupOut );
 	}
 
@@ -187,7 +189,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
                 pTgtOut[cptTgtOut] = desc.defineDouble2DParam( kParamPointTgtOut + resultTgtOut );
                 pTgtOut[cptTgtOut]->setLabel( "Tgt Out " + resultTgtOut );
                 pTgtOut[cptTgtOut]->setHint( "Tgt point Out " + resultTgtOut );
-                pTgtOut[cptTgtOut]->setDefault( -200.0, 400.0 );
+                pTgtOut[cptTgtOut]->setDefault( positionOrigine, positionOrigine );
                 pTgtOut[cptTgtOut]->setParent( groupTgtOut );
         }
 

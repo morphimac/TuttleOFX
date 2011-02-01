@@ -13,17 +13,22 @@ const static std::size_t kPasBezier = 0.2;
 static const float lineWidth = 0.5;
 static const float pointWidth = 1.5;
 
+static const float positionOrigine = -200.0;
+
 static const int nbCoeffBezier = 100;
 
 const static std::string kParamMethod = "method";
 const static std::string kParamMethodCreation = "creation";
 const static std::string kParamMethodDelete = "delete";
 const static std::string kParamMethodMove = "move";
+const static std::string kParamMethodReset = "reset";
 enum EParamMethod
 {
         eParamMethodCreation = 0,
         eParamMethodDelete,
-        eParamMethodMove
+        eParamMethodMove,
+        eParamMethodReset
+
 };
 
 const static std::string kParamOverlay = "overlay";
