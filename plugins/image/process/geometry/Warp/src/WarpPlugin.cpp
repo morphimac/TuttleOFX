@@ -109,23 +109,15 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( false );
                                         _paramPointOut[i]->setIsSecretAndDisabled( false );
+                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( false );
+                                        _paramPointTgt[2*i+1]->setIsSecretAndDisabled( false );
                                 }
                                 for( ; i < kMaxNbPoints; ++i )
                                 {
                                         _paramPointIn[i]->setIsSecretAndDisabled( true );
                                         _paramPointOut[i]->setIsSecretAndDisabled( true );
-                                }
-
-                                std::size_t j = 0;
-                                for(; j < size; ++j )
-                                {
-                                        _paramPointTgt[2*j]->setIsSecretAndDisabled( false );
-                                        _paramPointTgt[2*j+1]->setIsSecretAndDisabled( false );
-                                }
-                                for( ; j < kMaxNbPoints; ++j )
-                                {
-                                        _paramPointTgt[2*j]->setIsSecretAndDisabled( true );
-                                        _paramPointTgt[2*j+1]->setIsSecretAndDisabled( true );
+                                        _paramPointTgt[2*i]->setIsSecretAndDisabled( true );
+                                        _paramPointTgt[2*i+1]->setIsSecretAndDisabled( true );
                                 }
                                 break;
                         }
