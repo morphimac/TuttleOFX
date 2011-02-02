@@ -31,6 +31,10 @@ enum EParamInterpolation
 const static std::string kParamOverlay = "overlay";
 const static std::string kParamInverse = "inverse";
 
+const static std::string kParamGroupCentre = "groupCentre";
+const static std::string kParamPointCentre = "pCentre";
+const static std::string kParamOverlayCentre = "overlayCentre";
+const static std::string kParamOverlayCentreColor = "overlayCentreColor";
 
 const static std::string kParamGroupIn = "groupIn";
 const static std::string kParamPointIn = "pIn";
@@ -54,6 +58,17 @@ const static std::string kParamPerspMatrixRow = "perpMatrix";
 const static std::string kParamGroupBilinearMatrix = "groupBilinearMatrix";
 const static std::string kParamBilinearMatrixRow = "bilinearMatrix";
 
+
+const static std::string kParamManipulatorMode = "manipulatorMode";
+const static std::string kParamManipulatorModeTranslate = "translate";
+const static std::string kParamManipulatorModeRotate = "rotate";
+const static std::string kParamManipulatorModeScale = "scale";
+enum EParamManipulatorMode
+{
+        eParamManipulatorModeTranslate = 0,
+        eParamManipulatorModeRotate,
+        eParamManipulatorModeScale,
+};
 
 }
 }

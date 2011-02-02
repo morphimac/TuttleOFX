@@ -2,6 +2,7 @@
 #include "PinningDefinitions.hpp"
 #include "PinningPlugin.hpp"
 #include <tuttle/plugin/opengl/gl.h>
+#include <tuttle/plugin/coordinateSystem.hpp>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
 #include <tuttle/plugin/interact/ParamPoint.hpp>
@@ -20,6 +21,47 @@ namespace pinning {
 
 using namespace boost::numeric::ublas;
 
+
+template<class TFrame, ECoordinateSystem coord>
+class Manipulator : public interact::ParamPoint<TFrame, coord>
+{
+public:
+    Manipulator( const interact::InteractInfos& infos, OFX::Double2DParam* param, const TFrame& frame, const OFX::ChoiceParam* paramMode )
+                : interact::ParamPoint<TFrame, coord>( infos, param, frame )
+                , _paramMode(paramMode)
+        {}
+        ~Manipulator() {}
+
+        interact::MotionType intersect( const OFX::PenArgs& args )
+        {
+            // getPosition() / args.penPosition
+            interact::MotionType m;
+            m._axis = interact::eAxisXY;
+            switch( static_cast<EParamManipulatorMode>(_paramMode->getValue()) )
+            {
+                case eParamManipulatorModeTranslate:
+                {
+                    m._mode = interact::eMotionTranslate;
+                    break;
+                }
+                case eParamManipulatorModeRotate:
+                {
+                    m._mode = interact::eMotionRotate;
+                    break;
+                }
+                case eParamManipulatorModeScale:
+                {
+                    m._mode = interact::eMotionScale;
+                    break;
+                }
+            }
+            return m;
+        }
+private:
+    const OFX::ChoiceParam* _paramMode;
+};
+
+
 PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect )
 	: OFX::OverlayInteract( handle )
 	, _infos( effect )
@@ -28,7 +70,7 @@ PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::I
 	_effect = effect;
 	_plugin = static_cast<PinningPlugin*>( _effect );
 
-	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointOut0, _plugin->_clipSrc ),
+        _interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointOut0, _plugin->_clipSrc ),
 							  new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ),
 							  new interact::ColorRGBParam(_plugin->_paramOverlayOutColor) );
 	_interactScene.push_back( new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointOut1, _plugin->_clipSrc ),
@@ -61,6 +103,14 @@ PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::I
 							  new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
 
 
+
+
+
+
+        _interactScene.setManipulator(
+              new Manipulator<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointCentre, _plugin->_clipSrc, _plugin->_ParamManipulatorMode ),
+              new interact::ColorRGBParam(_plugin->_paramOverlayCentreColor)
+         );
 }
 
 bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
@@ -75,21 +125,6 @@ bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
 	displaySomething |= _interactScene.draw( args );
 
 	return displaySomething;
-}
-
-bool PinningOverlayInteract::penMotion( const OFX::PenArgs& args )
-{
-        return _interactScene.penMotion( args );
-}
-
-bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
-{
-        return _interactScene.penDown( args );
-}
-
-bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
-{
-    return _interactScene.penUp( args );
 }
 
 /*
@@ -115,13 +150,26 @@ bool PinningOverlayInteract::keyRepeat( const OFX::KeyArgs& args )
 
 }
 */
+bool PinningOverlayInteract::penMotion( const OFX::PenArgs& args )
+{
+        return _interactScene.penMotion( args );
+}
 
+bool PinningOverlayInteract::penDown( const OFX::PenArgs& args )
+{
+        return _interactScene.penDown( args );
+}
 
-OfxPointD calculCentre( const std::vector< bounded_vector<double, 2> > pSelect )
+bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
+{
+    return _interactScene.penUp( args );
+}
+
+void PinningOverlayInteract::calculCentre( const std::vector< bounded_vector<double, 2> > pSelect)
 {
 	double minX,maxX,minY,maxY = 0.0;
 	
-        for(int i=0 ; i<pSelect.size() ; ++i)
+        for( unsigned int i=0 ; i<pSelect.size() ; ++i)
 	{
 		if(minX > pSelect[i][0] )
 		{
@@ -133,82 +181,58 @@ OfxPointD calculCentre( const std::vector< bounded_vector<double, 2> > pSelect )
 		}
 		if(minY > pSelect[i][1] )
 		{
-			minX = pSelect[i][1];
+                        minY = pSelect[i][1];
 		}
 		if(maxY < pSelect[i][1] )
 		{
 			maxY = pSelect[i][1];
 		}
 	}
-	
-	OfxPointD centre;
-	centre.x = (minX + maxX)/2;
-	centre.y = (minY + maxY)/2;
-	
-	return centre;	
-
+        _plugin->_paramPointCentre->setValue((minX + maxX)/2, (minY + maxY)/2);
 }
 
-void rotatePts( std::vector< bounded_vector<double, 2> > pSelect, double angle)
+void PinningOverlayInteract::rotatePts( std::vector< bounded_vector<double, 2> > pSelect, double angle)
 {
 	//calcul centre
-	OfxPointD centre;
-	centre = calculCentre(pSelect);
+	//OfxPointD centre;
+	//centre = calculCentre(pSelect);
 	
-        for(int i=0 ; i<pSelect.size() ; ++i)
+        for( unsigned int i=0 ; i<pSelect.size() ; ++i)
 	{
             //deplace a l'origine
-            pSelect[i][0] -= centre.x;
-            pSelect[i][1] -= centre.y;
+            pSelect[i][0] -=  _plugin->_paramPointCentre->getValue().x;
+            pSelect[i][1] -=  _plugin->_paramPointCentre->getValue().y;
+
 	
             //effectue la rotation
             pSelect[i][0] = pSelect[i][0]*cos(angle) - pSelect[i][1]*sin(angle);
             pSelect[i][1] = pSelect[i][0]*sin(angle) - pSelect[i][1]*cos(angle);
 	
             //retour position initiale
-            pSelect[i][0] += centre.x;
-            pSelect[i][1] += centre.y;
-	}
+            pSelect[i][0] +=  _plugin->_paramPointCentre->getValue().x;
+            pSelect[i][1] +=  _plugin->_paramPointCentre->getValue().y;
+        }
 }
 
-void scalePts( std::vector< bounded_vector<double, 2> > pSelect, double coef)
+void PinningOverlayInteract::scalePts( std::vector< bounded_vector<double, 2> > pSelect, double coef)
 {
-	//calcul centre
-	OfxPointD centre;
-	centre = calculCentre(pSelect);
-	
-        for(int i=0 ; i<pSelect.size() ; ++i)
+
+        for( unsigned int i=0 ; i<pSelect.size() ; ++i)
 	{
             //deplace a l'origine
-            pSelect[i][0] -= centre.x;
-            pSelect[i][1] -= centre.y;
+            pSelect[i][0] -=  _plugin->_paramPointCentre->getValue().x;
+            pSelect[i][1] -=  _plugin->_paramPointCentre->getValue().y;
 
             //effectue le scale
             pSelect[i][0] *= coef;
             pSelect[i][1] *= coef;
 
             //retour position initiale
-            pSelect[i][0] += centre.x;
-            pSelect[i][1] += centre.y;
+            pSelect[i][0] +=  _plugin->_paramPointCentre->getValue().x;
+            pSelect[i][1] +=  _plugin->_paramPointCentre->getValue().y;
 	}
 }
 
-/*
-bool keyRepeat( const KeyArgs& args )
-{
-
-}
-*/
-
-/*
-void movePts(pSelect)
-{
-	for(int i=0 ; i<pSelect.size() ; ++i)
-	{
-		pIn[i][...] += n;
-	}
-}
-*/
 
 }
 }

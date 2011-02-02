@@ -28,6 +28,16 @@ PinningPlugin::PinningPlugin( OfxImageEffectHandle handle )
         _paramOverlay       = fetchBooleanParam( kParamOverlay );
         _paramInverse       = fetchBooleanParam( kParamInverse );
 
+        _ParamManipulatorMode = fetchChoiceParam( kParamManipulatorMode );
+
+            //TODO-vince //
+        _paramGroupCentre       = fetchGroupParam( kParamGroupCentre );
+        _paramPointCentre       = fetchDouble2DParam( kParamPointCentre);
+        _paramOverlayCentre      = fetchBooleanParam( kParamOverlayCentre );
+        _paramOverlayCentreColor = fetchRGBParam( kParamOverlayCentreColor );
+        ///////////////////////
+
+
 	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
 	_paramPointIn0       = fetchDouble2DParam( kParamPointIn + "0" );
 	_paramPointIn1       = fetchDouble2DParam( kParamPointIn + "1" );

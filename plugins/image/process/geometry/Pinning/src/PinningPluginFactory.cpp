@@ -84,6 +84,33 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         inverse->setLabel( "Inverse" );
         inverse->setDefault( false );
 
+        //TODO-vince///////////
+        //////////////////// Transform Centre Point ////////////////////
+        OFX::GroupParamDescriptor* groupCentre = desc.defineGroupParam( kParamGroupCentre );
+        groupCentre->setLabel( "Centre point" );
+
+        OFX::ChoiceParamDescriptor* manipulatorMode = desc.defineChoiceParam( kParamManipulatorMode );
+        manipulatorMode->appendOption( kParamManipulatorModeTranslate );
+        manipulatorMode->appendOption( kParamManipulatorModeRotate );
+        manipulatorMode->appendOption( kParamManipulatorModeScale );
+
+        OFX::Double2DParamDescriptor* pCentre = desc.defineDouble2DParam( kParamPointCentre);
+        pCentre->setLabel( "Centre point" );
+        pCentre->setHint( "Transform Centre point" );
+        pCentre->setDefault( 0.0, 0.0 );
+        pCentre->setParent( groupCentre );
+
+        OFX::BooleanParamDescriptor* overlayCentre = desc.defineBooleanParam( kParamOverlayCentre );
+        overlayCentre->setLabel( "Overlay" );
+        overlayCentre->setDefault( true );
+        overlayCentre->setParent( groupCentre );
+
+        OFX::RGBParamDescriptor* ouverlayCentreColor = desc.defineRGBParam( kParamOverlayCentreColor );
+        ouverlayCentreColor->setLabel( "Color" );
+        ouverlayCentreColor->setHint( "Centre point overlay color" );
+        ouverlayCentreColor->setDefault( 0.0, 1.0, 0.0 );
+        ouverlayCentreColor->setParent( groupCentre );
+
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
 	groupIn->setLabel( "Input points" );
@@ -91,8 +118,8 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::Double2DParamDescriptor* pIn0 = desc.defineDouble2DParam( kParamPointIn + "0" );
 	pIn0->setLabel( "In 0" );
 	pIn0->setHint( "Input point 0" );
-	pIn0->setDefault( -0.5, -0.5 );
-	pIn0->setParent( groupIn );
+        pIn0->setDefault( -0.5, -0.5 );
+        pIn0->setParent( groupIn );
 
 	OFX::Double2DParamDescriptor* pIn1 = desc.defineDouble2DParam( kParamPointIn + "1" );
 	pIn1->setLabel( "In 1" );
