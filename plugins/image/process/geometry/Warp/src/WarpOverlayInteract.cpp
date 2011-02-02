@@ -231,6 +231,27 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
         //Si le mode est delete
 	else if(_plugin->_paramMethod->getValue() == eParamMethodDelete)
         {
+            for( unsigned int i = 0 ; i < nbPoints ; ++i)
+            {
+                for(std::size_t ptSuivants = i+1; ptSuivants < nbPoints ; ++ptSuivants)
+                {
+                    _plugin->_paramPointIn[ptSuivants]->setValue(_plugin->_paramPointIn[ptSuivants+1]->getValue());
+                    _plugin->_paramPointOut[ptSuivants]->setValue(_plugin->_paramPointOut[ptSuivants+1]->getValue());
+
+                    _plugin->_paramPointTgtIn[2*ptSuivants]->setValue(_plugin->_paramPointTgtIn[2*ptSuivants+2]->getValue());
+                    _plugin->_paramPointTgtIn[2*ptSuivants+1]->setValue(_plugin->_paramPointTgtIn[2*ptSuivants+3]->getValue());
+                    _plugin->_paramPointTgtOut[2*ptSuivants]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+2]->getValue());
+                    _plugin->_paramPointTgtOut[2*ptSuivants+1]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+3]->getValue());
+                }
+                _plugin->_paramPointIn[nbPoints-1]->setIsSecretAndDisabled(true);
+                _plugin->_paramPointOut[nbPoints-1]->setIsSecretAndDisabled(true);
+                _plugin->_paramPointTgtIn[2*nbPoints-2]->setIsSecretAndDisabled(true);
+                _plugin->_paramPointTgtIn[2*nbPoints-1]->setIsSecretAndDisabled(true);
+                _plugin->_paramPointTgtOut[2*nbPoints-2]->setIsSecretAndDisabled(true);
+                _plugin->_paramPointTgtOut[2*nbPoints+1]->setIsSecretAndDisabled(true);
+
+                _plugin->_paramNbPoints->setValue(nbPoints - 1);
+            }
 	}
 	return false;
 }
