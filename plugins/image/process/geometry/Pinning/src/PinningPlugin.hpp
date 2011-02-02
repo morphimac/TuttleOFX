@@ -64,6 +64,7 @@ public:
 	OFX::ChoiceParam*  _paramMethod;
 	OFX::ChoiceParam*  _paramInterpolation;
 	OFX::BooleanParam*  _paramOverlay;
+        OFX::BooleanParam*  _paramInverse;
 
     OFX::GroupParam* _paramGroupIn;
     OFX::Double2DParam* _paramPointIn0;
@@ -106,7 +107,7 @@ public:
 	OFX::Double2DParam* _paramBilMatrixRow0;
 	OFX::Double2DParam* _paramBilMatrixRow1;
 	OFX::Double2DParam* _paramBilMatrixRow2;
-	OFX::Double2DParam* _paramBilMatrixRow3;
+        OFX::Double2DParam* _paramBilMatrixRow3;
 };
 
 }

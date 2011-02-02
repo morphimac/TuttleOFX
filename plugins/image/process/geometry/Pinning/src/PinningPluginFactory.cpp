@@ -80,6 +80,10 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	overlay->setLabel( "Overlay" );
 	overlay->setDefault( true );
 
+        OFX::BooleanParamDescriptor* inverse = desc.defineBooleanParam( kParamInverse );
+        inverse->setLabel( "Inverse" );
+        inverse->setDefault( false );
+
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
 	groupIn->setLabel( "Input points" );
