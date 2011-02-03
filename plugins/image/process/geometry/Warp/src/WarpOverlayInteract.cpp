@@ -7,7 +7,6 @@
 #include <tuttle/plugin/interact/overlay.hpp>
 #include <tuttle/plugin/interact/ParamPoint.hpp>
 #include <tuttle/plugin/interact/ParamPointRelativePoint.hpp>
-#include <tuttle/plugin/interact/ParamPoint.hpp>
 
 #include <ofxsImageEffect.h>
 #include <ofxsInteract.h>
@@ -132,17 +131,19 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
 
                         //Mise en place des points de bezier dans un tableau
+                        /*
                         point2<double> ptIn;
                         point2<double> ptOut;
-                        for(std::size_t i = 0; i < nbCoeffBezier ; ++i)
+                        for(std::size_t i = 0; i < _plugin->_paramNbPointsBezier->getValue() ; ++i)
                         {
-                            double t = (double(nbCoeffBezier)-i)/double(nbCoeffBezier);
+                            double t = (double(_plugin->_paramNbPointsBezier->getValue())-i)/double(_plugin->_paramNbPointsBezier->getValue());
                             ptIn = bezier::rempliTabPoint( tabPtsIn,t);
                             _tgtPointsBezierIn.push_back(point2<double> (ptIn.x,ptIn.y));
 
                             ptOut = bezier::rempliTabPoint( tabPtsOut,t);
                             _tgtPointsBezierOut.push_back(point2<double> (ptOut.x,ptOut.y));
                         }
+                        */
 
                         //Choix de la couleur des tangentes dans nuke
                         double rIn,vIn,bIn;
@@ -152,7 +153,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         //Si "overlay tangente" est sur afficher
                         if(_plugin->_paramOverlayTgtIn->getValue())
                         {
-                            bezier::dessinePoint( tabPtsIn, rIn, vIn, bIn);
+                            bezier::dessinePoint( tabPtsIn, _plugin->_paramNbPointsBezier->getValue(), rIn, vIn, bIn);
                             //Trace les lignes des tangentes
                             glBegin(GL_LINES);
                                 glVertex2f(_plugin->_paramPointTgtIn[0]->getValue().x,_plugin->_paramPointTgtIn[0]->getValue().y);
@@ -176,7 +177,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         //Si "overlay tangente" est sur afficher
                         if(_plugin->_paramOverlayTgtOut->getValue())
                         {
-                            bezier::dessinePoint( tabPtsOut, rOut, vOut, bOut);
+                            bezier::dessinePoint( tabPtsOut, _plugin->_paramNbPointsBezier->getValue(),rOut, vOut, bOut);
                             //Trace les lignes des tangentes
                             glBegin(GL_LINES);
                                 glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
@@ -236,19 +237,18 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
                 if( (abs(args.penPosition.x) - (_plugin->_paramPointIn[i]->getValue().x) < seuil
                         && abs( (args.penPosition.y) - (_plugin->_paramPointIn[i]->getValue().y) ) < seuil )
                     ||(abs(args.penPosition.x) - (_plugin->_paramPointOut[i]->getValue().x) < seuil
-                       && abs( (args.penPosition.y) - (_plugin->_paramPointOut[i]->getValue().y) ) < seuil )
-                            )
-                {
-                    for(std::size_t ptSuivants = i; ptSuivants < nbPoints ; ++ptSuivants)
+                       && abs( (args.penPosition.y) - (_plugin->_paramPointOut[i]->getValue().y) ) < seuil ))
                     {
-                        _plugin->_paramPointIn[ptSuivants]->setValue(_plugin->_paramPointIn[ptSuivants+1]->getValue());
-                        _plugin->_paramPointOut[ptSuivants]->setValue(_plugin->_paramPointOut[ptSuivants+1]->getValue());
+                            for(std::size_t ptSuivants = i; ptSuivants < nbPoints ; ++ptSuivants)
+                            {
+                                _plugin->_paramPointIn[ptSuivants]->setValue(_plugin->_paramPointIn[ptSuivants+1]->getValue());
+                                _plugin->_paramPointOut[ptSuivants]->setValue(_plugin->_paramPointOut[ptSuivants+1]->getValue());
 
-                        _plugin->_paramPointTgtIn[2*ptSuivants]->setValue(_plugin->_paramPointTgtIn[2*ptSuivants+2]->getValue());
-                        _plugin->_paramPointTgtIn[2*ptSuivants+1]->setValue(_plugin->_paramPointTgtIn[2*ptSuivants+3]->getValue());
-                        _plugin->_paramPointTgtOut[2*ptSuivants]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+2]->getValue());
-                        _plugin->_paramPointTgtOut[2*ptSuivants+1]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+3]->getValue());
-                    }
+                                _plugin->_paramPointTgtIn[2*ptSuivants]->setValue(_plugin->_paramPointTgtIn[2*ptSuivants+2]->getValue());
+                                _plugin->_paramPointTgtIn[2*ptSuivants+1]->setValue(_plugin->_paramPointTgtIn[2*ptSuivants+3]->getValue());
+                                _plugin->_paramPointTgtOut[2*ptSuivants]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+2]->getValue());
+                                _plugin->_paramPointTgtOut[2*ptSuivants+1]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+3]->getValue());
+                            }
                     _plugin->_paramPointIn[nbPoints-1]->setIsSecretAndDisabled(true);
                     _plugin->_paramPointOut[nbPoints-1]->setIsSecretAndDisabled(true);
                     _plugin->_paramPointTgtIn[2*nbPoints-2]->setIsSecretAndDisabled(true);
@@ -265,8 +265,9 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 
 bool WarpOverlayInteract::keyDown( const OFX::KeyArgs& args )
 {
-	if(args.keySymbol == kOfxKey_space)
-		TUTTLE_COUT("test");
+        if(args.keySymbol == kOfxKey_space) {
+            TUTTLE_COUT("test");
+        }
 	else
 		TUTTLE_COUT("test raté");
 	return false;

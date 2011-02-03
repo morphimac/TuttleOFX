@@ -68,7 +68,8 @@ void WarpProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW 
     copy_pixels( src, dst );
     */
 
-    TPS_Morpher<Scalar> tps( _params._inPoints, _params._outPoints );
+    //TPS_Morpher<Scalar> tps( _params._inPoints, _params._outPoints , _params._rigiditeTPS);
+    TPS_Morpher<Scalar> tps( _params._bezierIn, _params._bezierOut , _params._rigiditeTPS, _params._activateWarp, _params._nbPoints);
     //point2<double> test(10,33);
     //tps.morphTPS(test);
 

@@ -33,18 +33,20 @@ inline double base_func( const double r2 )
 }
 
 template<typename SCALAR>
-TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut )
+TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn,const std::vector< Point2 > pOut , double regularization , bool applyWarp, int nbPoints)
     : _pIn(pIn)
     , _pOut(pOut)
     , mtx_l(pIn.size()+3, pIn.size()+3)
     , mtx_v(pIn.size()+3, 2)
     , mtx_orig_k(pIn.size(), pIn.size())
+    , _nbPoints(nbPoints)
+    , _activateWarp(applyWarp)
 {
 	// Nombre de points d'entrée
 	const std::size_t p = _pIn.size();
 
 	/// @param regularization Amount of "relaxation", 0.0 = exact interpolation
-	double regularization = 0.0;
+	//double regularization = 0.0;
 
 	// Empiric value for avg. distance between points
 	const double a = 0.5;
@@ -71,15 +73,13 @@ TPS_Morpher<SCALAR>::TPS_Morpher( const std::vector< Point2 > pIn, const std::ve
       		mtx_l(i, p+1) = point_i.x;
       		mtx_l(i, p+2) = point_i.y;
 
-      		if( i < p )
-      		{
-        		// diagonal: reqularization parameters (lambda * a^2)
-        		mtx_l(i,i) = mtx_orig_k(i,i) = regularization * (a*a);
+                // diagonal: reqularization parameters (lambda * a^2)
+                mtx_l(i,i) = mtx_orig_k(i,i) = regularization /** (a*a)*/;
 
-        		mtx_l(p+0, i) = 1.0;
-       			mtx_l(p+1, i) = point_i.x;
-        		mtx_l(p+2, i) = point_i.y;
-      		}
+                mtx_l(p+0, i) = 1.0;
+                mtx_l(p+1, i) = point_i.x;
+                mtx_l(p+2, i) = point_i.y;
+
     	}
 	
 	for (unsigned i=p; i<p+3; ++i)
@@ -114,6 +114,9 @@ template<typename SCALAR>
 template<typename S2>
 typename TPS_Morpher<SCALAR>::Point2 TPS_Morpher<SCALAR>::operator()( const point2<S2>& pt ) const
 {
+
+    if(_activateWarp && _nbPoints>0)
+    {
 	// Nombre de colonnes de la matrice K
         const unsigned m = mtx_orig_k.size2();
 
@@ -148,6 +151,15 @@ typename TPS_Morpher<SCALAR>::Point2 TPS_Morpher<SCALAR>::operator()( const poin
         //std::cout<<"res "<<res.x<<"  "<<res.y<<std::endl;
 
         return res;
+    }
+    else
+    {
+        Point2 res;
+        res.x = pt.x;
+        res.y = pt.y;
+        return res;
+    }
+
 }
 
 }

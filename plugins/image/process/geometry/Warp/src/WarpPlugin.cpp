@@ -1,6 +1,7 @@
 #include "WarpPlugin.hpp"
 #include "WarpProcess.hpp"
 #include "WarpDefinitions.hpp"
+#include "Bezier/bezier.hpp"
 
 #include <tuttle/plugin/image/ofxToGil.hpp>
 #include <tuttle/common/utils/global.hpp>
@@ -32,9 +33,13 @@ ImageEffect( handle )
         _paramOverlay       = fetchBooleanParam( kParamOverlay );
         _paramInverse       = fetchBooleanParam( kParamInverse );
         _paramReset         = fetchPushButtonParam( kParamReset );
+        _paramActivateWarp  = fetchBooleanParam( kParamActivateWarp );
 
         _paramMethod        = fetchChoiceParam( kParamMethod );
-	_paramNbPoints       = fetchIntParam( kParamNbPoints );
+        _paramNbPoints      = fetchIntParam( kParamNbPoints );
+
+        _paramRigiditeTPS   = fetchDoubleParam( kParamRigiditeTPS );
+        _paramNbPointsBezier   = fetchIntParam( kParamNbPointsBezier );
 
         //Param IN
 	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
@@ -86,6 +91,8 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 {
 	WarpProcessParams<Scalar> params;
         std::size_t size = _paramNbPoints->getValue();
+        params._activateWarp = _paramActivateWarp->getValue();
+        params._nbPoints = _paramNbPoints->getValue();
 
         if(!_paramInverse->getValue())
         {
@@ -107,7 +114,58 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
                         params._tgtPointsOut.push_back( pTgtOut );
                         params._tgtPointsOut.push_back( pTgtOut2 );
 
+                        params._rigiditeTPS = _paramRigiditeTPS->getValue();
+
                         params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
+                }
+                //Recuperation du nombre de points positionnés
+                const std::size_t nbPoints = _paramNbPoints->getValue();
+
+                if(nbPoints >1)
+                {
+                        for( std::size_t c = 0 ; c < nbPoints-1 ; ++c )
+                        {
+                                // Création des points et des ptTangente et recupération des valeurs
+                                //points à relier
+                                OfxPointD pIn1 = _paramPointIn[c]->getValue();
+                                OfxPointD pIn2 = _paramPointIn[c+1]->getValue();
+
+                                OfxPointD pOut1 = _paramPointOut[c]->getValue();
+                                OfxPointD pOut2 = _paramPointOut[c+1]->getValue();
+
+                                //Points de la tangente
+                                OfxPointD tIn1 = _paramPointTgtIn[(2*c)]->getValue();
+                                OfxPointD tIn2 = _paramPointTgtIn[(2*c)+3]->getValue();
+
+                                OfxPointD tOut1 = _paramPointTgtOut[(2*c)]->getValue();
+                                OfxPointD tOut2 = _paramPointTgtOut[(2*c)+3]->getValue();
+
+                                //Création et remplissage du tableau necessaire à Bezier
+                                std::vector< point2<double> > tabPtsIn;
+                                tabPtsIn.push_back( point2<double>( pIn1.x, pIn1.y ) );
+                                tabPtsIn.push_back( point2<double>( tIn1.x, tIn1.y ) );
+                                tabPtsIn.push_back( point2<double>( tIn2.x, tIn2.y ) );
+                                tabPtsIn.push_back( point2<double>( pIn2.x, pIn2.y ) );
+
+                                std::vector< point2<double> > tabPtsOut;
+                                tabPtsOut.push_back( point2<double>( pOut1.x, pOut1.y ) );
+                                tabPtsOut.push_back( point2<double>( tOut1.x, tOut1.y ) );
+                                tabPtsOut.push_back( point2<double>( tOut2.x, tOut2.y ) );
+                                tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
+
+                                //Mise en place des points de bezier dans un tableau
+                                point2<double> ptIn;
+                                point2<double> ptOut;
+                                for(std::size_t i = 0; i < _paramNbPointsBezier->getValue() ; ++i)
+                                {
+                                    double t = (double(_paramNbPointsBezier->getValue())-i)/double(_paramNbPointsBezier->getValue());
+                                    ptIn = bezier::rempliTabPoint( tabPtsIn,t);
+                                    params._bezierIn.push_back( ptIn );
+
+                                    ptOut = bezier::rempliTabPoint( tabPtsOut,t);
+                                    params._bezierOut.push_back( ptOut );
+                                }
+                        }
                 }
                 return params;
         }
@@ -132,6 +190,55 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
                         params._tgtPointsOut.push_back( pTgtOut2 );
 
                         params._method        = static_cast<EParamMethod>( _paramMethod->getValue() );
+                }
+                //Recuperation du nombre de points positionnés
+                const std::size_t nbPoints = _paramNbPoints->getValue();
+
+                if(nbPoints >1)
+                {
+                        for( std::size_t c = 0 ; c < nbPoints-1 ; ++c )
+                        {
+                                // Création des points et des ptTangente et recupération des valeurs
+                                //points à relier
+                                OfxPointD pIn1 = _paramPointOut[c]->getValue();
+                                OfxPointD pIn2 = _paramPointOut[c+1]->getValue();
+
+                                OfxPointD pOut1 = _paramPointIn[c]->getValue();
+                                OfxPointD pOut2 = _paramPointIn[c+1]->getValue();
+
+                                //Points de la tangente
+                                OfxPointD tIn1 = _paramPointTgtOut[(2*c)]->getValue();
+                                OfxPointD tIn2 = _paramPointTgtOut[(2*c)+3]->getValue();
+
+                                OfxPointD tOut1 = _paramPointTgtIn[(2*c)]->getValue();
+                                OfxPointD tOut2 = _paramPointTgtIn[(2*c)+3]->getValue();
+
+                                //Création et remplissage du tableau necessaire à Bezier
+                                std::vector< point2<double> > tabPtsIn;
+                                tabPtsIn.push_back( point2<double>( pIn1.x, pIn1.y ) );
+                                tabPtsIn.push_back( point2<double>( tIn1.x, tIn1.y ) );
+                                tabPtsIn.push_back( point2<double>( tIn2.x, tIn2.y ) );
+                                tabPtsIn.push_back( point2<double>( pIn2.x, pIn2.y ) );
+
+                                std::vector< point2<double> > tabPtsOut;
+                                tabPtsOut.push_back( point2<double>( pOut1.x, pOut1.y ) );
+                                tabPtsOut.push_back( point2<double>( tOut1.x, tOut1.y ) );
+                                tabPtsOut.push_back( point2<double>( tOut2.x, tOut2.y ) );
+                                tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
+
+                                //Mise en place des points de bezier dans un tableau
+                                point2<double> ptIn;
+                                point2<double> ptOut;
+                                for(std::size_t i = 0; i < _paramNbPointsBezier->getValue() ; ++i)
+                                {
+                                    double t = (double(_paramNbPointsBezier->getValue())-i)/double(_paramNbPointsBezier->getValue());
+                                    ptIn = bezier::rempliTabPoint( tabPtsIn,t);
+                                    params._bezierIn.push_back( ptIn );
+
+                                    ptOut = bezier::rempliTabPoint( tabPtsOut,t);
+                                    params._bezierOut.push_back( ptOut );
+                                }
+                        }
                 }
                 return params;
         }
@@ -183,7 +290,6 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
         //Si le mode est Reset
         if(paramName == kParamReset)
         {
-                TUTTLE_COUT("Reset");
                 for( std::size_t i = 0; i < kMaxNbPoints; ++i )
                 {
                         _paramPointIn[i]->setIsSecretAndDisabled( true );

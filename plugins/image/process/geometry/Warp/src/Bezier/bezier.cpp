@@ -1,23 +1,4 @@
-#include "WarpPlugin.hpp"
-#include "WarpProcess.hpp"
-#include "WarpDefinitions.hpp"
 #include "Bezier/bezier.hpp"
-#include "WarpOverlayInteract.hpp"
-
-#include <sstream>
-#include <tuttle/common/utils/global.hpp>
-#include <ofxsImageEffect.h>
-#include <ofxsMultiThread.h>
-#include <boost/gil/gil_all.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/lu.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/math/special_functions/pow.hpp>
-
-#include <vector>
 
 namespace tuttle {
 namespace plugin {
@@ -47,12 +28,12 @@ namespace bezier {
             glVertex2f(p.x,p.y);
     }
 
-    void dessinePoint(std::vector< point2<double> > tabPts,const double r,const double v,const double b)
+    void dessinePoint(std::vector< point2<double> > tabPts, int nbBezier,const double r,const double v,const double b)
     {
         //std::cout<<"--------------DessineRecur--------------"<<std::endl;
-        for(int i = 0; i < nbCoeffBezier ; ++i)
+        for(int i = 0; i < nbBezier; ++i)
         {
-            double t = (double(nbCoeffBezier)-i)/double(nbCoeffBezier);
+            double t = (double(nbBezier)-i)/double(nbBezier);
 
             point2<double> tab = barycentre(tabPts,t);
 

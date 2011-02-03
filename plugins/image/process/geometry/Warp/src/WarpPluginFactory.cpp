@@ -64,24 +64,53 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	dstClip->setSupportsTiles( kSupportTiles );
 
 	//////////////////// Options ////////////////////
-	OFX::ChoiceParamDescriptor* method = desc.defineChoiceParam( kParamMethod );
-	method->setLabel( "Method" );
-	method->appendOption( kParamMethodCreation );
-	method->appendOption( kParamMethodDelete );
+
+        OFX::PushButtonParamDescriptor* reset = desc.definePushButtonParam( kParamReset);
+        reset->setLabel( "Reset" );
+
+        OFX::BooleanParamDescriptor* warpActif = desc.defineBooleanParam( kParamActivateWarp );
+        warpActif->setLabel( "Apply Warp" );
+        warpActif->setHint("Active ou desactive le warp sur l'image de base");
+        warpActif->setDefault( true );
+
+        //Settings
+        OFX::GroupParamDescriptor* groupSettings = desc.defineGroupParam( kParamGroupSettings );
+        groupSettings->setLabel( "Settings" );
+
+        OFX::ChoiceParamDescriptor* method = desc.defineChoiceParam( kParamMethod );
+        method->setLabel( "Method" );
+        method->appendOption( kParamMethodCreation );
+        method->appendOption( kParamMethodDelete );
         method->appendOption( kParamMethodMove );
-	method->setDefault( 0 );
-	method->setHint( "Points method" );
+        method->setDefault( 0 );
+        method->setHint( "Points method" );
+        method->setParent( groupSettings );
 
         OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
         nbPoints->setDefault( 0 );
         nbPoints->setIsSecret( true );
+        nbPoints->setParent( groupSettings );
 
         OFX::BooleanParamDescriptor* inverse = desc.defineBooleanParam( kParamInverse );
         inverse->setLabel( "Inverse" );
         inverse->setDefault( false );
+        inverse->setParent( groupSettings );
 
-        OFX::PushButtonParamDescriptor* reset = desc.definePushButtonParam( kParamReset);
-        reset->setLabel( "Reset" );
+        OFX::DoubleParamDescriptor* rigiditeTPS = desc.defineDoubleParam( kParamRigiditeTPS );
+        rigiditeTPS->setLabel( "Rigidité" );
+        rigiditeTPS->setHint("Coefficient de rigidite de la TPS");
+        rigiditeTPS->setDefault( 0.0 );
+        rigiditeTPS->setRange( 0.1, std::numeric_limits<double>::max() );
+        rigiditeTPS->setDisplayRange( 0.0, 10000.0 );
+        rigiditeTPS->setParent( groupSettings );
+
+        OFX::IntParamDescriptor* nbPointsBezier = desc.defineIntParam( kParamNbPointsBezier );
+        nbPointsBezier->setLabel( "Bezier" );
+        nbPointsBezier->setHint("Nombre de points dessinant la courbe de bezier");
+        nbPointsBezier->setDefault( 10 );
+        nbPointsBezier->setRange( 1, std::numeric_limits<int>::max() );
+        nbPointsBezier->setDisplayRange( 1, 100 );
+        nbPointsBezier->setParent( groupSettings );
 
         //Overlay Points et tangentes
         OFX::GroupParamDescriptor* groupOverlay = desc.defineGroupParam( kParamGroupOverlay );
@@ -89,26 +118,31 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 
 	OFX::BooleanParamDescriptor* overlay = desc.defineBooleanParam( kParamOverlay );
         overlay->setLabel( "Overlay" );
+        overlay->setHint("Affiche la scene entière ou non");
 	overlay->setDefault( true );
         overlay->setParent( groupOverlay );
 
         OFX::BooleanParamDescriptor* overlayIn = desc.defineBooleanParam( kParamOverlayIn );
         overlayIn->setLabel( "Points In" );
+        overlayIn->setHint( "Affiche les points d'entrée sur la scène");
         overlayIn->setDefault( true );
         overlayIn->setParent( groupOverlay );
 
         OFX::BooleanParamDescriptor* overlayTgtIn = desc.defineBooleanParam( kParamOverlayTgtIn );
         overlayTgtIn->setLabel( "Bezier et tangentes In" );
+        overlayTgtIn->setHint( "Affiche la courbe de Bezier et ses tangentes en fonction des points In");
         overlayTgtIn->setDefault( true );
         overlayTgtIn->setParent( groupOverlay );
 
         OFX::BooleanParamDescriptor* overlayOut = desc.defineBooleanParam( kParamOverlayOut );
         overlayOut->setLabel( "Points Out" );
+        overlayOut->setHint( "Affiche les points de sortie sur la scène");
         overlayOut->setDefault( false );
         overlayOut->setParent( groupOverlay );
 
         OFX::BooleanParamDescriptor* overlayTgtOut = desc.defineBooleanParam( kParamOverlayTgtOut );
         overlayTgtOut->setLabel( "Bezier et tangentes Out" );
+        overlayTgtOut->setHint( "Affiche la courbe de Bezier et ses tangentes en fonction des points Out");
         overlayTgtOut->setDefault( false );
         overlayTgtOut->setParent( groupOverlay );
 

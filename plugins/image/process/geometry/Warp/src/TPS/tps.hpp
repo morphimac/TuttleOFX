@@ -29,8 +29,11 @@ public:
         typedef matrix_row<const Matrix> Const_Matrix_Row;
         typedef matrix_column<const Matrix> Const_Matrix_Col;
 
+        bool _activateWarp;
+        int _nbPoints;
+
 public:
-	TPS_Morpher( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut );
+        TPS_Morpher( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut , double regularization , bool applyWarp, int nbPoints);
 
 	template<typename S2>
 	Point2 operator()( const point2<S2>& pt ) const;

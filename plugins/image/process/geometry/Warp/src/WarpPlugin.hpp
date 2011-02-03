@@ -23,7 +23,11 @@ struct WarpProcessParams
         std::vector< point2<Scalar> > _tgtPointsIn;
         std::vector< point2<Scalar> > _tgtPointsOut;
 	std::vector< point2<Scalar> > _buildPoints;
-
+        std::vector< point2<Scalar> > _bezierIn;
+        std::vector< point2<Scalar> > _bezierOut;
+        bool _activateWarp;
+        double _rigiditeTPS;
+        int _nbPoints;
 	EParamMethod _method;
 };
 
@@ -57,9 +61,14 @@ public:
         OFX::BooleanParam*  _paramOverlay;
         OFX::BooleanParam*  _paramInverse;
         OFX::PushButtonParam* _paramReset;
+        OFX::BooleanParam*  _paramActivateWarp;
         OFX::ChoiceParam*  _paramMethod;
 
-	OFX::IntParam*  _paramNbPoints;
+        OFX::IntParam*  _paramNbPoints;
+
+        OFX::GroupParam* _paramGroupSettings;
+        OFX::DoubleParam*  _paramRigiditeTPS;
+        OFX::IntParam*  _paramNbPointsBezier;
 
         //In
 	OFX::GroupParam* _paramGroupIn;
