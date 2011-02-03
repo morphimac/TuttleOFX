@@ -28,6 +28,8 @@ enum EParamInterpolation
 	eParamInterpolationBilinear,
 };
 
+const static std::string kParamSetToCornersIn = "setToCornersIn";
+const static std::string kParamSetToCornersOut = "setToCornersOut";
 const static std::string kParamOverlay = "overlay";
 const static std::string kParamInverse = "inverse";
 

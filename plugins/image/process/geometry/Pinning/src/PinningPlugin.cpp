@@ -25,6 +25,8 @@ PinningPlugin::PinningPlugin( OfxImageEffectHandle handle )
 
 	_paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramInterpolation = fetchChoiceParam( kParamInterpolation );
+        _paramSetToCornersIn= fetchPushButtonParam( kParamSetToCornersIn );
+        _paramSetToCornersOut= fetchPushButtonParam( kParamSetToCornersOut );
         _paramOverlay       = fetchBooleanParam( kParamOverlay );
         _paramInverse       = fetchBooleanParam( kParamInverse );
 
@@ -104,7 +106,7 @@ PinningProcessParams<PinningPlugin::Scalar> PinningPlugin::getProcessParams( con
 
 void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName )
 {
-	using namespace boost::numeric::ublas;
+        using namespace boost::numeric::ublas;
 
         bounded_vector<double, 2> pIn[4];
         bounded_vector<double, 2> pOut[4];
@@ -131,6 +133,21 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
                 _paramPointIn1->getValue( pOut[1][0], pOut[1][1] );
                 _paramPointIn2->getValue( pOut[2][0], pOut[2][1] );
                 _paramPointIn3->getValue( pOut[3][0], pOut[3][1] );
+        }
+
+        if(paramName == kParamSetToCornersIn)
+        {
+            _paramPointIn0->setValue(-0.5,-0.5);
+            _paramPointIn1->setValue(0.5,-0.5);
+            _paramPointIn2->setValue(-0.5,0.5);
+            _paramPointIn3->setValue(0.5,0.5);
+        }
+        if(paramName == kParamSetToCornersOut)
+        {
+            _paramPointOut0->setValue(-0.5,-0.5);
+            _paramPointOut1->setValue(0.5,-0.5);
+            _paramPointOut2->setValue(-0.5,0.5);
+            _paramPointOut3->setValue(0.5,0.5);
         }
 
 	if( paramName == kParamMethod )

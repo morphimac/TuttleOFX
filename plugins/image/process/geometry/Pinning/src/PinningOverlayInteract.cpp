@@ -165,6 +165,7 @@ bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
     return _interactScene.penUp( args );
 }
 
+/*
 void PinningOverlayInteract::calculCentre( const std::vector< bounded_vector<double, 2> > pSelect)
 {
 	double minX,maxX,minY,maxY = 0.0;
@@ -232,7 +233,7 @@ void PinningOverlayInteract::scalePts( std::vector< bounded_vector<double, 2> > 
             pSelect[i][1] +=  _plugin->_paramPointCentre->getValue().y;
 	}
 }
-
+*/
 
 }
 }

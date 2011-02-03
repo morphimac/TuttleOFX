@@ -86,15 +86,15 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
 		return false;
 	}
 
-	const Point2 penPosition = ofxToGil( args.penPosition );
-	switch( _motionType._mode )
-	{
-		case eMotionTranslate:
-		{
-			translate( penPosition - _beginPenPosition );
-			break;
-		}
-		case eMotionRotate:
+        const Point2 penPosition = ofxToGil( args.penPosition );
+        switch( _motionType._mode )
+        {
+                case eMotionTranslate:
+                {
+                        translate( penPosition - _beginPenPosition );
+                        break;
+                }
+                case eMotionRotate:
                 {
                         if( _manipulator )
                         {
@@ -109,20 +109,20 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
 
                             rotate( _manipulator->getPosition(), -std::acos( (pow<2>(a) - pow<2>(b) - pow<2>(c)) / (2*abs(b)*abs(c)) ) );
                         }
-			break;
-		}
-		case eMotionScale:
+                        break;
+                }
+                case eMotionScale:
                 {
                         if( _manipulator )
                             scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
-			break;
-		}
-		case eMotionNone:
-		{
-			TUTTLE_COUT_INFOS;
-			break;
-		}
-	}
+                        break;
+                }
+                case eMotionNone:
+                {
+                        TUTTLE_COUT_INFOS;
+                        break;
+                }
+        }
 	return true;
 }
 

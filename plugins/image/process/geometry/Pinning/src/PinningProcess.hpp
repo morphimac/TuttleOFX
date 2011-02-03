@@ -26,7 +26,7 @@ public:
     PinningProcess( PinningPlugin& effect );
 
 	void setup( const OFX::RenderArguments& args );
-	
+
     void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 
 private:

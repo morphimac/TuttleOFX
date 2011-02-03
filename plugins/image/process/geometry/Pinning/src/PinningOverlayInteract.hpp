@@ -40,9 +40,9 @@ public:
 	bool penUp( const OFX::PenArgs& args );
 	bool penMotion( const OFX::PenArgs& args );
 
-        void calculCentre( const std::vector< bounded_vector<double, 2> > pSelect);
+        /*void calculCentre( const std::vector< bounded_vector<double, 2> > pSelect);
         void rotatePts( std::vector< bounded_vector<double, 2> > pSelect, double angle);
-        void scalePts( std::vector< bounded_vector<double, 2> > pSelect, double coef);
+        void scalePts( std::vector< bounded_vector<double, 2> > pSelect, double coef);*/
 /*
         bool keyDown( const KeyArgs& args );
         bool keyUp( const KeyArgs& args );
