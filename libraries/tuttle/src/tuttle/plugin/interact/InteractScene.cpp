@@ -91,7 +91,8 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
 	{
 		case eMotionTranslate:
 		{
-			translate( penPosition - _beginPenPosition );
+                    std::cout<<"translate"<<std::endl;
+                        translate( penPosition - _beginPenPosition );
 			break;
 		}
 		case eMotionRotate:
@@ -107,14 +108,16 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
                             double b = std::sqrt( pow<2>(_beginPenPosition.x - _manipulator->getPosition().x) + pow<2>(_beginPenPosition.y - _manipulator->getPosition().y) );
                             double c = std::sqrt( pow<2>(penPosition.x - _manipulator->getPosition().x) + pow<2>(penPosition.y - _manipulator->getPosition().y) );
 
-                            rotate( _manipulator->getPosition(), -std::acos( (pow<2>(a) - pow<2>(b) - pow<2>(c)) / (2*abs(b)*abs(c)) ) );
+                            std::cout<<"rotate"<<std::endl;
+                            //rotate( _manipulator->getPosition(), -std::acos( (pow<2>(a) - pow<2>(b) - pow<2>(c)) / (2*abs(b)*abs(c)) ) );
                         }
 			break;
 		}
 		case eMotionScale:
                 {
                         if( _manipulator )
-                            scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
+                            std::cout<<"scale"<<std::endl;
+                            //scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
 			break;
 		}
 		case eMotionNone:
@@ -309,6 +312,7 @@ bool InteractScene::drawSelection( const OFX::DrawArgs& args )
 void InteractScene::translate( const Point2& vec )
 {
 	//TUTTLE_COUT_VAR2( vec.x, vec.y );
+    /*
 	switch( _motionType._axis )
 	{
 		case eAxisXY:
@@ -346,6 +350,24 @@ void InteractScene::translate( const Point2& vec )
 			break;
 		}
 	}
+    */
+    ///////////TODO-vince //////////////////
+    std::cout<<"translating"<<std::endl;
+
+
+
+    for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
+         it != itEnd;
+         ++it )
+    {
+            std::cout<<"translating2"<<std::endl;
+            //it->first->setPosition( it->second + vec );
+        std::cout<<it->first->getPosition()<<std::endl;
+    }
+
+    ///////////////////////////////////////
+
+
 }
 
 void InteractScene::rotate( const Point2& center, const Scalar angle )

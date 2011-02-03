@@ -25,9 +25,9 @@ PinningPlugin::PinningPlugin( OfxImageEffectHandle handle )
 
 	_paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramInterpolation = fetchChoiceParam( kParamInterpolation );
+        _ParamManipulatorMode = fetchChoiceParam( kParamManipulatorMode );
 	_paramOverlay       = fetchBooleanParam( kParamOverlay );
 
-        _ParamManipulatorMode = fetchChoiceParam( kParamManipulatorMode );
 
             //TODO-vince //
         _paramGroupCentre       = fetchGroupParam( kParamGroupCentre );
@@ -285,7 +285,7 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 				_paramPointOut0->getValue( pOut[0][0], pOut[0][1] );
 				_paramPointOut1->getValue( pOut[1][0], pOut[1][1] );
 				_paramPointOut2->getValue( pOut[2][0], pOut[2][1] );
-				_paramPointOut2->getValue( pOut[3][0], pOut[3][1] );
+                                _paramPointOut3->getValue( pOut[3][0], pOut[3][1] );
 
 								
 				/////////////////////
@@ -306,10 +306,10 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 					b(i+4) = pOut[i][1];
 				}
 				
-				/*
+                                /*
 				for( int i = 0; i < 4; ++i )
 				{
-				*/
+                                */
 				/*
 					* 	c00*xi + c01*yi + c02
 					* ui = ---------------------
@@ -319,42 +319,26 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 					* vi = ---------------------
 					* 	c20*xi + c21*yi + c22
 				*/
-				/*			
+                                    /*
+
 					x(i)   = ( b(0)*(pIn[i][0]) + b(1)*(pIn[i][1]) + b(2) ) / ( b(6)*(pIn[i][0]) + b(7)*(pIn[i][1]) + 1 );
 					x(i+4) = ( b(3)*(pIn[i][0]) + b(4)*(pIn[i][1]) + b(5) ) / ( b(6)*(pIn[i][0]) + b(7)*(pIn[i][1]) + 1 );
 					
 				}
-				*/
-				
-				
-				
-				//COUT_VAR( A );
-				
-				lu_factorize( A, P );
-				// Now A and P contain the LU factorization of A
-				x = b;
-				lu_substitute( A, P, x );
-				// Now x contains the solution.
+                                */
+
 				
 
-				//solve( A, b, x, DECOMP_SVD );
-				//((double*)M.data)[8] = 1.;
+				lu_factorize( A, P );
+				// Now A and P contain the LU factorization of A
+                                x = b;
+				lu_substitute( A, P, x );
+				// Now x contains the solution.
+
 				
 				_paramPerspMatrixRow0->setValue( x( 0 ), x( 1 ), x( 2 ) );
 				_paramPerspMatrixRow1->setValue( x( 3 ), x( 4 ), x( 5 ) );
 				_paramPerspMatrixRow2->setValue( x( 6 ), x( 7 ), 1 );
-				
-				/*
-				_paramPerspMatrixRow0->setValue( x( 0 ), x( 3 ), x( 6 ) );
-				_paramPerspMatrixRow1->setValue( x( 1 ), x( 4 ), x( 7 ) );
-				_paramPerspMatrixRow2->setValue( x( 2 ), x( 5 ), 1 );
-				*/
-				/*
-				_paramPerspMatrixRow0->setValue( perspMatrix( 0, 0 ), perspMatrix( 1, 0 ), perspMatrix( 2, 0 ) );
-				_paramPerspMatrixRow1->setValue( perspMatrix( 0, 1 ), perspMatrix( 1, 1 ), perspMatrix( 2, 1 ) );
-				_paramPerspMatrixRow2->setValue( perspMatrix( 0, 2 ), perspMatrix( 1, 2 ), perspMatrix( 2, 2 ) );
-				*/
-				
 				
 				break;
 			}

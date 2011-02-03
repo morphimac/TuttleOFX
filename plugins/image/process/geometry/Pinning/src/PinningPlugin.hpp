@@ -63,9 +63,8 @@ public:
 
 	OFX::ChoiceParam*  _paramMethod;
 	OFX::ChoiceParam*  _paramInterpolation;
-	OFX::BooleanParam*  _paramOverlay;
-
         OFX::ChoiceParam*  _ParamManipulatorMode;
+	OFX::BooleanParam*  _paramOverlay;
 
 
     //TODO-vince //
