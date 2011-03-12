@@ -1,6 +1,8 @@
 #ifndef _TUTTLE_PLUGIN_WARP_PROCESS_HPP_
 #define _TUTTLE_PLUGIN_WARP_PROCESS_HPP_
 
+#include "TPS/tps.hpp"
+
 #include <tuttle/plugin/ImageGilFilterProcessor.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -24,6 +26,7 @@ public:
 protected :
     WarpPlugin&    _plugin;            ///< Rendering plugin
 	WarpProcessParams<Scalar> _params; ///< parameters
+	TPS_Morpher<Scalar> _tps;
 
 public:
     WarpProcess( WarpPlugin& effect );
