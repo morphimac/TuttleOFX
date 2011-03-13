@@ -31,11 +31,13 @@ public:
 
 	bool _activateWarp;
 	int _nbPoints;
+	double _width;
+	double _height;
 
 public:
 	TPS_Morpher();
 
-	void setup( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut, const double regularization, const bool applyWarp, const std::size_t nbPoints );
+	void setup( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut, const double regularization, const bool applyWarp, const std::size_t width, const std::size_t height );
 
 	template<typename S2>
 	Point2 operator()( const point2<S2>& pt ) const;

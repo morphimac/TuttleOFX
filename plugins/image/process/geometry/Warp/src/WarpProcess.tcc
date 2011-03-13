@@ -29,10 +29,9 @@ void WarpProcess<View>::setup( const OFX::RenderArguments& args )
 	_params = _plugin.getProcessParams( args.renderScale );
 
 	//TPS_Morpher<Scalar> tps( _params._inPoints, _params._outPoints , _params._rigiditeTPS);
-    _tps.setup( _params._bezierIn, _params._bezierOut , _params._rigiditeTPS, _params._activateWarp, _params._nbPoints );
+    _tps.setup( _params._bezierIn, _params._bezierOut , _params._rigiditeTPS, _params._activateWarp, this->_srcPixelRod.x2 - this->_srcPixelRod.x1, this->_srcPixelRod.y2 - this->_srcPixelRod.y1 );
 	TUTTLE_TCOUT_VAR( _params._rigiditeTPS );
 	TUTTLE_TCOUT_VAR( _params._activateWarp );
-	TUTTLE_TCOUT_VAR( _params._nbPoints );
 }
 
 /**
