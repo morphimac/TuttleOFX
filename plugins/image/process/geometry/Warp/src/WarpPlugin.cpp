@@ -107,6 +107,10 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	}
 	const std::size_t nbBezierPoints = _paramNbPointsBezier->getValue( );
 	TUTTLE_TCOUT_VAR( nbBezierPoints );
+	if( nbPoints == 0 )
+	{
+		return params;
+	}
 	for( std::size_t c = 0; c < nbPoints - 1; ++c )
 	{
 		// Creation des points et des ptTangente et recuperation des valeurs
@@ -155,15 +159,14 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 		}
 		TUTTLE_TCOUT_INFOS;
 	}
-	if( nbPoints > 1 )
-	{
-		TUTTLE_TCOUT_INFOS;
-		const std::size_t c = nbPoints - 1;
-		Point2 pIn  = ofxToGil( _paramPointIn[c]->getValue() );
-		params._bezierIn.push_back( pIn );
-		Point2 pOut = ofxToGil( _paramPointOut[c]->getValue() );
-		params._bezierOut.push_back( pOut );
-	}
+	const std::size_t c = nbPoints - 1;
+	Point2 pIn  = ofxToGil( _paramPointIn[c]->getValue() );
+	params._inPoints.push_back( pIn );
+	params._bezierIn.push_back( pIn );
+	Point2 pOut = ofxToGil( _paramPointOut[c]->getValue() );
+	params._outPoints.push_back( pIn );
+	params._bezierOut.push_back( pOut );
+
 	TUTTLE_TCOUT_VAR( nbBezierPoints );
 	TUTTLE_TCOUT_VAR( nbPoints );
 	TUTTLE_TCOUT_VAR( params._bezierIn.size() );
@@ -248,7 +251,14 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 
 bool WarpPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
-	//	WarpProcessParams<Scalar> params = getProcessParams();
+	WarpProcessParams<Scalar> params = getProcessParams();
+	if( ! params._activateWarp ||
+	    params._nbPoints == 0 )
+	{
+		identityClip = _clipSrc;
+		identityTime = args.time;
+		return true;
+	}
 	//	if( params._in == params._out )
 	//	{
 	//		identityClip = _clipSrc;
