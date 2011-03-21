@@ -116,10 +116,10 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 
                         //Points de la tangente
                         OfxPointD tIn1 = _plugin->_paramPointTgtIn[(2*c)]->getValue();
-                        OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+3]->getValue();
+                        OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+1]->getValue();
 
                         OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)]->getValue();
-                        OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+3]->getValue();
+                        OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+1]->getValue();
 
                         //Création et remplissage du tableau necessaire à Bezier
                         std::vector< point2<double> > tabPtsIn;
@@ -189,13 +189,13 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                             glBegin(GL_LINES);
                                 glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
                                 glVertex2f(_plugin->_paramPointTgtOut[1]->getValue().x,_plugin->_paramPointTgtOut[1]->getValue().y);
-                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)+2]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+2]->getValue().y);
-                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)+3]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+3]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)]->getValue().x,_plugin->_paramPointTgtOut[(2*c)]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)+1]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+1]->getValue().y);
                             glEnd();
 
                             glPointSize(11.0);
                             glBegin(GL_POINTS);
-                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)+2]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+2]->getValue().y);
+                                glVertex2f(_plugin->_paramPointTgtOut[(2*c)]->getValue().x,_plugin->_paramPointTgtOut[(2*c)]->getValue().y);
                                 glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
                             glEnd();
                             */
