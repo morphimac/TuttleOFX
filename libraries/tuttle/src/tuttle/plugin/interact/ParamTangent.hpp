@@ -56,16 +56,16 @@ public:
         MotionType intersect( const OFX::PenArgs& args );
 
 	void setPoint( const Scalar x, const Scalar y )
-	{
+        {
+                Point2 p = this->getPoint();
+                Point2 pA = _paramTanA.getPoint();
+                Point2 pB = _paramTanB.getPoint();
                 //TUTTLE_COUT("Fonction SetPoint");
                 //TUTTLE_COUT(_selectType);
                 switch( _selectType)
                 {
                     case eSelectTypeCenter:
                     {
-                        Point2 p = this->getPoint();
-                        Point2 pA = _paramTanA.getPoint();
-                        Point2 pB = _paramTanB.getPoint();
                         Parent::setPoint(x,y);
                         // _paramTanA.setPoint(bla)
                         // _paramTanB.setPoint(bla)
@@ -74,7 +74,7 @@ public:
                     case eSelectTypeTanA:
                     {
                         Point2 p = this->getPoint();
-                        _paramTanA.setPoint(x,y);
+                        _paramTanA.setPoint(x,y);// recuperer la distance entre le point et le point de tangente
                         // symétrique par rapport au centre
                         // B.setPoint(xs,ys);
                         break;
@@ -82,7 +82,7 @@ public:
                     case eSelectTypeTanB:
                     {
                         Point2 p = this->getPoint();
-                        _paramTanB.setPoint(x,y);
+                        _paramTanB.setPoint(x,y);// recuperer la distance entre le point et le point de tangente
                         // symétrique par rapport au centre
                         // A.setPoint(xs,ys);
                         break;
