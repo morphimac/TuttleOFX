@@ -157,7 +157,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         //Si "overlay tangente" est sur afficher
                         if(_plugin->_paramOverlayTgtIn->getValue())
                         {
-                            bezier::dessinePoint( tabPtsIn, _plugin->_paramNbPointsBezier->getValue(), rIn, vIn, bIn);
+                            bezier::drawBezier( tabPtsIn, _plugin->_paramNbPointsBezier->getValue(), rIn, vIn, bIn);
                             //Trace les lignes des tangentes
                             /*
                             glBegin(GL_LINES);
@@ -183,7 +183,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         //Si "overlay tangente" est sur afficher
                         if(_plugin->_paramOverlayTgtOut->getValue())
                         {
-                            bezier::dessinePoint( tabPtsOut, _plugin->_paramNbPointsBezier->getValue(),rOut, vOut, bOut);
+                            bezier::drawBezier( tabPtsOut, _plugin->_paramNbPointsBezier->getValue(),rOut, vOut, bOut);
                             //Trace les lignes des tangentes
                             /*
                             glBegin(GL_LINES);
