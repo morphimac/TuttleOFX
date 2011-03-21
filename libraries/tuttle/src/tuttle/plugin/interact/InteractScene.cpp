@@ -16,8 +16,8 @@ InteractScene::InteractScene( OFX::ParamSet& params, const InteractInfos& infos 
 	, _mouseDown( false )
 	, _multiSelectionEnabled( true )
 	, _creatingSelection( false )
-        , _manipulator( NULL )
-        , _manipulatorColor( NULL )
+	, _manipulator( NULL )
+	, _manipulatorColor( NULL )
 {
 }
 
@@ -86,43 +86,41 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
 		return false;
 	}
 
-        const Point2 penPosition = ofxToGil( args.penPosition );
-        switch( _motionType._mode )
-        {
-                case eMotionTranslate:
-                {
-                        translate( penPosition - _beginPenPosition );
-                        break;
-                }
-                case eMotionRotate:
-                {
-                        if( _manipulator )
-                        {
-                            using namespace boost::math;
-                            /*
-                                a² = b² + c² - 2bc * cos(alpha)
-                                alpha = -arccos( (a² - b² - c²) / 2bc )
-                            */
-                            double a = std::sqrt( pow<2>(penPosition.x - _beginPenPosition.x) + pow<2>(penPosition.y - _beginPenPosition.y) );
-                            double b = std::sqrt( pow<2>(_beginPenPosition.x - _manipulator->getPosition().x) + pow<2>(_beginPenPosition.y - _manipulator->getPosition().y) );
-                            double c = std::sqrt( pow<2>(penPosition.x - _manipulator->getPosition().x) + pow<2>(penPosition.y - _manipulator->getPosition().y) );
+	const Point2 penPosition = ofxToGil( args.penPosition );
+	switch( _motionType._mode )
+	{
+		case eMotionTranslate:
+		{
+			translate( penPosition - _beginPenPosition );
+			break;
+		}
+		case eMotionRotate:
+		{
+			if( _manipulator )
+			{
+				using namespace boost::math;
+				// a^2 = b^2 + c^2 - 2bc * cos(alpha)
+				// alpha = -arccos( (a^2 - b^2 - c^2) / 2bc )
+				double a = std::sqrt( pow<2>(penPosition.x - _beginPenPosition.x) + pow<2>(penPosition.y - _beginPenPosition.y) );
+				double b = std::sqrt( pow<2>(_beginPenPosition.x - _manipulator->getPosition().x) + pow<2>(_beginPenPosition.y - _manipulator->getPosition().y) );
+				double c = std::sqrt( pow<2>(penPosition.x - _manipulator->getPosition().x) + pow<2>(penPosition.y - _manipulator->getPosition().y) );
 
-                            rotate( _manipulator->getPosition(), -std::acos( (pow<2>(a) - pow<2>(b) - pow<2>(c)) / (2*abs(b)*abs(c)) ) );
-                        }
-                        break;
-                }
-                case eMotionScale:
-                {
-                        if( _manipulator )
-                            scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
-                        break;
-                }
-                case eMotionNone:
-                {
-                        TUTTLE_COUT_INFOS;
-                        break;
-                }
-        }
+				rotate( _manipulator->getPosition(), -std::acos( (pow<2>(a) - pow<2>(b) - pow<2>(c)) / (2*abs(b)*abs(c)) ) );
+			}
+			break;
+		}
+		case eMotionScale:
+		{
+			if( _manipulator )
+				scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
+			break;
+		}
+		case eMotionNone:
+		{
+			TUTTLE_COUT_INFOS;
+			break;
+		}
+	}
 	return true;
 }
 
@@ -143,14 +141,14 @@ bool InteractScene::penDown( const OFX::PenArgs& args )
 	bool result = false;
 	SelectedObject oneSelectedObj;
 
-        if( _hasSelection && _manipulator )
-        {
-                _motionType = _manipulator->intersect( args );
-                if( _motionType._mode != eMotionNone )
-                {
-                        result = true;
-                }
-        }
+	if( _hasSelection && _manipulator )
+	{
+		_motionType = _manipulator->intersect( args );
+		if( _motionType._mode != eMotionNone )
+		{
+			result = true;
+		}
+	}
 	if( !result )
 	{
 		IsActiveFunctorVector::iterator itActive = _isActive.begin();
@@ -294,14 +292,14 @@ bool InteractScene::drawSelection( const OFX::DrawArgs& args )
 		glColor4d( 1.0, 1.0, 1.0, 1.0 );
 		result = true;
 	}
-        else if( _hasSelection && _manipulator )
+	else if( _hasSelection && _manipulator )
 	{
-            if( _manipulatorColor )
-            {
-                OfxRGBAColourD color = _manipulatorColor->getColor( args.time );
-                glColor4d( color.r, color.g, color.b, color.a );
-            }
-            result |= _manipulator->draw( args );
+		if( _manipulatorColor )
+		{
+			OfxRGBAColourD color = _manipulatorColor->getColor( args.time );
+			glColor4d( color.r, color.g, color.b, color.a );
+		}
+		result |= _manipulator->draw( args );
 	}
 	return result;
 }

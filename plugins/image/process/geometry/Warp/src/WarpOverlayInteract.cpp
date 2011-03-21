@@ -21,9 +21,9 @@ namespace plugin {
 namespace warp {
 
 WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect )
-	: OFX::OverlayInteract( handle )
-	, _infos( effect )
-	, _interactScene( *effect, _infos )
+: OFX::OverlayInteract( handle )
+, _infos( effect )
+, _interactScene( *effect, _infos )
 {
 	_effect = effect;
         _plugin = static_cast<WarpPlugin*>( _effect );
@@ -92,7 +92,7 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
 
 bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 {
-	if( !_plugin->_paramOverlay->getValue() || !_plugin->_clipSrc->isConnected() )
+	if( !_plugin->_paramOverlay->getValue( ) || !_plugin->_clipSrc->isConnected( ) )
 		return false;
 
 	typedef boost::gil::point2<Scalar> Point2;
@@ -204,36 +204,37 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
         }
 	displaySomething |= _interactScene.draw( args );
 
-        return displaySomething;
+	return displaySomething;
 }
 
 bool WarpOverlayInteract::penMotion( const OFX::PenArgs& args )
 {
-        if(_plugin->_paramMethod->getValue() == eParamMethodMove)
-        {
-            return _interactScene.penMotion( args );
-        }
+	if( _plugin->_paramMethod->getValue( ) == eParamMethodMove )
+	{
+		return _interactScene.penMotion( args );
+	}
+	return false;
 }
 
 bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 {
-	unsigned int nbPoints = _plugin->_paramNbPoints->getValue();
+	const std::size_t nbPoints = _plugin->_paramNbPoints->getValue( );
 
-        //S'il reste des points à placer et si le mode est "creation"
-	if( (nbPoints < kMaxNbPoints) && (_plugin->_paramMethod->getValue() == eParamMethodCreation) )
+	//S'il reste des points à placer et si le mode est "creation"
+	if( ( nbPoints < kMaxNbPoints ) && ( _plugin->_paramMethod->getValue( ) == eParamMethodCreation ) )
 	{
-		_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled(false);
-		_plugin->_paramPointIn[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
+		_plugin->_paramPointIn[nbPoints]->setIsSecretAndDisabled( false );
+		_plugin->_paramPointIn[nbPoints]->setValue( args.penPosition.x, args.penPosition.y );
 
-                _plugin->_paramPointOut[nbPoints]->setIsSecretAndDisabled(false);
-                _plugin->_paramPointOut[nbPoints]->setValue(args.penPosition.x,args.penPosition.y);
+		_plugin->_paramPointOut[nbPoints]->setIsSecretAndDisabled( false );
+		_plugin->_paramPointOut[nbPoints]->setValue( args.penPosition.x, args.penPosition.y );
 
-		_plugin->_paramNbPoints->setValue(nbPoints+1);
+		_plugin->_paramNbPoints->setValue( nbPoints + 1 );
 
 		return _interactScene.penDown( args );
 	}
-        //Si le mode est "move"
-	else if(_plugin->_paramMethod->getValue() == eParamMethodMove)
+		//Si le mode est "move"
+	else if( _plugin->_paramMethod->getValue( ) == eParamMethodMove )
 	{
 		return _interactScene.penDown( args );
 	}
@@ -277,11 +278,14 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 
 bool WarpOverlayInteract::keyDown( const OFX::KeyArgs& args )
 {
-        if(args.keySymbol == kOfxKey_space) {
-            TUTTLE_COUT("test");
-        }
+	if( args.keySymbol == kOfxKey_space )
+	{
+		TUTTLE_COUT( "test" );
+	}
 	else
-		TUTTLE_COUT("test raté");
+	{
+		TUTTLE_COUT( "test failed" );
+	}
 	return false;
 }
 
@@ -290,57 +294,52 @@ bool WarpOverlayInteract::keyDown( const OFX::KeyArgs& args )
 //bool WarpOverlayInteract::keyRepeat( const KeyArgs& args );
 
 //if(PinningOverlayInteract::keyDown(args))
-  //  TUTTLE_COUT("control est pressé comme une orange");
+//  TUTTLE_COUT("control est pressé comme une orange");
 
 bool WarpOverlayInteract::penUp( const OFX::PenArgs& args )
 {
-    unsigned int numPt = _plugin->_paramNbPoints->getValue();
+	const std::size_t numPt = _plugin->_paramNbPoints->getValue( );
 
-    if(_plugin->_paramMethod->getValue() == eParamMethodCreation)
-    {
-        //Tangente In
+	if( _plugin->_paramMethod->getValue( ) == eParamMethodCreation )
+	{
+		// Tangente In
 
-        //Point courant
-        point2<double> ptCurIn;
-        ptCurIn.x = _plugin->_paramPointIn[numPt-1]->getValue().x;
-        ptCurIn.y = _plugin->_paramPointIn[numPt-1]->getValue().y;
+		// Point courant
+		const point2<double> ptCurIn( ofxToGil( _plugin->_paramPointIn[numPt - 1]->getValue() ) );
 
-        //Point numéro 1 de la tangente
-        _plugin->_paramPointTgtIn[2*(numPt-1)]->setIsSecretAndDisabled(false);
-        _plugin->_paramPointTgtIn[2*(numPt-1)]->setValue(args.penPosition.x,args.penPosition.y);
+		// Point numéro 1 de la tangente
+		_plugin->_paramPointTgtIn[2 * ( numPt - 1 )]->setIsSecretAndDisabled( false );
+		_plugin->_paramPointTgtIn[2 * ( numPt - 1 )]->setValue( args.penPosition.x, args.penPosition.y );
 
-        //Point numéro 2 de la tangente
-        _plugin->_paramPointTgtIn[2*(numPt-1)+1]->setIsSecretAndDisabled(false);
-        _plugin->_paramPointTgtIn[2*(numPt-1)+1]->setValue(2*ptCurIn.x-args.penPosition.x,2*ptCurIn.y-args.penPosition.y);
+		// Point numéro 2 de la tangente
+		_plugin->_paramPointTgtIn[2 * ( numPt - 1 ) + 1]->setIsSecretAndDisabled( false );
+		_plugin->_paramPointTgtIn[2 * ( numPt - 1 ) + 1]->setValue( 2 * ptCurIn.x - args.penPosition.x, 2 * ptCurIn.y - args.penPosition.y );
 
-        //Tangente Out
+		// Tangente Out
 
-        //Point courant
-        point2<double> ptCurOut;
-        ptCurOut.x = _plugin->_paramPointOut[numPt-1]->getValue().x;
-        ptCurOut.y = _plugin->_paramPointOut[numPt-1]->getValue().y;
+		// Point courant
+		const point2<double> ptCurOut( ofxToGil(_plugin->_paramPointOut[numPt - 1]->getValue() ) );
 
-        //Point numéro 1 de la tangente
-        _plugin->_paramPointTgtOut[2*(numPt-1)]->setIsSecretAndDisabled(false);
-        _plugin->_paramPointTgtOut[2*(numPt-1)]->setValue(args.penPosition.x,args.penPosition.y);
+		// Point numéro 1 de la tangente
+		_plugin->_paramPointTgtOut[2 * ( numPt - 1 )]->setIsSecretAndDisabled( false );
+		_plugin->_paramPointTgtOut[2 * ( numPt - 1 )]->setValue( args.penPosition.x, args.penPosition.y );
 
-        //Point numéro 2 de la tangente
-        _plugin->_paramPointTgtOut[2*(numPt-1)+1]->setIsSecretAndDisabled(false);
-        _plugin->_paramPointTgtOut[2*(numPt-1)+1]->setValue(2*ptCurOut.x-args.penPosition.x,2*ptCurOut.y-args.penPosition.y);
+		// Point numéro 2 de la tangente
+		_plugin->_paramPointTgtOut[2 * ( numPt - 1 ) + 1]->setIsSecretAndDisabled( false );
+		_plugin->_paramPointTgtOut[2 * ( numPt - 1 ) + 1]->setValue( 2 * ptCurOut.x - args.penPosition.x, 2 * ptCurOut.y - args.penPosition.y );
 
+		return _interactScene.penUp( args );
+	}
+	else if( _plugin->_paramMethod->getValue( ) == eParamMethodMove )
+	{
+		for( std::size_t i = 0; i < numPt; ++i )
+		{
+			_plugin->_paramPointTgtIn[2 * i + 1]->setValue( 2 * _plugin->_paramPointIn[i]->getValue( ) - _plugin->_paramPointTgtIn[2 * i]->getValue( ) );
+			_plugin->_paramPointTgtOut[2 * i + 1]->setValue( 2 * _plugin->_paramPointOut[i]->getValue( ) - _plugin->_paramPointTgtOut[2 * i]->getValue( ) );
+		}
 
-        return _interactScene.penUp( args );
-    }
-    else if(_plugin->_paramMethod->getValue() == eParamMethodMove)
-    {
-        for( std::size_t i = 0 ; i < numPt ; ++i )
-        {
-            _plugin->_paramPointTgtIn[2*i+1]->setValue(2*_plugin->_paramPointIn[i]->getValue()-_plugin->_paramPointTgtIn[2*i]->getValue());
-            _plugin->_paramPointTgtOut[2*i+1]->setValue(2*_plugin->_paramPointOut[i]->getValue()-_plugin->_paramPointTgtOut[2*i]->getValue());
-        }
-
-        return _interactScene.penUp( args );
-    }
+		return _interactScene.penUp( args );
+	}
 	return false;
 }
 
