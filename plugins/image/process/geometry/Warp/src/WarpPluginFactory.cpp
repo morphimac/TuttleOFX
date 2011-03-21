@@ -165,7 +165,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::RGBParamDescriptor* ouverlayInColor = desc.defineRGBParam( kParamOverlayInColor );
 	ouverlayInColor->setLabel( "Color" );
 	ouverlayInColor->setHint( "Input point overlay color" );
-	ouverlayInColor->setDefault( 1.0, 0.0, 0.0 );
+        ouverlayInColor->setDefault( 0.32, 1.0, 0.53 );
 	ouverlayInColor->setParent( groupIn );
 
         //////////////////// TGT Points IN////////////////////
@@ -187,7 +187,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         OFX::RGBParamDescriptor* ouverlayTgtInColor = desc.defineRGBParam( kParamOverlayTgtInColor );
         ouverlayTgtInColor->setLabel( "Color In" );
         ouverlayTgtInColor->setHint( "Tangente point overlay In color" );
-        ouverlayTgtInColor->setDefault( 0.95, 0.4, 0.4 );
+        ouverlayTgtInColor->setDefault( 0.15, 1.0, 0.0 );
         ouverlayTgtInColor->setParent( groupTgtIn );
 
 	//////////////////// OUT Points ////////////////////
@@ -209,7 +209,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::RGBParamDescriptor* ouverlayOutColor = desc.defineRGBParam( kParamOverlayOutColor );
 	ouverlayOutColor->setLabel( "Color" );
 	ouverlayOutColor->setHint( "Output point overlay color" );
-	ouverlayOutColor->setDefault( 0.0, 0.0, 1.0 );
+        ouverlayOutColor->setDefault( 1.0, 0.0, 0.9 );
 	ouverlayOutColor->setParent( groupOut );
 
         //////////////////// TGT Points Out////////////////////
@@ -231,7 +231,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         OFX::RGBParamDescriptor* ouverlayTgtOutColor = desc.defineRGBParam( kParamOverlayTgtOutColor );
         ouverlayTgtOutColor->setLabel( "Color Out" );
         ouverlayTgtOutColor->setHint( "Tangente point overlay Out color" );
-        ouverlayTgtOutColor->setDefault( 0.2, 0.45, 0.95 );
+        ouverlayTgtOutColor->setDefault( 0.95, 0.0, 0.4 );
         ouverlayTgtOutColor->setParent( groupTgtOut );
 }
 

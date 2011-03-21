@@ -2,10 +2,12 @@
 #include "WarpDefinitions.hpp"
 #include "WarpPlugin.hpp"
 #include "Bezier/bezier.hpp"
+
 #include <tuttle/plugin/opengl/gl.h>
 #include <tuttle/plugin/interact/interact.hpp>
 #include <tuttle/plugin/interact/overlay.hpp>
 #include <tuttle/plugin/interact/ParamPoint.hpp>
+#include <tuttle/plugin/interact/ParamTangent.hpp>
 #include <tuttle/plugin/interact/ParamPointRelativePoint.hpp>
 
 #include <ofxsImageEffect.h>
@@ -29,61 +31,62 @@ WarpOverlayInteract::WarpOverlayInteract( OfxInteractHandle handle, OFX::ImageEf
         //Points out
         for( std::size_t i = 0; i < kMaxNbPoints; ++i )
         {
-            //Points out
-            interact::AndActiveFunctor<>* activeOut = new interact::AndActiveFunctor<>();
-            activeOut->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
-            activeOut->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointOut[i] ) );
-            _interactScene.push_back( new interact::ParamPoint<interact::FrameClip,
-                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc ),
-                                      activeOut,
-                                      new interact::ColorRGBParam(_plugin->_paramOverlayOutColor));
-
             interact::PointInteract* point = new interact::ParamPoint<interact::FrameClip, eCoordinateSystemXY>( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc );
+
+            typedef interact::ParamPoint<interact::FrameClip, eCoordinateSystemXY> PPoint;
+            typedef interact::ParamTangent<interact::FrameClip, eCoordinateSystemXY> PTangent;
 
             //Points In
             interact::AndActiveFunctor<>* activeIn = new interact::AndActiveFunctor<>();
             activeIn->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayIn ) );
             activeIn->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointIn[i] ) );
-            _interactScene.push_back( new interact::ParamPoint<interact::FrameClip,
-                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointIn[i], _plugin->_clipSrc ),
-                                      activeIn,
-                                      new interact::ColorRGBParam(_plugin->_paramOverlayInColor) );
+            //PPoint in( _infos, _plugin->_paramPointIn[i], _plugin->_clipSrc );
 
             // tangente IN A
-            interact::AndActiveFunctor<>* activeTgtInA = new interact::AndActiveFunctor<>();
-            activeTgtInA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtIn ) );
-            activeTgtInA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtIn[i*2] ) );
-            _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                       eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtIn[i*2], _plugin->_clipSrc/*, point*/ ),
-                                       activeTgtInA,
-                                       new interact::ColorRGBParam(_plugin->_paramOverlayTgtInColor ));
+            //interact::AndActiveFunctor<>* activeTgtInA = new interact::AndActiveFunctor<>();
+            //activeTgtInA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtIn ) );
+            //activeTgtInA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtIn[i*2] ) );
+            //PPoint inA( _infos, _plugin->_paramPointTgtIn[i*2], _plugin->_clipSrc/*, point*/ );
 
             // tangente IN B
-            interact::AndActiveFunctor<>* activeTgtInB = new interact::AndActiveFunctor<>();
-            activeTgtInB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtIn ) );
-            activeTgtInB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtIn[i*2+1] ) );
-            _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtIn[i*2+1], _plugin->_clipSrc/*, point*/ ),
-                                      activeTgtInB,
-                                      new interact::ColorRGBParam(_plugin->_paramOverlayTgtInColor ));
+            //interact::AndActiveFunctor<>* activeTgtInB = new interact::AndActiveFunctor<>();
+            //activeTgtInB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtIn ) );
+            //activeTgtInB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtIn[i*2+1] ) );
+            //PPoint inB(  _infos, _plugin->_paramPointTgtIn[i*2+1], _plugin->_clipSrc/*, point*/ );
+
+            _interactScene.push_back( new PTangent( _infos,
+                                                    _plugin->_paramPointIn[i],
+                                                    _plugin->_paramPointTgtIn[i*2],
+                                                    _plugin->_paramPointTgtIn[i*2+1],
+                                                    _plugin->_clipSrc),
+                                      activeIn,
+                                      new interact::ColorRGBParam( _plugin->_paramOverlayInColor ) );
+
+            //Points out
+            interact::AndActiveFunctor<>* activeOut = new interact::AndActiveFunctor<>();
+            activeOut->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayOut ) );
+            activeOut->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointOut[i] ) );
+            //P, _plugin->_clipSrcPoint out( _infos, _plugin->_paramPointOut[i], _plugin->_clipSrc );
 
             // tangente Out A
-            interact::AndActiveFunctor<>* activeTgtOutA = new interact::AndActiveFunctor<>();
-            activeTgtOutA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtOut ) );
-            activeTgtOutA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtOut[i*2] ) );
-            _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                       eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtOut[i*2], _plugin->_clipSrc/*, point*/ ),
-                                       activeTgtOutA,
-                                       new interact::ColorRGBParam(_plugin->_paramOverlayTgtOutColor ));
+            //interact::AndActiveFunctor<>* activeTgtOutA = new interact::AndActiveFunctor<>();
+            //activeTgtOutA->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtOut ) );
+            //activeTgtOutA->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtOut[i*2] ) );
+            //PPoint outA( _infos, _plugin->_paramPointTgtOut[i*2], _plugin->_clipSrc/*, point*/ );
 
             // tangente Out B
-            interact::AndActiveFunctor<>* activeTgtOutB = new interact::AndActiveFunctor<>();
-            activeTgtOutB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtOut ) );
-            activeTgtOutB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtOut[i*2+1] ) );
-            _interactScene.push_back(new interact::ParamPoint/*RelativePoint*/<interact::FrameClip,
-                                      eCoordinateSystemXY>( _infos, _plugin->_paramPointTgtOut[i*2+1], _plugin->_clipSrc/*, point*/ ),
-                                      activeTgtOutB,
-                                      new interact::ColorRGBParam(_plugin->_paramOverlayTgtOutColor ));
+            //interact::AndActiveFunctor<>* activeTgtOutB = new interact::AndActiveFunctor<>();
+            //activeTgtOutB->push_back( new interact::IsActiveBooleanParamFunctor<>( _plugin->_paramOverlayTgtOut ) );
+            //activeTgtOutB->push_back( new interact::IsNotSecretParamFunctor<>( _plugin->_paramPointTgtOut[i*2+1] ) );
+            //PPoint outBoutB( _infos, _plugin->_paramPointTgtOut[i*2+1], _plugin->_clipSrc/*, point*/ );
+
+            _interactScene.push_back( new PTangent( _infos,
+                                                    _plugin->_paramPointOut[i],
+                                                    _plugin->_paramPointTgtOut[i*2],
+                                                    _plugin->_paramPointTgtOut[i*2+1],
+                                                    _plugin->_clipSrc),
+                                      activeOut,
+                                      new interact::ColorRGBParam( _plugin->_paramOverlayOutColor ) );
         }
 }
 
@@ -98,6 +101,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
         //Recuperation du nombre de points positionnés
 	const std::size_t nbPoints = _plugin->_paramNbPoints->getValue();
 
+        TUTTLE_COUT("Test");
         if(nbPoints >1)
         {
                 for( std::size_t c = 0 ; c < nbPoints-1 ; ++c )
@@ -155,6 +159,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         {
                             bezier::dessinePoint( tabPtsIn, _plugin->_paramNbPointsBezier->getValue(), rIn, vIn, bIn);
                             //Trace les lignes des tangentes
+                            /*
                             glBegin(GL_LINES);
                                 glVertex2f(_plugin->_paramPointTgtIn[0]->getValue().x,_plugin->_paramPointTgtIn[0]->getValue().y);
                                 glVertex2f(_plugin->_paramPointTgtIn[1]->getValue().x,_plugin->_paramPointTgtIn[1]->getValue().y);
@@ -167,6 +172,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                                 glVertex2f(_plugin->_paramPointTgtIn[(2*c)+2]->getValue().x,_plugin->_paramPointTgtIn[(2*c)+2]->getValue().y);
                                 glVertex2f(_plugin->_paramPointTgtIn[0]->getValue().x,_plugin->_paramPointTgtIn[0]->getValue().y);
                             glEnd();
+                            */
                         }
 
                         //Choix de la couleur des tangentes dans nuke
@@ -179,6 +185,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         {
                             bezier::dessinePoint( tabPtsOut, _plugin->_paramNbPointsBezier->getValue(),rOut, vOut, bOut);
                             //Trace les lignes des tangentes
+                            /*
                             glBegin(GL_LINES);
                                 glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
                                 glVertex2f(_plugin->_paramPointTgtOut[1]->getValue().x,_plugin->_paramPointTgtOut[1]->getValue().y);
@@ -191,6 +198,7 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                                 glVertex2f(_plugin->_paramPointTgtOut[(2*c)+2]->getValue().x,_plugin->_paramPointTgtOut[(2*c)+2]->getValue().y);
                                 glVertex2f(_plugin->_paramPointTgtOut[0]->getValue().x,_plugin->_paramPointTgtOut[0]->getValue().y);
                             glEnd();
+                            */
                         }
                 }
         }
@@ -238,7 +246,9 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
                         && abs( (args.penPosition.y) - (_plugin->_paramPointIn[i]->getValue().y) ) < seuil )
                     ||(abs(args.penPosition.x) - (_plugin->_paramPointOut[i]->getValue().x) < seuil
                        && abs( (args.penPosition.y) - (_plugin->_paramPointOut[i]->getValue().y) ) < seuil ))
-                    {
+                {
+                        if(i < nbPoints-1)
+                        {
                             for(std::size_t ptSuivants = i; ptSuivants < nbPoints ; ++ptSuivants)
                             {
                                 _plugin->_paramPointIn[ptSuivants]->setValue(_plugin->_paramPointIn[ptSuivants+1]->getValue());
@@ -249,6 +259,8 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
                                 _plugin->_paramPointTgtOut[2*ptSuivants]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+2]->getValue());
                                 _plugin->_paramPointTgtOut[2*ptSuivants+1]->setValue(_plugin->_paramPointTgtOut[2*ptSuivants+3]->getValue());
                             }
+                        }
+
                     _plugin->_paramPointIn[nbPoints-1]->setIsSecretAndDisabled(true);
                     _plugin->_paramPointOut[nbPoints-1]->setIsSecretAndDisabled(true);
                     _plugin->_paramPointTgtIn[2*nbPoints-2]->setIsSecretAndDisabled(true);
