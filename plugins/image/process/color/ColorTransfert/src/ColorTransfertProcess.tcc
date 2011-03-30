@@ -37,17 +37,18 @@ ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect
 }
 
 template<class View>
-void computeAverage(const View image){
-	std::cout<<"jnljfnljen"<<std::endl;
+void ColorTransfertProcess<View>::computeAverage( const View& image )
+{
+	std::cout << "jnljfnljen" << std::endl;
 }
 
 template<class View>
 void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 {
-	ImageGilFilterProcessor<View>::setup( args );			// Appel setup héritage
-        _params = _plugin.getProcessParams( args.renderScale );		// Récupération des paramètres du plug
+	ImageGilFilterProcessor<View>::setup( args );		// Call parent class setup
+        _params = _plugin.getProcessParams( args.renderScale ); // Retrieve plugin parameters
 
-	// Initalisation srcRef
+	// srcRef initialization
 	this->_srcRef.reset( _clipSrcRef->fetchImage( args.time ) );
 	if( !this->_srcRef.get() )
 	{
@@ -57,12 +58,12 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 	{
 		BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
 	}
-	//	_srcRefPixelRod = _srcRef->getRegionOfDefinition(); // bug in nuke, returns bounds
+	// _srcRefPixelRod = _srcRef->getRegionOfDefinition(); // bug in nuke, returns bounds
 	_srcRefPixelRod   = _clipSrcRef->getPixelRod( args.time, args.renderScale );
 	this->_srcRefView = tuttle::plugin::getView<View>( this->_srcRef.get(), _srcRefPixelRod );
 
 
-	// Initalisation dstRef
+	// dstRef initialization
 	this->_dstRef.reset( _clipDstRef->fetchImage( args.time ) );
 	if( !this->_dstRef.get() )
 	{
@@ -72,10 +73,15 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 	{
 		BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
 	}
-	//	_dstPixelRod = _dst->getRegionOfDefinition(); // bug in nuke, returns bounds
+	// _dstPixelRod = _dst->getRegionOfDefinition(); // bug in nuke, returns bounds
 	_dstRefPixelRod   = _clipDstRef->getPixelRod( args.time, args.renderScale );
 	this->_dstRefView = tuttle::plugin::getView<View>( this->_dstRef.get(), _dstRefPixelRod );
 
+	// analyse srcRef and dstRef
+	computeAverage( this->_srcRefView );
+	computeAverage( this->_dstRefView );
+
+	// now analyse the differences
 	
 }
 
@@ -113,9 +119,12 @@ void ColorTransfertProcess<View>::multiThreadProcessImages( const OfxRectI& proc
 	//View dst = subimage_view( this->_dstView, procWindowOutput.x1, procWindowOutput.y1, procWindowSize.x, procWindowSize.y );
 	//copy_pixels( src, dst );
 
-	//computeAverage(src); 
+	// fill dst: modify src using analyse of srcRef and dstRef differences
+	
 }
 
 }
 }
 }
+
+

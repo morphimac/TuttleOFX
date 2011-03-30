@@ -53,9 +53,10 @@ public:
 
 	void setup( const OFX::RenderArguments& args );
 
-        void computeAverage(const View image);
-
         void multiThreadProcessImages( const OfxRectI& procWindowRoW );
+
+private:
+        void computeAverage(const View& image);
 };
 
 }
