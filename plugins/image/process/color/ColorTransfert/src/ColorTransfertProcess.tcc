@@ -37,27 +37,49 @@ ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect
 }
 
 template<class View>
+void computeAverage(const View image){
+	std::cout<<"jnljfnljen"<<std::endl;
+}
+
+template<class View>
 void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 {
 	ImageGilFilterProcessor<View>::setup( args );			// Appel setup héritage
         _params = _plugin.getProcessParams( args.renderScale );		// Récupération des paramètres du plug
 
-	OFX::Clip* _clipSrcRef;       ///< Source & dst ref image clip
-	boost::scoped_ptr<OFX::Image> _srcRef;
-	OfxRectI _srcRefPixelRod;
-	//SView _srcRefView; ///< @brief source clip (filters have only one input) 
+	// Initalisation srcRef
+	this->_srcRef.reset( _clipSrcRef->fetchImage( args.time ) );
+	if( !this->_srcRef.get() )
+	{
+		BOOST_THROW_EXCEPTION( exception::ImageNotReady() );
+	}
+	if( this->_srcRef->getRowBytes() == 0 )
+	{
+		BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
+	}
+	//	_srcRefPixelRod = _srcRef->getRegionOfDefinition(); // bug in nuke, returns bounds
+	_srcRefPixelRod   = _clipSrcRef->getPixelRod( args.time, args.renderScale );
+	this->_srcRefView = tuttle::plugin::getView<View>( this->_srcRef.get(), _srcRefPixelRod );
 
-	OFX::Clip* _clipDstRef;       ///< Source & dst ref image clip
-	boost::scoped_ptr<OFX::Image> _dstRef;
-	OfxRectI _dstRefPixelRod;
-	//SView _dstRefView; ///< @brief source clip (filters have only one input) 
 
-	//computeAverage(_clipSrcRef);
+	// Initalisation dstRef
+	this->_dstRef.reset( _clipDstRef->fetchImage( args.time ) );
+	if( !this->_dstRef.get() )
+	{
+		BOOST_THROW_EXCEPTION( exception::ImageNotReady() );
+	}
+	if( this->_dstRef->getRowBytes() == 0 )
+	{
+		BOOST_THROW_EXCEPTION( exception::WrongRowBytes() );
+	}
+	//	_dstPixelRod = _dst->getRegionOfDefinition(); // bug in nuke, returns bounds
+	_dstRefPixelRod   = _clipDstRef->getPixelRod( args.time, args.renderScale );
+	this->_dstRefView = tuttle::plugin::getView<View>( this->_dstRef.get(), _dstRefPixelRod );
+
+	
 }
 
-void computeAverage(OFX::Clip* image){
-	std::cout<<"jnljfnljen"<<std::endl;
-}
+
 
 /**
  * @brief Function called by rendering thread each time a process must be done.
@@ -84,17 +106,14 @@ void ColorTransfertProcess<View>::multiThreadProcessImages( const OfxRectI& proc
 		if( this->progressForward() )
 			return;
 	}
-	/*
+	
 	const OfxRectI procWindowSrc = translateRegion( procWindowRoW, this->_srcPixelRod );
-	OfxPointI procWindowSize = { procWindowRoW.x2 - procWindowRoW.x1,
-							     procWindowRoW.y2 - procWindowRoW.y1 };
-	View src = subimage_view( this->_srcView, procWindowSrc.x1, procWindowSrc.y1,
-							                  procWindowSize.x, procWindowSize.y );
-	View dst = subimage_view( this->_dstView, procWindowOutput.x1, procWindowOutput.y1,
-							                  procWindowSize.x, procWindowSize.y );
-	copy_pixels( src, dst );
-	*/
+	OfxPointI procWindowSize = { procWindowRoW.x2 - procWindowRoW.x1, procWindowRoW.y2 - procWindowRoW.y1 };
+	View src = subimage_view( this->_srcRefView, procWindowSrc.x1, procWindowSrc.y1, procWindowSize.x, procWindowSize.y );
+	//View dst = subimage_view( this->_dstView, procWindowOutput.x1, procWindowOutput.y1, procWindowSize.x, procWindowSize.y );
+	//copy_pixels( src, dst );
 
+	//computeAverage(src); 
 }
 
 }

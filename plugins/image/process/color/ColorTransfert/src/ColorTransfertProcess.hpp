@@ -33,18 +33,29 @@ public:
         typedef typename View::value_type Pixel;
         typedef typename boost::gil::channel_type<View>::type Channel;
 	typedef float Scalar;
+
+        OFX::Clip* _clipSrcRef;       ///< Source ref image clip
+        boost::scoped_ptr<OFX::Image> _srcRef;
+        OfxRectI _srcRefPixelRod;
+        View _srcRefView;
+
+        OFX::Clip* _clipDstRef;       ///< Dst ref image clip
+        boost::scoped_ptr<OFX::Image> _dstRef;
+        OfxRectI _dstRefPixelRod;
+        View _dstRefView;
+
 protected:
-    ColorTransfertPlugin&    _plugin;            ///< Rendering plugin
+        ColorTransfertPlugin&    _plugin;            ///< Rendering plugin
         ColorTransfertProcessParams<Scalar> _params; ///< parameters
 
 public:
-    ColorTransfertProcess( ColorTransfertPlugin& effect );
+         ColorTransfertProcess( ColorTransfertPlugin& effect );
 
 	void setup( const OFX::RenderArguments& args );
 
-        void computeAverage(OFX::Clip* image);
+        void computeAverage(const View image);
 
-    void multiThreadProcessImages( const OfxRectI& procWindowRoW );
+        void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 };
 
 }
