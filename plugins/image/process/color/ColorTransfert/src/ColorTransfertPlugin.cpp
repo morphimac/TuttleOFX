@@ -15,8 +15,7 @@ ColorTransfertPlugin::ColorTransfertPlugin( OfxImageEffectHandle handle )
 : ImageEffectGilPlugin( handle )
 {
         _clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
-        _clipSrcRef = fetchClip( kOfxImageEffectSimpleSourceClipName );
-        _clipDstRef = fetchClip( kOfxImageEffectSimpleSourceClipName );
+
 }
 
 ColorTransfertProcessParams<ColorTransfertPlugin::Scalar> ColorTransfertPlugin::getProcessParams( const OfxPointD& renderScale ) const

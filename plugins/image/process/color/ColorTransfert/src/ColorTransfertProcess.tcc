@@ -27,6 +27,9 @@ struct ComputeParams
 	typedef typename View::value_type Pixel;
 	typedef typename color_space_type<View>::type Colorspace;
 	typedef pixel<CType, layout<Colorspace> > CPixel;
+
+	CPixel sum;
+	Pixel average;
 };
 
 template<class View>
@@ -34,12 +37,18 @@ ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect
 : ImageGilFilterProcessor<View>( effect )
 , _plugin( effect )
 {
+        _clipSrcRef = effect.fetchClip( kOfxImageEffectSimpleSourceClipName );
+        _clipDstRef = effect.fetchClip( kOfxImageEffectSimpleSourceClipName );
 }
 
 template<class View>
 void ColorTransfertProcess<View>::computeAverage( const View& image )
 {
-	std::cout << "jnljfnljen" << std::endl;
+        ComputeParams<View, boost::gil::bits64f> output;
+       	//pixel_zeros_t<Pixel>( )( output.sum );
+	pixel_zeros_t<Pixel>( )( output.average );
+        //std::cout<< output.average.value <<std::endl;
+
 }
 
 template<class View>
@@ -77,9 +86,9 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 	_dstRefPixelRod   = _clipDstRef->getPixelRod( args.time, args.renderScale );
 	this->_dstRefView = tuttle::plugin::getView<View>( this->_dstRef.get(), _dstRefPixelRod );
 
-	// analyse srcRef and dstRef
-	computeAverage( this->_srcRefView );
-	computeAverage( this->_dstRefView );
+        // analyse srcRef and dstRef
+        computeAverage( this->_srcRefView );
+        computeAverage( this->_dstRefView );
 
 	// now analyse the differences
 	

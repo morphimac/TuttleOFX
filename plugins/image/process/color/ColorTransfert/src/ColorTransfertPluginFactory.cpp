@@ -60,6 +60,19 @@ void ColorTransfertPluginFactory::describeInContext( OFX::ImageEffectDescriptor&
 	dstClip->addSupportedComponent( OFX::ePixelComponentAlpha );
 	dstClip->setSupportsTiles( kSupportTiles );
 
+        OFX::ClipDescriptor* srcRefClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
+        srcRefClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+        srcRefClip->addSupportedComponent( OFX::ePixelComponentRGB );
+        srcRefClip->addSupportedComponent( OFX::ePixelComponentAlpha );
+        srcRefClip->setSupportsTiles( kSupportTiles );
+
+        OFX::ClipDescriptor* dstRefClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
+        dstRefClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+        dstRefClip->addSupportedComponent( OFX::ePixelComponentRGB );
+        dstRefClip->addSupportedComponent( OFX::ePixelComponentAlpha );
+        dstRefClip->setSupportsTiles( kSupportTiles );
+
+
 	OFX::PushButtonParamDescriptor* helpButton = desc.definePushButtonParam( kParamHelpButton );
 	helpButton->setLabel( "Help" );
 }
