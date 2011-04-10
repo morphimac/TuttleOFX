@@ -28,7 +28,7 @@ struct ComputeParams
 	typedef typename color_space_type<View>::type Colorspace;
 	typedef pixel<CType, layout<Colorspace> > CPixel;
 
-	CPixel sum;
+	//CPixel sum;
 	Pixel average;
 };
 
@@ -44,11 +44,28 @@ ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect
 template<class View>
 void ColorTransfertProcess<View>::computeAverage( const View& image )
 {
-        ComputeParams<View, boost::gil::bits64f> output;
-       	//pixel_zeros_t<Pixel>( )( output.sum );
+	ComputeParams<View, boost::gil::bits64f> output;
 	pixel_zeros_t<Pixel>( )( output.average );
-        //std::cout<< output.average.value <<std::endl;
 
+	typedef typename color_space_type<View>::type Colorspace;
+	typedef pixel<boost::gil::bits64f, layout<Colorspace> > CPixel;
+	CPixel sum;
+	pixel_zeros_t<CPixel>( )( sum );
+	//TUTTLE_COUT_VAR2( sum[0], output.average[0]);
+	const std::size_t nbPixels = image.width() * image.height();
+
+	for( int y = 0; y < image.height(); ++y )
+	{
+		typename View::x_iterator src_it = image.x_at( 0, y );
+		for( int x = 0; x < image.width(); ++x, ++src_it )
+		{
+			CPixel pix;
+			pixel_assigns_t<Pixel, CPixel>( )( * src_it, pix ); 
+			pixel_plus_assign_t<CPixel, CPixel>( )( pix, sum );
+		}
+	}
+	output.average  = pixel_divides_scalar_t<CPixel, double>() ( sum, nbPixels );
+	TUTTLE_COUT_VAR2( sum[0], output.average[0]);
 }
 
 template<class View>
