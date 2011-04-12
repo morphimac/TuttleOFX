@@ -21,7 +21,7 @@ namespace pinning {
 
 using namespace boost::numeric::ublas;
 
-
+/*
 template<class TFrame, ECoordinateSystem coord>
 class Manipulator : public interact::ParamPoint<TFrame, coord>
 {
@@ -60,7 +60,7 @@ public:
 private:
     const OFX::ChoiceParam* _paramMode;
 };
-
+*/
 
 PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::ImageEffect* effect )
 	: OFX::OverlayInteract( handle )
@@ -106,11 +106,12 @@ PinningOverlayInteract::PinningOverlayInteract( OfxInteractHandle handle, OFX::I
 
 
 
-
+/*
         _interactScene.setManipulator(
               new Manipulator<interact::FrameClip, eCoordinateSystemXXcn>( _infos, _plugin->_paramPointCentre, _plugin->_clipSrc, _plugin->_ParamManipulatorMode ),
               new interact::ColorRGBParam(_plugin->_paramOverlayCentreColor)
          );
+      */
 }
 
 bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
@@ -126,6 +127,7 @@ bool PinningOverlayInteract::draw( const OFX::DrawArgs& args )
 
 	return displaySomething;
 }
+
 
 /*
 bool PinningOverlayInteract::keyDown( const OFX::KeyArgs& args )
@@ -164,7 +166,7 @@ bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
 {
     return _interactScene.penUp( args );
 }
-
+/*
 void PinningOverlayInteract::calculCentre( const std::vector< bounded_vector<double, 2> > pSelect)
 {
 	double minX,maxX,minY,maxY = 0.0;
@@ -232,7 +234,7 @@ void PinningOverlayInteract::scalePts( std::vector< bounded_vector<double, 2> > 
             pSelect[i][1] +=  _plugin->_paramPointCentre->getValue().y;
 	}
 }
-
+*/
 
 }
 }

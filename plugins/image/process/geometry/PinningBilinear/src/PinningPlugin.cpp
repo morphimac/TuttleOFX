@@ -101,7 +101,7 @@ void PinningPlugin::render( const OFX::RenderArguments &args )
             }
 	default:
 	{
-		COUT_ERROR( "Bit depth (" << mapBitDepthEnumToString(dstBitDepth) << ") not recognized by the plugin." );
+		TUTTLE_COUT_ERROR( "Bit depth (" << mapBitDepthEnumToString(dstBitDepth) << ") not recognized by the plugin." );
 		break;
 	}
         }
@@ -130,14 +130,14 @@ void PinningPlugin::render( const OFX::RenderArguments &args )
             }
 			default:
 			{
-				COUT_ERROR( "Bit depth (" << mapBitDepthEnumToString(dstBitDepth) << ") not recognized by the plugin." );
+				TUTTLE_COUT_ERROR( "Bit depth (" << mapBitDepthEnumToString(dstBitDepth) << ") not recognized by the plugin." );
 				break;
 			}
         }
     }
 	else
 	{
-		COUT_ERROR( "Pixel components (" << mapPixelComponentEnumToString(dstComponents) << ") not supported by the plugin." );
+		TUTTLE_COUT_ERROR( "Pixel components (" << mapPixelComponentEnumToString(dstComponents) << ") not supported by the plugin." );
 	}
 }
 

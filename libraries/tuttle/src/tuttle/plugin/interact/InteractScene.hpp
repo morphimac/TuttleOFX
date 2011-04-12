@@ -90,7 +90,7 @@ private:
 	bool drawSelection( const OFX::DrawArgs& args );
 
 	void translate( const Point2& vec );
-	void rotate( const Point2& center, const Scalar angle );
+        void rotate( const Point2& center, const Scalar angle );
         void scale( const Point2& center, const Point2& factor );
 };
 

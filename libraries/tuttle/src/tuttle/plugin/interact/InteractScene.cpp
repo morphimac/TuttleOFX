@@ -94,12 +94,13 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
                     std::cout<<"translate"<<std::endl;
                         translate( penPosition - _beginPenPosition );
 			break;
-		}
+                }
 		case eMotionRotate:
                 {
-                        if( _manipulator )
+                        //if( _manipulator )
                         {
                             using namespace boost::math;
+
                             /*
                                 a² = b² + c² - 2bc * cos(alpha)
                                 alpha = -arccos( (a² - b² - c²) / 2bc )
@@ -115,7 +116,7 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
 		}
 		case eMotionScale:
                 {
-                        if( _manipulator )
+                        //if( _manipulator )
                             std::cout<<"scale"<<std::endl;
                             //scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
 			break;
@@ -312,7 +313,7 @@ bool InteractScene::drawSelection( const OFX::DrawArgs& args )
 void InteractScene::translate( const Point2& vec )
 {
 	//TUTTLE_COUT_VAR2( vec.x, vec.y );
-    /*
+
 	switch( _motionType._axis )
 	{
 		case eAxisXY:
@@ -350,7 +351,7 @@ void InteractScene::translate( const Point2& vec )
 			break;
 		}
 	}
-    */
+    /*
     ///////////TODO-vince //////////////////
     std::cout<<"translating"<<std::endl;
 
@@ -366,7 +367,7 @@ void InteractScene::translate( const Point2& vec )
     }
 
     ///////////////////////////////////////
-
+*/
 
 }
 
