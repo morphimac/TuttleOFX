@@ -19,6 +19,7 @@ inline boost::gil::point2<F> transform( const Perspective<F>& t, const boost::gi
         bounded_vector<F,3> pIn;
 
 	F hCenter = ((0.5*t._height)/t._width); ///@todo tuttle: modify the matrix instead
+
 	pIn[0] = (src.x / t._width) - 0.5;
 	pIn[1] = (src.y / t._width) - hCenter;
 	pIn[2] = 1.0;
@@ -26,8 +27,10 @@ inline boost::gil::point2<F> transform( const Perspective<F>& t, const boost::gi
 	bounded_vector<F,3> pOut = prod( t._matrix, pIn );
 
 	boost::gil::point2<F> res;
-	res.x = pOut[0] / pOut[2];
-	res.y = pOut[1] / pOut[2];
+        res.x = pOut[0] / pOut[2];
+        res.y = pOut[1] / pOut[2];
+        //res.x = (t._matrix(0, 0) * pIn[0] + t._matrix(0, 1) * pIn[1] + t._matrix(0, 2)) / (t._matrix(2, 0) * pIn[0] + t._matrix(2, 1) * pIn[1] + t._matrix(2, 2));
+        //res.y = (t._matrix(1, 0) * pIn[0] + t._matrix(1, 1) * pIn[1] + t._matrix(1, 2)) / (t._matrix(2, 0) * pIn[0] + t._matrix(2, 1) * pIn[1] + t._matrix(2, 2));
 
 	res.x = (res.x + 0.5) * t._width;
 	res.y = (res.y + hCenter) * t._width;
@@ -48,7 +51,7 @@ inline boost::gil::point2<F> transform( const Perspective<F>& t, const boost::gi
 template <typename F, typename F2>
 inline boost::gil::point2<F> transform( const Bilinear<F>& t, const boost::gil::point2<F2>& src )
 {
-	boost::gil::point2<F> res;
+        boost::gil::point2<F> res;
 
 	F hCenter = ((0.5*t._height)/t._width);
 	boost::gil::point2<F> in( (src.x / t._width) - 0.5, (src.y / t._width) - hCenter );

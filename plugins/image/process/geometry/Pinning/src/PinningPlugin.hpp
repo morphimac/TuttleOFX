@@ -63,17 +63,19 @@ public:
 
 	OFX::ChoiceParam*  _paramMethod;
 	OFX::ChoiceParam*  _paramInterpolation;
+        OFX::BooleanParam*  _paramInverse;
+
         OFX::ChoiceParam*  _ParamManipulatorMode;
 	OFX::BooleanParam*  _paramOverlay;
 
-
+/*
     //TODO-vince //
     OFX::GroupParam* _paramGroupCentre;
     OFX::Double2DParam* _paramPointCentre;
         OFX::BooleanParam*  _paramOverlayCentre;
         OFX::RGBParam*  _paramOverlayCentreColor;
    ///////////////////
-
+*/
 
     OFX::GroupParam* _paramGroupIn;
     OFX::Double2DParam* _paramPointIn0;
@@ -101,7 +103,7 @@ public:
 	OFX::Double2DParam* _paramBilMatrixRow0;
 	OFX::Double2DParam* _paramBilMatrixRow1;
 	OFX::Double2DParam* _paramBilMatrixRow2;
-	OFX::Double2DParam* _paramBilMatrixRow3;
+        OFX::Double2DParam* _paramBilMatrixRow3;
 };
 
 }

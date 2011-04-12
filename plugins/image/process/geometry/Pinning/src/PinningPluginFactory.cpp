@@ -80,6 +80,10 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	overlay->setLabel( "Overlay" );
 	overlay->setDefault( true );
 
+        OFX::BooleanParamDescriptor* inverse = desc.defineBooleanParam( kParamInverse );
+        inverse->setLabel( "Inverse" );
+        inverse->setDefault( false );
+
         //TODO-vince///////////
         //////////////////// Transform Centre Point ////////////////////
         OFX::GroupParamDescriptor* groupCentre = desc.defineGroupParam( kParamGroupCentre );
@@ -106,9 +110,6 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         ouverlayCentreColor->setHint( "Centre point overlay color" );
         ouverlayCentreColor->setDefault( 0.0, 1.0, 0.0 );
         ouverlayCentreColor->setParent( groupCentre );
-
-        /////////////////////////////////////
-
 
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );

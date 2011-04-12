@@ -29,6 +29,7 @@ enum EParamInterpolation
 };
 
 const static std::string kParamOverlay = "overlay";
+const static std::string kParamInverse = "inverse";
 
 const static std::string kParamGroupCentre = "groupCentre";
 const static std::string kParamPointCentre = "pCentre";
