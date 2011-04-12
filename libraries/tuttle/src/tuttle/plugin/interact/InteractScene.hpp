@@ -51,9 +51,9 @@ private:
 	Point2 _beginPenPosition;
 
 	bool _multiSelectionEnabled;
-        bool _creatingSelection;
-        InteractObject* _manipulator;
-        IColor* _manipulatorColor;
+	bool _creatingSelection;
+	InteractObject* _manipulator;
+	IColor* _manipulatorColor;
 	bool _hasSelection;
 	SelectedObjectVector _selected;
 	OfxRectD _selectionRect;
@@ -62,17 +62,17 @@ public:
 	InteractObjectsVector&       getObjects()       { return _objects; }
 	const InteractObjectsVector& getObjects() const { return _objects; }
 	
-        void push_back( InteractObject* obj, IsActiveFunctor* isActive = new AlwaysActiveFunctor<>(), IColor* color = new Color() )
-        {
-                _objects.push_back( obj );
-                _isActive.push_back( isActive );
-                _colors.push_back( color );
-        }
-        void setManipulator( InteractObject* obj, IColor* color = new Color() )
-        {
-            _manipulator = obj;
-            _manipulatorColor = color;
-        }
+	void push_back( InteractObject* obj, IsActiveFunctor* isActive = new AlwaysActiveFunctor<>(), IColor* color = new Color() )
+	{
+		_objects.push_back( obj );
+		_isActive.push_back( isActive );
+		_colors.push_back( color );
+	}
+	void setManipulator( InteractObject* obj, IColor* color = new Color() )
+	{
+		_manipulator = obj;
+		_manipulatorColor = color;
+	}
 
 
 	bool draw( const OFX::DrawArgs& args );
@@ -90,8 +90,8 @@ private:
 	bool drawSelection( const OFX::DrawArgs& args );
 
 	void translate( const Point2& vec );
-        void rotate( const Point2& center, const Scalar angle );
-        void scale( const Point2& center, const Point2& factor );
+	void rotate( const Point2& center, const Scalar angle );
+	void scale( const Point2& center, const Point2& factor );
 };
 
 }

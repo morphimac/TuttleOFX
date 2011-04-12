@@ -76,6 +76,14 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	interpolation->setDefault( 1 );
 	interpolation->setHint( "Interpolation method" );
 
+        OFX::PushButtonParamDescriptor* setToCornersIn = desc.definePushButtonParam( kParamSetToCornersIn);
+        setToCornersIn->setLabel( "Set In" );
+        setToCornersIn->setHint("Set to corners in points");
+
+        OFX::PushButtonParamDescriptor* setToCornersOut = desc.definePushButtonParam( kParamSetToCornersOut);
+        setToCornersOut->setLabel( "Set Out" );
+        setToCornersOut->setHint("Set to corners out points");
+
 	OFX::BooleanParamDescriptor* overlay = desc.defineBooleanParam( kParamOverlay );
 	overlay->setLabel( "Overlay" );
 	overlay->setDefault( true );
@@ -88,6 +96,7 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
         //////////////////// Transform Centre Point ////////////////////
         OFX::GroupParamDescriptor* groupCentre = desc.defineGroupParam( kParamGroupCentre );
         groupCentre->setLabel( "Centre point" );
+        groupCentre->setOpen(false);
 
         OFX::ChoiceParamDescriptor* manipulatorMode = desc.defineChoiceParam( kParamManipulatorMode );
         manipulatorMode->appendOption( kParamManipulatorModeTranslate );
@@ -114,6 +123,7 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	//////////////////// IN Points ////////////////////
 	OFX::GroupParamDescriptor* groupIn = desc.defineGroupParam( kParamGroupIn );
 	groupIn->setLabel( "Input points" );
+        groupIn->setOpen(false);
 
 	OFX::Double2DParamDescriptor* pIn0 = desc.defineDouble2DParam( kParamPointIn + "0" );
 	pIn0->setLabel( "In 0" );
@@ -153,6 +163,7 @@ void PinningPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	//////////////////// OUT Points ////////////////////
 	OFX::GroupParamDescriptor* groupOut = desc.defineGroupParam( kParamGroupOut );
 	groupOut->setLabel( "Output points" );
+        groupOut->setOpen(false);
 
 	OFX::Double2DParamDescriptor* pOut0 = desc.defineDouble2DParam( kParamPointOut + "0" );
 	pOut0->setLabel( "Out 0" );

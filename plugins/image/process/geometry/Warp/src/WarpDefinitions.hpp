@@ -9,14 +9,14 @@ namespace plugin {
 namespace warp {
 
 const static std::size_t kMaxNbPoints = 10;
-const static std::size_t kPasBezier = 0.2;
+//const static std::size_t kPasBezier = 0.2;
 static const float lineWidth = 0.5;
 static const float pointWidth = 1.5;
 static const int seuil = 15;
 
 static const float positionOrigine = -200.0;
 
-static const int nbCoeffBezier = 100;
+//static const int nbCoeffBezier = 50;
 
 const static std::string kParamMethod = "method";
 const static std::string kParamMethodCreation = "creation";
@@ -34,6 +34,11 @@ const static std::string kParamOverlay = "overlay";
 const static std::string kParamInverse = "inverse";
 const static std::string kParamNbPoints = "nbPoints";
 const static std::string kParamReset = "reset";
+const static std::string kParamActivateWarp = "activateWarp";
+
+const static std::string kParamGroupSettings = "settings";
+const static std::string kParamNbPointsBezier = "Points Bezier";
+const static std::string kParamRigiditeTPS = "Rigidite TPS";
 
 const static std::string kParamGroupIn = "groupIn";
 const static std::string kParamPointIn = "pIn";

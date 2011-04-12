@@ -7,7 +7,7 @@
 #include <tuttle/plugin/image/ofxToGil.hpp>
 #include <tuttle/common/math/rectOp.hpp>
 
-#include <tuttle/plugin/global.hpp>
+#include <tuttle/plugin/globalPlugin.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -27,8 +27,8 @@ bool PointInteract::draw( const OFX::DrawArgs& args ) const
 	glEnable( GL_LINE_STIPPLE );
 	glLineWidth( getSelected() ? 4.0 : 1.0 );
 
-        glLineStipple( 1, 0xAAAA );
-        overlay::displayPointRect( p, margeCanonical );
+	glLineStipple( 1, 0xAAAA );
+	overlay::displayPointRect( p, margeCanonical );
 	glLineStipple( 1, 0xFFFF );
 	overlay::displayCross( p, 3.0 * margeCanonical );
 

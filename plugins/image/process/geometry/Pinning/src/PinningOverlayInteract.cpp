@@ -166,6 +166,7 @@ bool PinningOverlayInteract::penUp( const OFX::PenArgs& args )
 {
     return _interactScene.penUp( args );
 }
+
 /*
 void PinningOverlayInteract::calculCentre( const std::vector< bounded_vector<double, 2> > pSelect)
 {

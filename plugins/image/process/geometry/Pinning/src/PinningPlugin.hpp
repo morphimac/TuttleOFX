@@ -33,7 +33,7 @@ struct PinningProcessParams
 	Bilinear<Scalar> _bilinear;
 
 	EParamInterpolation _interpolation;
-	EParamMethod _method;
+        EParamMethod _method;
 };
 
 /**
@@ -43,16 +43,15 @@ class PinningPlugin : public OFX::ImageEffect
 {
 public:
 	typedef double Scalar;
+        typedef boost::gil::point2<double> Point2;
 public:
     PinningPlugin( OfxImageEffectHandle handle );
 
 public:
-	PinningProcessParams<Scalar> getProcessParams( const OfxTime time, const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
 
+    PinningProcessParams<Scalar> getProcessParams( const OfxTime time, const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
     void changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName );
-
-	bool isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime );
-
+    bool isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime );
     void render( const OFX::RenderArguments &args );
 	
 	
@@ -63,6 +62,8 @@ public:
 
 	OFX::ChoiceParam*  _paramMethod;
 	OFX::ChoiceParam*  _paramInterpolation;
+        OFX::PushButtonParam* _paramSetToCornersIn;
+        OFX::PushButtonParam* _paramSetToCornersOut;
         OFX::BooleanParam*  _paramInverse;
 
         OFX::ChoiceParam*  _ParamManipulatorMode;
