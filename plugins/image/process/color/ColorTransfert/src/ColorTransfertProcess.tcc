@@ -15,6 +15,8 @@
 #include <boost/mpl/erase.hpp>
 #include <boost/mpl/find.hpp>
 
+#include <boost/numeric/ublas/vector.hpp>
+
 namespace tuttle {
 namespace plugin {
 namespace colorTransfert {
@@ -28,7 +30,6 @@ struct ComputeParams
 	typedef typename color_space_type<View>::type Colorspace;
 	typedef pixel<CType, layout<Colorspace> > CPixel;
 
-	//CPixel sum;
 	Pixel average;
 };
 
@@ -38,7 +39,7 @@ ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect
 , _plugin( effect )
 {
         _clipSrcRef = effect.fetchClip( kOfxImageEffectSimpleSourceClipName );
-        _clipDstRef = effect.fetchClip( kOfxImageEffectSimpleSourceClipName );
+        _clipDstRef = effect.fetchClip( kOfxImageEffectOutputClipName );
 }
 
 template<class View>
@@ -51,7 +52,6 @@ void ColorTransfertProcess<View>::computeAverage( const View& image )
 	typedef pixel<boost::gil::bits64f, layout<Colorspace> > CPixel;
 	CPixel sum;
 	pixel_zeros_t<CPixel>( )( sum );
-	//TUTTLE_COUT_VAR2( sum[0], output.average[0]);
 	const std::size_t nbPixels = image.width() * image.height();
 
 	for( int y = 0; y < image.height(); ++y )
@@ -65,7 +65,34 @@ void ColorTransfertProcess<View>::computeAverage( const View& image )
 		}
 	}
 	output.average  = pixel_divides_scalar_t<CPixel, double>() ( sum, nbPixels );
-	TUTTLE_COUT_VAR2( sum[0], output.average[0]);
+	//TUTTLE_COUT_VAR2( sum[0], output.average[0]);
+}
+
+template<class View>
+void ColorTransfertProcess<View>::vectorRender( const View& imageSrc, const View& imageDst ){
+	using namespace boost::numeric::ublas;
+	const std::size_t nbPixels = imageSrc.width() * imageSrc.height();
+	vector<Pixel> vec;
+	vec.resize( nbPixels );
+	int cptPixels = 0;
+
+	for( int y = 0; y < imageSrc.height(); ++y )
+	{
+		typename View::x_iterator src_it = imageSrc.x_at( 0, y );
+		typename View::x_iterator dst_it = imageDst.x_at( 0, y );
+
+		for( int x = 0; x < imageSrc.width(); ++x, ++src_it, ++dst_it, ++cptPixels )
+		{
+			Pixel pix;
+			pixel_assigns_t<Pixel, Pixel>( )( * dst_it, pix);
+			pixel_minus_assign_t<Pixel, Pixel>( ) ( pix, ( * src_it) ); 
+			vec( cptPixels ) = pix;
+		}
+
+                /*TUTTLE_COUT_VAR2(imageDst.x_at(367, y), imageDst.x_at(123456, y));
+		TUTTLE_COUT_VAR2(imageSrc.x_at(367, y), imageSrc.x_at(123456, y));
+                TUTTLE_COUT_VAR2(vec(367)[0], vec(123456)[0]);*/
+	}
 }
 
 template<class View>
@@ -108,6 +135,7 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
         computeAverage( this->_dstRefView );
 
 	// now analyse the differences
+        vectorRender( this->_srcRefView, this->_dstRefView );
 	
 }
 

@@ -41,7 +41,7 @@ public:
         OFX::Clip* _clipSrcRef; ///< Source image clip 2
         OFX::Clip* _clipDstRef; ///< Source image clip 3
 
-        OFX::IntParam* _paramWeight; ///< Paramètre weight
+        OFX::DoubleParam* _paramWeight; ///< Paramètre weight
 
 };
 

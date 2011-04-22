@@ -6,6 +6,7 @@
 #include <tuttle/plugin/image/gil/globals.hpp>
 #include <tuttle/plugin/ImageGilFilterProcessor.hpp>
 #include <tuttle/plugin/exceptions.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 
 #include <ofxsImageEffect.h>
 #include <ofxsMultiThread.h>
@@ -26,6 +27,7 @@ namespace colorTransfert {
  * @brief ColorTransfert process
  *
  */
+using namespace boost::numeric::ublas;
 template<class View>
 class ColorTransfertProcess : public ImageGilFilterProcessor<View>
 {
@@ -56,7 +58,8 @@ public:
         void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 
 private:
-        void computeAverage(const View& image);
+        void computeAverage( const View& image );
+        void vectorRender( const View& imageSrc, const View& imageDst );
 };
 
 }
