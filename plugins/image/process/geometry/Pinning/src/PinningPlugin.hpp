@@ -64,19 +64,19 @@ public:
 	OFX::ChoiceParam*  _paramInterpolation;
         OFX::PushButtonParam* _paramSetToCornersIn;
         OFX::PushButtonParam* _paramSetToCornersOut;
-	OFX::BooleanParam*  _paramOverlay;
         OFX::BooleanParam*  _paramInverse;
 
         OFX::ChoiceParam*  _ParamManipulatorMode;
+	OFX::BooleanParam*  _paramOverlay;
 
-
+/*
     //TODO-vince //
     OFX::GroupParam* _paramGroupCentre;
     OFX::Double2DParam* _paramPointCentre;
         OFX::BooleanParam*  _paramOverlayCentre;
         OFX::RGBParam*  _paramOverlayCentreColor;
    ///////////////////
-
+*/
 
     OFX::GroupParam* _paramGroupIn;
     OFX::Double2DParam* _paramPointIn0;

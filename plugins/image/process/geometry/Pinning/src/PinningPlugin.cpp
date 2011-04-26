@@ -25,20 +25,20 @@ PinningPlugin::PinningPlugin( OfxImageEffectHandle handle )
 
 	_paramMethod        = fetchChoiceParam( kParamMethod );
 	_paramInterpolation = fetchChoiceParam( kParamInterpolation );
+        _ParamManipulatorMode = fetchChoiceParam( kParamManipulatorMode );
         _paramSetToCornersIn= fetchPushButtonParam( kParamSetToCornersIn );
         _paramSetToCornersOut= fetchPushButtonParam( kParamSetToCornersOut );
         _paramOverlay       = fetchBooleanParam( kParamOverlay );
         _paramInverse       = fetchBooleanParam( kParamInverse );
 
-        _ParamManipulatorMode = fetchChoiceParam( kParamManipulatorMode );
 
-            //TODO-vince //
+         /*   //TODO-vince //
         _paramGroupCentre       = fetchGroupParam( kParamGroupCentre );
         _paramPointCentre       = fetchDouble2DParam( kParamPointCentre);
         _paramOverlayCentre      = fetchBooleanParam( kParamOverlayCentre );
         _paramOverlayCentreColor = fetchRGBParam( kParamOverlayCentreColor );
         ///////////////////////
-
+        */
 
 	_paramGroupIn        = fetchGroupParam( kParamGroupIn );
 	_paramPointIn0       = fetchDouble2DParam( kParamPointIn + "0" );
@@ -296,6 +296,18 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 				vector<double> x( n );
 				vector<double> b( n );
 
+				bounded_vector<double, 2> pIn[4];
+				_paramPointIn0->getValue( pIn[0][0], pIn[0][1] );
+				_paramPointIn1->getValue( pIn[1][0], pIn[1][1] );
+				_paramPointIn2->getValue( pIn[2][0], pIn[2][1] );
+				_paramPointIn3->getValue( pIn[3][0], pIn[3][1] );
+
+				bounded_vector<double, 2> pOut[4];
+				_paramPointOut0->getValue( pOut[0][0], pOut[0][1] );
+				_paramPointOut1->getValue( pOut[1][0], pOut[1][1] );
+				_paramPointOut2->getValue( pOut[2][0], pOut[2][1] );
+                                _paramPointOut3->getValue( pOut[3][0], pOut[3][1] );
+
 				/////////////////////
 				// fill A and b... //
 				for( int i = 0; i < 4; ++i )
@@ -314,23 +326,46 @@ void PinningPlugin::changedParam( const OFX::InstanceChangedArgs& args, const st
 					b(i+4) = pOut[i][1];
 				}
 
-				//COUT_VAR( A );
 				
+                                /*
+				for( int i = 0; i < 4; ++i )
+				{
+                                */
+				/*
+					* 	c00*xi + c01*yi + c02
+					* ui = ---------------------
+					* 	c20*xi + c21*yi + c22
+					*
+					* 	c10*xi + c11*yi + c12
+					* vi = ---------------------
+					* 	c20*xi + c21*yi + c22
+				*/
+                                    /*
+
+					x(i)   = ( b(0)*(pIn[i][0]) + b(1)*(pIn[i][1]) + b(2) ) / ( b(6)*(pIn[i][0]) + b(7)*(pIn[i][1]) + 1 );
+					x(i+4) = ( b(3)*(pIn[i][0]) + b(4)*(pIn[i][1]) + b(5) ) / ( b(6)*(pIn[i][0]) + b(7)*(pIn[i][1]) + 1 );
+					
+				}
+                                */
+
+
+
+				//COUT_VAR( A );
+
+				
+
 				lu_factorize( A, P );
 				// Now A and P contain the LU factorization of A
-				x = b;
+                                x = b;
 				lu_substitute( A, P, x );
 				// Now x contains the solution.
 
-
-                                //solve( A, b, x, DECOMP_SVD );
-                                //((double*)M.data)[8] = 1.;
-
+				
 				_paramPerspMatrixRow0->setValue( x( 0 ), x( 1 ), x( 2 ) );
 				_paramPerspMatrixRow1->setValue( x( 3 ), x( 4 ), x( 5 ) );
 				_paramPerspMatrixRow2->setValue( x( 6 ), x( 7 ), 1 );
 
-				break;
+                                break;
 			}
 			case eParamMethodBilinear:
 			{

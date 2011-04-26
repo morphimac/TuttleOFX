@@ -16,7 +16,7 @@ template <typename F, typename F2>
 inline boost::gil::point2<F> transform( const Perspective<F>& t, const boost::gil::point2<F2>& src )
 {
 	using namespace boost::numeric::ublas;
-	bounded_vector<F,3> pIn;
+        bounded_vector<F,3> pIn;
 
 	F hCenter = ((0.5*t._height)/t._width); ///@todo tuttle: modify the matrix instead
 
