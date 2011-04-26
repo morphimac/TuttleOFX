@@ -90,42 +90,46 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         OfxPointD pOut2 = _plugin->_paramPointOut[c+1]->getValue();
 
                         //Points de la tangente
-                        OfxPointD tIn1 = _plugin->_paramPointTgtIn[(2*c)]->getValue();
-                        OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+1]->getValue();
+                        if(longDown == false)
+                        {
+                            OfxPointD tIn1 = _plugin->_paramPointTgtIn[(2*c)]->getValue();
+                            OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+1]->getValue();
 
-                        OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)]->getValue();
-                        OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+1]->getValue();
+                            OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)]->getValue();
+                            OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+1]->getValue();
 
-                        //Création et remplissage du tableau necessaire à Bezier
-                        std::vector< point2<double> > tabPtsIn;
-                        tabPtsIn.push_back( point2<double>( pIn1.x, pIn1.y ) );
-                        tabPtsIn.push_back( point2<double>( tIn1.x, tIn1.y ) );
-                        tabPtsIn.push_back( point2<double>( tIn2.x, tIn2.y ) );
-                        tabPtsIn.push_back( point2<double>( pIn2.x, pIn2.y ) );
 
-                        std::vector< point2<double> > tabPtsOut;
-                        tabPtsOut.push_back( point2<double>( pOut1.x, pOut1.y ) );
-                        tabPtsOut.push_back( point2<double>( tOut1.x, tOut1.y ) );
-                        tabPtsOut.push_back( point2<double>( tOut2.x, tOut2.y ) );
-                        tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
+                            //Création et remplissage du tableau necessaire à Bezier
+                            std::vector< point2<double> > tabPtsIn;
+                            tabPtsIn.push_back( point2<double>( pIn1.x, pIn1.y ) );
+                            tabPtsIn.push_back( point2<double>( tIn1.x, tIn1.y ) );
+                            tabPtsIn.push_back( point2<double>( tIn2.x, tIn2.y ) );
+                            tabPtsIn.push_back( point2<double>( pIn2.x, pIn2.y ) );
 
-                        //Choix de la couleur des tangentes dans nuke
-                        double rIn,vIn,bIn;
-                        _plugin->_paramOverlayTgtInColor->getValue(rIn,vIn,bIn);
-                        glColor3f(rIn,vIn,bIn);
+                            std::vector< point2<double> > tabPtsOut;
+                            tabPtsOut.push_back( point2<double>( pOut1.x, pOut1.y ) );
+                            tabPtsOut.push_back( point2<double>( tOut1.x, tOut1.y ) );
+                            tabPtsOut.push_back( point2<double>( tOut2.x, tOut2.y ) );
+                            tabPtsOut.push_back( point2<double>( pOut2.x, pOut2.y ) );
 
-                        //Si "overlay tangente" est sur afficher
-                        if(_plugin->_paramOverlayTgtIn->getValue() && longDown == false)
-                            bezier::drawBezier( tabPtsIn, _plugin->_paramNbPointsBezier->getValue(), rIn, vIn, bIn);
+                            //Choix de la couleur des tangentes dans nuke
+                            double rIn,vIn,bIn;
+                            _plugin->_paramOverlayTgtInColor->getValue(rIn,vIn,bIn);
+                            glColor3f(rIn,vIn,bIn);
 
-                        //Choix de la couleur des tangentes dans nuke
-                        double rOut,vOut,bOut;
-                        _plugin->_paramOverlayTgtOutColor->getValue(rOut,vOut,bOut);
-                        glColor3f(rOut,vOut,bOut);
+                            //Si "overlay tangente" est sur afficher
+                            if(_plugin->_paramOverlayTgtIn->getValue())
+                                bezier::drawBezier( tabPtsIn, _plugin->_paramNbPointsBezier->getValue(), rIn, vIn, bIn);
 
-                        //Si "overlay tangente" est sur afficher
-                        if(_plugin->_paramOverlayTgtOut->getValue() && longDown == false)
-                            bezier::drawBezier( tabPtsOut, _plugin->_paramNbPointsBezier->getValue(),rOut, vOut, bOut);
+                            //Choix de la couleur des tangentes dans nuke
+                            double rOut,vOut,bOut;
+                            _plugin->_paramOverlayTgtOutColor->getValue(rOut,vOut,bOut);
+                            glColor3f(rOut,vOut,bOut);
+
+                            //Si "overlay tangente" est sur afficher
+                            if(_plugin->_paramOverlayTgtOut->getValue())
+                                bezier::drawBezier( tabPtsOut, _plugin->_paramNbPointsBezier->getValue(),rOut, vOut, bOut);
+                        }
                 }
         }
         displaySomething |= _interactScene.draw( args );
