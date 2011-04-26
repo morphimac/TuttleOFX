@@ -38,12 +38,12 @@ ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect
 : ImageGilFilterProcessor<View>( effect )
 , _plugin( effect )
 {
-        _clipSrcRef = effect.fetchClip( kOfxImageEffectSimpleSourceClipName );
-        _clipDstRef = effect.fetchClip( kOfxImageEffectOutputClipName );
+        _clipSrcRef = effect.fetchClip( kClipSrcRef );
+        _clipDstRef = effect.fetchClip( kClipDstRef );
 }
 
 template<class View>
-void ColorTransfertProcess<View>::computeAverage( const View& image )
+double ColorTransfertProcess<View>::computeAverage( const View& image )
 {
 	ComputeParams<View, boost::gil::bits64f> output;
 	pixel_zeros_t<Pixel>( )( output.average );
@@ -65,17 +65,19 @@ void ColorTransfertProcess<View>::computeAverage( const View& image )
 		}
 	}
 	output.average  = pixel_divides_scalar_t<CPixel, double>() ( sum, nbPixels );
-	//TUTTLE_COUT_VAR2( sum[0], output.average[0]);
+	
+	return output.average[0];
 }
 
 template<class View>
-void ColorTransfertProcess<View>::vectorRender( const View& imageSrc, const View& imageDst ){
+void ColorTransfertProcess<View>::vectorRender( const View& imageSrc, const View& imageDst, const View& source, const View& output, double srcAverage, double dstAverage ){
 	using namespace boost::numeric::ublas;
 	const std::size_t nbPixels = imageSrc.width() * imageSrc.height();
 	vector<Pixel> vec;
 	vec.resize( nbPixels );
 	int cptPixels = 0;
 
+	// calcul du vecteur entre srcRef et dstRef
 	for( int y = 0; y < imageSrc.height(); ++y )
 	{
 		typename View::x_iterator src_it = imageSrc.x_at( 0, y );
@@ -93,6 +95,23 @@ void ColorTransfertProcess<View>::vectorRender( const View& imageSrc, const View
 		TUTTLE_COUT_VAR2(imageSrc.x_at(367, y), imageSrc.x_at(123456, y));
                 TUTTLE_COUT_VAR2(vec(367)[0], vec(123456)[0]);*/
 	}
+	
+	cptPixels = 0;
+	// application du vecteur 
+	for( int y = 0; y < imageSrc.height(); ++y )
+	{
+		typename View::x_iterator src_it = source.x_at( 0, y );
+		typename View::x_iterator dst_it = output.x_at( 0, y );
+
+		for( int x = 0; x < imageSrc.width(); ++x, ++src_it, ++dst_it, ++cptPixels )
+		{
+			Pixel pix;
+			pixel_assigns_t<Pixel, Pixel>( )( * src_it, pix);
+			pixel_plus_assign_t<Pixel, Pixel>( ) ( pix, vec( cptPixels ) ); 
+			//pixel_minus_assign_t<Pixel, Pixel>( ) ( pix, srcAverage );
+			pixel_plus_assign_t<Pixel, Pixel>( ) ( * dst_it, pix ); 	
+		}
+	}	
 }
 
 template<class View>
@@ -131,11 +150,15 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 	this->_dstRefView = tuttle::plugin::getView<View>( this->_dstRef.get(), _dstRefPixelRod );
 
         // analyse srcRef and dstRef
-        computeAverage( this->_srcRefView );
-        computeAverage( this->_dstRefView );
+	double srcRefAverage = 0.0, dstRefAverage = 0.0;
+
+	srcRefAverage = computeAverage( this->_srcRefView );
+        dstRefAverage = computeAverage( this->_dstRefView );
+
+	TUTTLE_COUT_VAR2(srcRefAverage, dstRefAverage);
 
 	// now analyse the differences
-        vectorRender( this->_srcRefView, this->_dstRefView );
+        vectorRender( this->_srcRefView, this->_dstRefView, this->_srcView, this->_dstView, srcRefAverage, dstRefAverage );
 	
 }
 

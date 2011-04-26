@@ -9,6 +9,8 @@ namespace plugin {
 namespace colorTransfert {
 
 const static std::string kParamHelpButton = "Help";
+static const std::string kClipSrcRef( "srcRef" );
+static const std::string kClipDstRef( "dstRef" );
 
 
 }
