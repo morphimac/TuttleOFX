@@ -60,6 +60,7 @@ public:
                 Point2 p = this->getPoint();
                 Point2 pA = _paramTanA.getPoint();
                 Point2 pB = _paramTanB.getPoint();
+
                 //TUTTLE_COUT("Fonction SetPoint");
                 //TUTTLE_COUT(_selectType);
                 switch( _selectType)
@@ -67,24 +68,22 @@ public:
                     case eSelectTypeCenter:
                     {
                         Parent::setPoint(x,y);
-                        // _paramTanA.setPoint(bla)
-                        // _paramTanB.setPoint(bla)
+                        _paramTanA.setPoint(x+(pA.x - p.x),y+(pA.y - p.y));
+                        _paramTanB.setPoint(x-(pA.x - p.x),y-(pA.y - p.y));
                         break;
                     }
                     case eSelectTypeTanA:
                     {
-                        Point2 p = this->getPoint();
-                        _paramTanA.setPoint(x,y);// recuperer la distance entre le point et le point de tangente
-                        // symétrique par rapport au centre
-                        // B.setPoint(xs,ys);
+                        Point2 p = this->getPoint(); // Le point central
+                        _paramTanA.setPoint(x,y);
+                        _paramTanB.setPoint(2*p.x - pA.x, 2*p.y - pA.y);
                         break;
                     }
                     case eSelectTypeTanB:
                     {
-                        Point2 p = this->getPoint();
-                        _paramTanB.setPoint(x,y);// recuperer la distance entre le point et le point de tangente
-                        // symétrique par rapport au centre
-                        // A.setPoint(xs,ys);
+                        Point2 p = this->getPoint(); //Le point central
+                        _paramTanB.setPoint(x,y);
+                        _paramTanA.setPoint(2*p.x - pB.x, 2*p.y - pB.y);
                         break;
                     }
                     case eSelectTypeNone:

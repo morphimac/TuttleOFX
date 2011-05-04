@@ -103,10 +103,10 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	if( nbPoints <= 1 )
 	{
 		/// @todo: in this case it's just a translation...
-		TUTTLE_TCOUT_WITHINFOS( "TODO !" );
+                //TUTTLE_TCOUT_WITHINFOS( "TODO !" );
 	}
 	const std::size_t nbBezierPoints = _paramNbPointsBezier->getValue( );
-	TUTTLE_TCOUT_VAR( nbBezierPoints );
+        //TUTTLE_TCOUT_VAR( nbBezierPoints );
 	if( nbPoints == 0 )
 	{
 		return params;
@@ -135,8 +135,8 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 		params._tgtPointsOut.push_back( tOut2 );
 
 		// Creation et remplissage du tableau necessaire a Bezier
-		TUTTLE_TCOUT_INFOS;
-		TUTTLE_TCOUT_VAR( c );
+                //TUTTLE_TCOUT_INFOS;
+                //TUTTLE_TCOUT_VAR( c );
 		{
 			std::vector< Point2 > tabPtsIn;
 			tabPtsIn.push_back( pIn1 );
@@ -157,7 +157,7 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 			params._bezierOut.push_back( pOut1 );
 			bezier::bezierSubdivide( tabPtsOut, nbBezierPoints, params._bezierOut );
 		}
-		TUTTLE_TCOUT_INFOS;
+                //TUTTLE_TCOUT_INFOS;
 	}
 	const std::size_t c = nbPoints - 1;
 	Point2 pIn  = ofxToGil( _paramPointIn[c]->getValue() );
@@ -167,12 +167,12 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	params._outPoints.push_back( pIn );
 	params._bezierOut.push_back( pOut );
 
-	TUTTLE_TCOUT_VAR( nbBezierPoints );
-	TUTTLE_TCOUT_VAR( nbPoints );
-	TUTTLE_TCOUT_VAR( params._bezierIn.size() );
-	TUTTLE_TCOUT_VAR( params._bezierOut.size() );
-	TUTTLE_TCOUT_VAR( params._inPoints.size() );
-	TUTTLE_TCOUT_VAR( params._outPoints.size() );
+        //TUTTLE_TCOUT_VAR( nbBezierPoints );
+        //TUTTLE_TCOUT_VAR( nbPoints );
+        //TUTTLE_TCOUT_VAR( params._bezierIn.size() );
+        //TUTTLE_TCOUT_VAR( params._bezierOut.size() );
+        //TUTTLE_TCOUT_VAR( params._inPoints.size() );
+        //TUTTLE_TCOUT_VAR( params._outPoints.size() );
 	
 	if( _paramInverse->getValue() )
 	{

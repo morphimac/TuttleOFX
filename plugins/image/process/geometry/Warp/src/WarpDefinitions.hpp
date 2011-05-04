@@ -11,7 +11,7 @@ namespace warp {
 const static std::size_t kMaxNbPoints = 10;
 //const static std::size_t kPasBezier = 0.2;
 static const float lineWidth = 0.5;
-static const float pointWidth = 1.5;
+static const float pointWidth = 3.0;
 static const int seuil = 15;
 
 static const float positionOrigine = -200.0;

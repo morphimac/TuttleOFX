@@ -124,8 +124,8 @@ void TPS_Morpher<SCALAR>::setup( const std::vector< Point2 > pIn, const std::vec
 	_mat_K.resize( _nbPoints, _nbPoints );
 	_activateWarp = applyWarp;
 
-	TUTTLE_TCOUT_VAR( _pIn.size() );
-	TUTTLE_TCOUT_VAR( _pOut.size() );
+        //TUTTLE_TCOUT_VAR( _pIn.size() );
+        //TUTTLE_TCOUT_VAR( _pOut.size() );
 
 	BOOST_ASSERT( _pIn.size() == _pOut.size() );
 
@@ -202,23 +202,23 @@ void TPS_Morpher<SCALAR>::setup( const std::vector< Point2 > pIn, const std::vec
 		const Point2& pOut = _pOut[i];
 		_mat_V( i, 0 ) = pOut.x - pIn.x;
 		_mat_V( i, 1 ) = pOut.y - pIn.y;
-		TUTTLE_TCOUT_VAR2( pOut.x, pIn.x );
-		TUTTLE_TCOUT_VAR2( pOut.y, pIn.y );
+                //TUTTLE_TCOUT_VAR2( pOut.x, pIn.x );
+                //TUTTLE_TCOUT_VAR2( pOut.y, pIn.y );
 	}
 
 	_mat_V( _nbPoints + 0, 0 ) = _mat_V( _nbPoints + 1, 0 ) = _mat_V( _nbPoints + 2, 0 ) = 0.0;
 	_mat_V( _nbPoints + 0, 1 ) = _mat_V( _nbPoints + 1, 1 ) = _mat_V( _nbPoints + 2, 1 ) = 0.0;
 
-	TUTTLE_TCOUT("");
-	TUTTLE_TCOUT( "mtx_v" );
-	coutMat( std::cout, _mat_V );
-	TUTTLE_TCOUT("");
-	TUTTLE_TCOUT( "mtx_orig_k" );
-	coutMat( std::cout, _mat_K );
-	TUTTLE_TCOUT("");
-	TUTTLE_TCOUT( "mtx_l" );
-	coutMat( std::cout, _mat_L );
-	TUTTLE_TCOUT("");
+        //TUTTLE_TCOUT("");
+        //TUTTLE_TCOUT( "mtx_v" );
+        //coutMat( std::cout, _mat_V );
+        //TUTTLE_TCOUT("");
+        //TUTTLE_TCOUT( "mtx_orig_k" );
+        //coutMat( std::cout, _mat_K );
+        //TUTTLE_TCOUT("");
+        //TUTTLE_TCOUT( "mtx_l" );
+        //coutMat( std::cout, _mat_L );
+        //TUTTLE_TCOUT("");
 
 	// Solve the linear system "inplace"
 	permutation_matrix<Scalar> P( _nbPoints + 3 );
@@ -227,14 +227,14 @@ void TPS_Morpher<SCALAR>::setup( const std::vector< Point2 > pIn, const std::vec
 	lu_factorize( _mat_L, P );
 	lu_substitute( _mat_L, P, _mat_V );
 
-	TUTTLE_TCOUT_X( 10, "-");
-	TUTTLE_TCOUT( "mtx_v" );
-	coutMat( std::cout, _mat_V );
-	TUTTLE_TCOUT("");
-	TUTTLE_TCOUT( "mtx_l" );
-	coutMat( std::cout, _mat_L );
-	TUTTLE_TCOUT("");
-	TUTTLE_TCOUT_X( 80, "_");
+        //TUTTLE_TCOUT_X( 10, "-");
+        //TUTTLE_TCOUT( "mtx_v" );
+        //coutMat( std::cout, _mat_V );
+        //TUTTLE_TCOUT("");
+        //TUTTLE_TCOUT( "mtx_l" );
+        //coutMat( std::cout, _mat_L );
+        //TUTTLE_TCOUT("");
+        //TUTTLE_TCOUT_X( 80, "_");
 }
 
 template<typename SCALAR>
