@@ -49,15 +49,16 @@ struct ColorParams
 {
 	typedef typename View::value_type Pixel;
 	Pixel _vecAverage;
-        ColorParams(Pixel srcAverage, Pixel dstAverage, Pixel srcDeviation, Pixel dstDeviation)
+        ColorParams(const Pixel& srcAverage, const Pixel& dstAverage, const Pixel& srcDeviation, const Pixel& dstDeviation)
 	{
-                srcAverage -= srcDeviation;
-                dstAverage -= dstDeviation;
-                _vecAverage = dstAverage - srcAverage;
+                //srcAverage -= srcDeviation;
+                //dstAverage -= dstDeviation;
+                //_vecAverage = dstAverage - srcAverage;
 	}
-	Pixel operator()( const Pixel& p )
+	Pixel operator()( const Pixel& p ) const
 	{
-   		return p + _vecAverage;
+   		//return p + _vecAverage;
+		return p;
 	}
 };
 
@@ -147,18 +148,16 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 	this->_dstRefView = tuttle::plugin::getView<View>( this->_dstRef.get(), _dstRefPixelRod );
 
         // analyse srcRef and dstRef
-        Pixel srcRefAverage, dstRefAverage, srcRefDeviation, dstRefDeviation;
-        pixel_zeros_t<Pixel>( )( srcRefAverage );
-        pixel_zeros_t<Pixel>( )( dstRefAverage );
-        pixel_zeros_t<Pixel>( )( srcRefDeviation );
-        pixel_zeros_t<Pixel>( )( dstRefDeviation );
+        pixel_zeros_t<Pixel>( )( _srcRefAverage );
+        pixel_zeros_t<Pixel>( )( _dstRefAverage );
+        pixel_zeros_t<Pixel>( )( _srcRefDeviation );
+        pixel_zeros_t<Pixel>( )( _dstRefDeviation );
 
-        computeAverage( this->_srcRefView, srcRefAverage, srcRefDeviation );
-        computeAverage( this->_dstRefView, dstRefAverage, dstRefDeviation );
-        TUTTLE_COUT_VAR4(srcRefAverage[0], srcRefDeviation[0], dstRefAverage[0], dstRefDeviation[0]);
+        computeAverage( this->_srcRefView, _srcRefAverage, _srcRefDeviation );
+        computeAverage( this->_dstRefView, _dstRefAverage, _dstRefDeviation );
+        TUTTLE_COUT_VAR4(_srcRefAverage[0], _srcRefDeviation[0], _dstRefAverage[0], _dstRefDeviation[0]);
 
 	// now analyse the differences
-        //transform_pixels_progress( this->_srcRefView, this->_dstRefView, ColorParams<>( srcRefAverage, dstRefAverage, srcRefDeviation, dstRefDeviation ), *this );
 	
 }
 
@@ -171,31 +170,17 @@ template<class View>
 void ColorTransfertProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
 {
 	using namespace boost::gil;
-	OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
-	
-	for( int y = procWindowOutput.y1;
-			 y < procWindowOutput.y2;
-			 ++y )
-	{
-		typename View::x_iterator src_it = this->_srcView.x_at( procWindowOutput.x1, y );
-		typename View::x_iterator dst_it = this->_dstView.x_at( procWindowOutput.x1, y );
-		for( int x = procWindowOutput.x1;
-			 x < procWindowOutput.x2;
-			 ++x, ++src_it, ++dst_it )
-		{
-			(*dst_it) = (*src_it);
-		}
-		if( this->progressForward() )
-			return;
-	}
-	
-	const OfxRectI procWindowSrc = translateRegion( procWindowRoW, this->_srcPixelRod );
-	OfxPointI procWindowSize = { procWindowRoW.x2 - procWindowRoW.x1, procWindowRoW.y2 - procWindowRoW.y1 };
-	View src = subimage_view( this->_srcRefView, procWindowSrc.x1, procWindowSrc.y1, procWindowSize.x, procWindowSize.y );
-	//View dst = subimage_view( this->_dstView, procWindowOutput.x1, procWindowOutput.y1, procWindowSize.x, procWindowSize.y );
-	//copy_pixels( src, dst );
+        const OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
+        const OfxRectI procWindowSrc = translateRegion( procWindowRoW, this->_srcPixelRod );
+        OfxPointI procWindowSize = { procWindowRoW.x2 - procWindowRoW.x1,
+                                                             procWindowRoW.y2 - procWindowRoW.y1 };
+        View src = subimage_view( this->_srcView, procWindowSrc.x1, procWindowSrc.y1,
+                                                                          procWindowSize.x, procWindowSize.y );
+        View dst = subimage_view( this->_dstView, procWindowOutput.x1, procWindowOutput.y1,
+                                                                          procWindowSize.x, procWindowSize.y );
 
         // fill dst: modify src using analyse of srcRef and dstRef differences
+        transform_pixels_progress( src, dst, ColorParams<View>( _srcRefAverage, _dstRefAverage, _srcRefDeviation, _dstRefDeviation ), *this );
 }
 
 }

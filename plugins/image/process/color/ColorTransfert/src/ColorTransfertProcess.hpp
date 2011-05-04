@@ -50,6 +50,8 @@ protected:
         ColorTransfertPlugin&    _plugin;            ///< Rendering plugin
         ColorTransfertProcessParams<Scalar> _params; ///< parameters
 
+	Pixel _srcRefAverage, _dstRefAverage, _srcRefDeviation, _dstRefDeviation;
+
 public:
          ColorTransfertProcess( ColorTransfertPlugin& effect );
 
