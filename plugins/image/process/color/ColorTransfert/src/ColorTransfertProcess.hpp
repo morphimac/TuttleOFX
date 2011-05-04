@@ -58,8 +58,8 @@ public:
         void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 
 private:
-        double computeAverage( const View& image );
-        void vectorRender( const View& imageSrc, const View& imageDst, const View& source, const View& output, double srcAverage, double dstAverage );
+        void computeAverage( const View& image, Pixel& average, Pixel& deviation );
+
 };
 
 }
