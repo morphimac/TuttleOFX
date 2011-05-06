@@ -74,14 +74,18 @@ public:
                     }
                     case eSelectTypeTanA:
                     {
-                        Point2 p = this->getPoint(); // Le point central
+                        //Point2 pS = pA-p+Point2(x,y);
+                        //_paramTanA.setPoint(pS.x,pS.y);
+                        //_paramTanB.setPoint(2*p.x - pS.x, 2*p.y - pS.y);
                         _paramTanA.setPoint(x,y);
                         _paramTanB.setPoint(2*p.x - pA.x, 2*p.y - pA.y);
                         break;
                     }
                     case eSelectTypeTanB:
                     {
-                        Point2 p = this->getPoint(); //Le point central
+                        //Point2 pS = pB-p+Point2(x,y);
+                        //_paramTanB.setPoint(pS.x,pS.y);
+                        //_paramTanA.setPoint(2*p.x - pS.x, 2*p.y - pS.y);
                         _paramTanB.setPoint(x,y);
                         _paramTanA.setPoint(2*p.x - pB.x, 2*p.y - pB.y);
                         break;

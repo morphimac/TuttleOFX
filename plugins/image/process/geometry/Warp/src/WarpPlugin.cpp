@@ -104,7 +104,7 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	{
 		/// @todo: in this case it's just a translation...
                 //TUTTLE_TCOUT_WITHINFOS( "TODO !" );
-	}
+        }
 	const std::size_t nbBezierPoints = _paramNbPointsBezier->getValue( );
         //TUTTLE_TCOUT_VAR( nbBezierPoints );
 	if( nbPoints == 0 )
@@ -117,20 +117,20 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 		//points a relier
 		Point2 pIn1 = ofxToGil( _paramPointIn[c]->getValue( ) );
 		params._inPoints.push_back( pIn1 );
-		Point2 pIn2 = ofxToGil( _paramPointIn[c + 1]->getValue( ) );
+                Point2 pIn2 = ofxToGil( _paramPointIn[c + 1]->getValue( ) );
 
 		Point2 pOut1 = ofxToGil( _paramPointOut[c]->getValue( ) );
 		params._outPoints.push_back( pOut1 );
-		Point2 pOut2 = ofxToGil( _paramPointOut[c + 1]->getValue( ) );
+                Point2 pOut2 = ofxToGil( _paramPointOut[c + 1]->getValue( ) );
 
 		//Points de la tangente
-		Point2 tIn1 = ofxToGil( _paramPointTgtIn[( 2 * c )]->getValue( ) );
-		Point2 tIn2 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 1]->getValue( ) );
+                Point2 tIn1 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 1]->getValue( ) );
+                Point2 tIn2 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 2]->getValue( ) );
 		params._tgtPointsIn.push_back( tIn1 );
 		params._tgtPointsIn.push_back( tIn2 );
 
-		Point2 tOut1 = ofxToGil( _paramPointTgtOut[( 2 * c )]->getValue( ) );
-		Point2 tOut2 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 1]->getValue( ) );
+                Point2 tOut1 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 1]->getValue( ) );
+                Point2 tOut2 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 2]->getValue( ) );
 		params._tgtPointsOut.push_back( tOut1 );
 		params._tgtPointsOut.push_back( tOut2 );
 
@@ -156,7 +156,7 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 
 			params._bezierOut.push_back( pOut1 );
 			bezier::bezierSubdivide( tabPtsOut, nbBezierPoints, params._bezierOut );
-		}
+                }
                 //TUTTLE_TCOUT_INFOS;
 	}
 	const std::size_t c = nbPoints - 1;
@@ -164,7 +164,7 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	params._inPoints.push_back( pIn );
 	params._bezierIn.push_back( pIn );
 	Point2 pOut = ofxToGil( _paramPointOut[c]->getValue() );
-	params._outPoints.push_back( pIn );
+        params._outPoints.push_back( pOut );
 	params._bezierOut.push_back( pOut );
 
         //TUTTLE_TCOUT_VAR( nbBezierPoints );
