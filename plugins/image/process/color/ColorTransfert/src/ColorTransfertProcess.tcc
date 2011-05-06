@@ -1,7 +1,9 @@
 #include "ColorTransfertAlgorithm.hpp"
 
 #include <tuttle/plugin/global.hpp>
+#include <tuttle/plugin/exceptions.hpp>
 #include <tuttle/plugin/image/gil/globals.hpp>
+#include <tuttle/plugin/image/gil/algorithm.hpp>
 #include <tuttle/plugin/param/gilColor.hpp>
 #include <boost/gil/extension/typedefs.hpp>
 
@@ -9,13 +11,18 @@
 #include <boost/gil/extension/numeric/pixel_numeric_operations_assign.hpp>
 #include <boost/gil/extension/numeric/pixel_numeric_operations_minmax.hpp>
 #include <boost/gil/extension/color/hsl.hpp>
+#include <boost/gil/extension/color/distribution.hpp>
+#include <boost/gil/extension/typedefs.hpp>
 
 #include <boost/units/pow.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/erase.hpp>
 #include <boost/mpl/find.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/static_assert.hpp>
 
 #include <boost/numeric/ublas/vector.hpp>
+
 
 namespace tuttle {
 namespace plugin {
@@ -34,6 +41,30 @@ struct ComputeParams
 };
 
 template<class View>
+struct ColorParams
+{
+	typedef typename View::value_type Pixel;
+        Pixel _vecAverage, _ratio;
+        ColorParams(const Pixel& srcAverage, const Pixel& dstAverage, const Pixel& srcDeviation, const Pixel& dstDeviation)
+        {
+            pixel_zeros_t<Pixel>( )( _ratio );
+            _ratio = pixel_divides_t<Pixel, Pixel, Pixel>() ( dstDeviation, srcDeviation );
+
+            pixel_zeros_t<Pixel>( )( _vecAverage );
+            pixel_assigns_t<Pixel, Pixel>( )( dstAverage, _vecAverage );
+            pixel_minus_assign_t<Pixel, Pixel>( )( srcAverage, _vecAverage );
+            _vecAverage = pixel_multiplies_t<Pixel, Pixel, Pixel>( )( _ratio, _vecAverage );
+	}
+	Pixel operator()( const Pixel& p ) const
+        {
+            Pixel p2;
+            pixel_assigns_t<Pixel, Pixel>( )( p, p2 );
+            pixel_plus_assign_t<Pixel, Pixel>( )( _vecAverage, p2 );
+            return p2;
+	}
+};
+
+template<class View>
 ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect )
 : ImageGilFilterProcessor<View>( effect )
 , _plugin( effect )
@@ -43,15 +74,17 @@ ColorTransfertProcess<View>::ColorTransfertProcess( ColorTransfertPlugin &effect
 }
 
 template<class View>
-double ColorTransfertProcess<View>::computeAverage( const View& image )
+
+void ColorTransfertProcess<View>::computeAverage( const View& image, Pixel& average, Pixel& deviation )
 {
 	ComputeParams<View, boost::gil::bits64f> output;
 	pixel_zeros_t<Pixel>( )( output.average );
 
 	typedef typename color_space_type<View>::type Colorspace;
 	typedef pixel<boost::gil::bits64f, layout<Colorspace> > CPixel;
-	CPixel sum;
-	pixel_zeros_t<CPixel>( )( sum );
+	CPixel sumAverage, sumDeviation;
+        pixel_zeros_t<CPixel>( )( sumAverage );
+        pixel_zeros_t<CPixel>( )( sumDeviation );
 	const std::size_t nbPixels = image.width() * image.height();
 
 	for( int y = 0; y < image.height(); ++y )
@@ -61,57 +94,24 @@ double ColorTransfertProcess<View>::computeAverage( const View& image )
 		{
 			CPixel pix;
 			pixel_assigns_t<Pixel, CPixel>( )( * src_it, pix ); 
-			pixel_plus_assign_t<CPixel, CPixel>( )( pix, sum );
+			pixel_plus_assign_t<CPixel, CPixel>( )( pix, sumAverage );
 		}
 	}
-	output.average  = pixel_divides_scalar_t<CPixel, double>() ( sum, nbPixels );
-	
-	return output.average[0];
-}
+	output.average  = pixel_divides_scalar_t<CPixel, double>() ( sumAverage, nbPixels );
+	average = output.average;
 
-template<class View>
-void ColorTransfertProcess<View>::vectorRender( const View& imageSrc, const View& imageDst, const View& source, const View& output, double srcAverage, double dstAverage ){
-	using namespace boost::numeric::ublas;
-	const std::size_t nbPixels = imageSrc.width() * imageSrc.height();
-	vector<Pixel> vec;
-	vec.resize( nbPixels );
-	int cptPixels = 0;
-
-	// calcul du vecteur entre srcRef et dstRef
-	for( int y = 0; y < imageSrc.height(); ++y )
+	for( int y = 0; y < image.height(); ++y )
 	{
-		typename View::x_iterator src_it = imageSrc.x_at( 0, y );
-		typename View::x_iterator dst_it = imageDst.x_at( 0, y );
-
-		for( int x = 0; x < imageSrc.width(); ++x, ++src_it, ++dst_it, ++cptPixels )
+		typename View::x_iterator src_it = image.x_at( 0, y );
+		for( int x = 0; x < image.width(); ++x, ++src_it )
 		{
-			Pixel pix;
-			pixel_assigns_t<Pixel, Pixel>( )( * dst_it, pix);
-			pixel_minus_assign_t<Pixel, Pixel>( ) ( pix, ( * src_it) ); 
-			vec( cptPixels ) = pix;
+                        CPixel pix;
+                        pixel_assigns_t<Pixel, CPixel>( )( * src_it, pix );
+                        pixel_minus_assign_t<Pixel, CPixel>( )( average, pix );
+                        pixel_plus_assign_t<CPixel, CPixel>( )( pix, sumDeviation );
 		}
-
-                /*TUTTLE_COUT_VAR2(imageDst.x_at(367, y), imageDst.x_at(123456, y));
-		TUTTLE_COUT_VAR2(imageSrc.x_at(367, y), imageSrc.x_at(123456, y));
-                TUTTLE_COUT_VAR2(vec(367)[0], vec(123456)[0]);*/
 	}
-	
-	cptPixels = 0;
-	// application du vecteur 
-	for( int y = 0; y < imageSrc.height(); ++y )
-	{
-		typename View::x_iterator src_it = source.x_at( 0, y );
-		typename View::x_iterator dst_it = output.x_at( 0, y );
-
-		for( int x = 0; x < imageSrc.width(); ++x, ++src_it, ++dst_it, ++cptPixels )
-		{
-			Pixel pix;
-			pixel_assigns_t<Pixel, Pixel>( )( * src_it, pix);
-			pixel_plus_assign_t<Pixel, Pixel>( ) ( pix, vec( cptPixels ) ); 
-			//pixel_minus_assign_t<Pixel, Pixel>( ) ( pix, srcAverage );
-			pixel_plus_assign_t<Pixel, Pixel>( ) ( * dst_it, pix ); 	
-		}
-	}	
+        deviation = sumDeviation;
 }
 
 template<class View>
@@ -150,18 +150,18 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 	this->_dstRefView = tuttle::plugin::getView<View>( this->_dstRef.get(), _dstRefPixelRod );
 
         // analyse srcRef and dstRef
-	double srcRefAverage = 0.0, dstRefAverage = 0.0;
+        pixel_zeros_t<Pixel>( )( _srcRefAverage );
+        pixel_zeros_t<Pixel>( )( _dstRefAverage );
+        pixel_zeros_t<Pixel>( )( _srcRefDeviation );
+        pixel_zeros_t<Pixel>( )( _dstRefDeviation );
 
-	srcRefAverage = computeAverage( this->_srcRefView );
-        dstRefAverage = computeAverage( this->_dstRefView );
-
-	TUTTLE_COUT_VAR2(srcRefAverage, dstRefAverage);
+        computeAverage( this->_srcRefView, _srcRefAverage, _srcRefDeviation );
+        computeAverage( this->_dstRefView, _dstRefAverage, _dstRefDeviation );
+        //TUTTLE_COUT_VAR4(_srcRefAverage[0], _srcRefDeviation[0], _dstRefAverage[0], _dstRefDeviation[0]);
 
 	// now analyse the differences
-        vectorRender( this->_srcRefView, this->_dstRefView, this->_srcView, this->_dstView, srcRefAverage, dstRefAverage );
 	
 }
-
 
 
 /**
@@ -172,32 +172,17 @@ template<class View>
 void ColorTransfertProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
 {
 	using namespace boost::gil;
-	OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
-	
-	for( int y = procWindowOutput.y1;
-			 y < procWindowOutput.y2;
-			 ++y )
-	{
-		typename View::x_iterator src_it = this->_srcView.x_at( procWindowOutput.x1, y );
-		typename View::x_iterator dst_it = this->_dstView.x_at( procWindowOutput.x1, y );
-		for( int x = procWindowOutput.x1;
-			 x < procWindowOutput.x2;
-			 ++x, ++src_it, ++dst_it )
-		{
-			(*dst_it) = (*src_it);
-		}
-		if( this->progressForward() )
-			return;
-	}
-	
-	const OfxRectI procWindowSrc = translateRegion( procWindowRoW, this->_srcPixelRod );
-	OfxPointI procWindowSize = { procWindowRoW.x2 - procWindowRoW.x1, procWindowRoW.y2 - procWindowRoW.y1 };
-	View src = subimage_view( this->_srcRefView, procWindowSrc.x1, procWindowSrc.y1, procWindowSize.x, procWindowSize.y );
-	//View dst = subimage_view( this->_dstView, procWindowOutput.x1, procWindowOutput.y1, procWindowSize.x, procWindowSize.y );
-	//copy_pixels( src, dst );
+        const OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
+        const OfxRectI procWindowSrc = translateRegion( procWindowRoW, this->_srcPixelRod );
+        OfxPointI procWindowSize = { procWindowRoW.x2 - procWindowRoW.x1,
+                                                             procWindowRoW.y2 - procWindowRoW.y1 };
+        View src = subimage_view( this->_srcView, procWindowSrc.x1, procWindowSrc.y1,
+                                                                          procWindowSize.x, procWindowSize.y );
+        View dst = subimage_view( this->_dstView, procWindowOutput.x1, procWindowOutput.y1,
+                                                                          procWindowSize.x, procWindowSize.y );
 
-	// fill dst: modify src using analyse of srcRef and dstRef differences
-	
+        // fill dst: modify src using analyse of srcRef and dstRef differences
+        transform_pixels_progress( src, dst, ColorParams<View>( _srcRefAverage, _dstRefAverage, _srcRefDeviation, _dstRefDeviation ), *this );
 }
 
 }
