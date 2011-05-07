@@ -29,16 +29,19 @@ namespace warp {
 WarpPlugin::WarpPlugin( OfxImageEffectHandle handle ) :
 ImageEffect( handle )
 {
-	_clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
+    _clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
+    _clipSrcB = fetchClip( kClipSourceB );
 	_clipDst = fetchClip( kOfxImageEffectOutputClipName );
 
 	_paramOverlay = fetchBooleanParam( kParamOverlay );
 	_paramInverse = fetchBooleanParam( kParamInverse );
-	_paramReset = fetchPushButtonParam( kParamReset );
-	_paramActivateWarp = fetchBooleanParam( kParamActivateWarp );
+        _paramReset = fetchPushButtonParam( kParamReset );
+        _paramSetKey = fetchPushButtonParam( kParamSetKey );
+        _paramActivateColor = fetchBooleanParam( kParamActivateColor );
 
 	_paramMethod = fetchChoiceParam( kParamMethod );
 	_paramNbPoints = fetchIntParam( kParamNbPoints );
+        _transition = fetchDoubleParam( kParamTransition );
 
 	_paramRigiditeTPS = fetchDoubleParam( kParamRigiditeTPS );
 	_paramNbPointsBezier = fetchIntParam( kParamNbPointsBezier );
@@ -92,12 +95,12 @@ ImageEffect( handle )
 WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
 	using namespace boost::assign;
-	WarpProcessParams<Scalar> params;
-	params._activateWarp = _paramActivateWarp->getValue( );
+        WarpProcessParams<Scalar> params;
 	const std::size_t nbPoints = _paramNbPoints->getValue( );
 	params._nbPoints = nbPoints;
 
-	params._rigiditeTPS = _paramRigiditeTPS->getValue( );
+        params._rigiditeTPS = _paramRigiditeTPS->getValue( );
+        params._transition = _transition->getValue( );
 	params._method = static_cast<EParamMethod> ( _paramMethod->getValue( ) );
 
 	if( nbPoints <= 1 )
@@ -226,7 +229,7 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 		}
 	}
 	//Si le mode est Reset
-	if( paramName == kParamReset )
+        else if( paramName == kParamReset )
 	{
 		for( std::size_t i = 0; i < kMaxNbPoints; ++i )
 		{
@@ -246,14 +249,26 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 			_paramNbPoints->setValue( 0 );
 		}
 	}
+        else if( paramName == kParamSetKey )
+        {
+            for( std::size_t i = 0; i < kMaxNbPoints; ++i )
+            {
+                    _paramPointIn[i]->setValueAtTime(args.time, _paramPointIn[i]->getValue());
+                    _paramPointOut[i]->setValueAtTime(args.time, _paramPointOut[i]->getValue());
 
+                    _paramPointTgtIn[2 * i]->setValueAtTime(args.time,  _paramPointTgtIn[2 * i]->getValue());
+                    _paramPointTgtIn[( 2 * i ) + 1]->setValueAtTime(args.time, _paramPointTgtIn[( 2 * i ) + 1]->getValue());
+
+                    _paramPointTgtOut[2 * i]->setValueAtTime(args.time, _paramPointTgtOut[2 * i]->getValue());
+                    _paramPointTgtOut[( 2 * i ) + 1]->setValueAtTime(args.time, _paramPointTgtOut[( 2 * i ) + 1]->getValue());
+            }
+        }
 }
 
 bool WarpPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
 	WarpProcessParams<Scalar> params = getProcessParams();
-	if( ! params._activateWarp ||
-	    params._nbPoints == 0 )
+        if( params._nbPoints == 0 )
 	{
 		identityClip = _clipSrc;
 		identityTime = args.time;

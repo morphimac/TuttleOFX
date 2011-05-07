@@ -41,6 +41,7 @@ public:
         OfxRectI _srcRefPixelRod;
         View _srcRefView;
 
+
         OFX::Clip* _clipDstRef;       ///< Dst ref image clip
         boost::scoped_ptr<OFX::Image> _dstRef;
         OfxRectI _dstRefPixelRod;
