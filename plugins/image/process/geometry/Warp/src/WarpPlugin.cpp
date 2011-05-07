@@ -124,13 +124,13 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 		Point2 pOut2 = ofxToGil( _paramPointOut[c + 1]->getValue( ) );
 
 		//Points de la tangente
-		Point2 tIn1 = ofxToGil( _paramPointTgtIn[( 2 * c )]->getValue( ) );
-		Point2 tIn2 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 1]->getValue( ) );
+		Point2 tIn1 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 1]->getValue( ) );
+		Point2 tIn2 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 2]->getValue( ) );
 		params._tgtPointsIn.push_back( tIn1 );
 		params._tgtPointsIn.push_back( tIn2 );
 
-		Point2 tOut1 = ofxToGil( _paramPointTgtOut[( 2 * c )]->getValue( ) );
-		Point2 tOut2 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 1]->getValue( ) );
+		Point2 tOut1 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 1]->getValue( ) );
+		Point2 tOut2 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 2]->getValue( ) );
 		params._tgtPointsOut.push_back( tOut1 );
 		params._tgtPointsOut.push_back( tOut2 );
 
