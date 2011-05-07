@@ -48,10 +48,16 @@ void WarpPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 										   OFX::EContext context )
 {
-	OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
-	srcClip->addSupportedComponent( OFX::ePixelComponentRGBA );
-	srcClip->addSupportedComponent( OFX::ePixelComponentAlpha );
-	srcClip->setSupportsTiles( false );
+        OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
+        srcClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+        srcClip->addSupportedComponent( OFX::ePixelComponentAlpha );
+        srcClip->setSupportsTiles( false );
+
+        OFX::ClipDescriptor* srcBClip = desc.defineClip( kClipSourceB );
+        srcBClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+        srcBClip->addSupportedComponent( OFX::ePixelComponentAlpha );
+        srcBClip->setOptional(true);
+        srcBClip->setSupportsTiles( false );
 
 	OFX::ClipDescriptor* dstClip = desc.defineClip( kOfxImageEffectOutputClipName );
 	dstClip->addSupportedComponent( OFX::ePixelComponentRGBA );
@@ -63,10 +69,18 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::PushButtonParamDescriptor* reset = desc.definePushButtonParam( kParamReset );
 	reset->setLabel( "Reset" );
 
-	OFX::BooleanParamDescriptor* warpActif = desc.defineBooleanParam( kParamActivateWarp );
-	warpActif->setLabel( "Apply Warp" );
-	warpActif->setHint( "Active ou desactive le warp sur l'image de base" );
-	warpActif->setDefault( true );
+        OFX::PushButtonParamDescriptor* setKey = desc.definePushButtonParam( kParamSetKey );
+        setKey->setLabel( "SetKey" );
+
+        OFX::DoubleParamDescriptor* transition = desc.defineDoubleParam( kParamTransition );
+        transition->setLabel( "Transition" );
+        transition->setHint( "Coefficient de transition" );
+        transition->setRange( 0.0, 1.0 );
+
+        OFX::BooleanParamDescriptor* colorActif = desc.defineBooleanParam( kParamActivateColor );
+        colorActif->setLabel( "Apply Color" );
+        colorActif->setHint( "Active ou desactive le Transfert Color" );
+        colorActif->setDefault( true );
 
 	//Settings
 	OFX::GroupParamDescriptor* groupSettings = desc.defineGroupParam( kParamGroupSettings );

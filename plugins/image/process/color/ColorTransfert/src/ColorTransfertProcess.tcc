@@ -1,7 +1,9 @@
 #include "ColorTransfertAlgorithm.hpp"
 
 #include <tuttle/plugin/global.hpp>
+#include <tuttle/plugin/exceptions.hpp>
 #include <tuttle/plugin/image/gil/globals.hpp>
+#include <tuttle/plugin/image/gil/algorithm.hpp>
 #include <tuttle/plugin/param/gilColor.hpp>
 #include <boost/gil/extension/typedefs.hpp>
 
@@ -10,23 +12,17 @@
 #include <boost/gil/extension/numeric/pixel_numeric_operations_minmax.hpp>
 #include <boost/gil/extension/color/hsl.hpp>
 #include <boost/gil/extension/color/distribution.hpp>
+#include <boost/gil/extension/typedefs.hpp>
 
 #include <boost/units/pow.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/erase.hpp>
 #include <boost/mpl/find.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/static_assert.hpp>
 
 #include <boost/numeric/ublas/vector.hpp>
 
-#include <tuttle/plugin/image/gil/globals.hpp>
-#include <tuttle/plugin/image/gil/algorithm.hpp>
-#include <boost/gil/extension/color/distribution.hpp>
-#include <boost/gil/extension/typedefs.hpp>
-
-#include <tuttle/plugin/exceptions.hpp>
-
-#include <boost/mpl/if.hpp>
-#include <boost/static_assert.hpp>
 
 namespace tuttle {
 namespace plugin {
@@ -48,17 +44,23 @@ template<class View>
 struct ColorParams
 {
 	typedef typename View::value_type Pixel;
-	Pixel _vecAverage;
+        Pixel _vecAverage, _ratio;
         ColorParams(const Pixel& srcAverage, const Pixel& dstAverage, const Pixel& srcDeviation, const Pixel& dstDeviation)
-	{
-                //srcAverage -= srcDeviation;
-                //dstAverage -= dstDeviation;
-                //_vecAverage = dstAverage - srcAverage;
+        {
+            pixel_zeros_t<Pixel>( )( _ratio );
+            _ratio = pixel_divides_t<Pixel, Pixel, Pixel>() ( dstDeviation, srcDeviation );
+
+            pixel_zeros_t<Pixel>( )( _vecAverage );
+            pixel_assigns_t<Pixel, Pixel>( )( dstAverage, _vecAverage );
+            pixel_minus_assign_t<Pixel, Pixel>( )( srcAverage, _vecAverage );
+            _vecAverage = pixel_multiplies_t<Pixel, Pixel, Pixel>( )( _ratio, _vecAverage );
 	}
 	Pixel operator()( const Pixel& p ) const
-	{
-   		//return p + _vecAverage;
-		return p;
+        {
+            Pixel p2;
+            pixel_assigns_t<Pixel, Pixel>( )( p, p2 );
+            pixel_plus_assign_t<Pixel, Pixel>( )( _vecAverage, p2 );
+            return p2;
 	}
 };
 
@@ -155,7 +157,7 @@ void ColorTransfertProcess<View>::setup( const OFX::RenderArguments& args )
 
         computeAverage( this->_srcRefView, _srcRefAverage, _srcRefDeviation );
         computeAverage( this->_dstRefView, _dstRefAverage, _dstRefDeviation );
-        TUTTLE_COUT_VAR4(_srcRefAverage[0], _srcRefDeviation[0], _dstRefAverage[0], _dstRefDeviation[0]);
+        //TUTTLE_COUT_VAR4(_srcRefAverage[0], _srcRefDeviation[0], _dstRefAverage[0], _dstRefDeviation[0]);
 
 	// now analyse the differences
 	

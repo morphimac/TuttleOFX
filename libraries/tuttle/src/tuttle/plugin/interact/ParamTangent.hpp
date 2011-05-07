@@ -46,14 +46,12 @@ protected:
 
 	enum ESelectType
 	{
-
 		eSelectTypeNone,
 		eSelectTypeTanA,
 		eSelectTypeTanB,
 		eSelectTypeCenter
 	};
 	ESelectType _selectType;
-
 
 public:
 	bool draw( const OFX::DrawArgs& args ) const;

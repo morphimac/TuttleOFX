@@ -93,12 +93,13 @@ TPS_Morpher<SCALAR>::TPS_Morpher()
  * @param nbPoints
  */
 template<typename SCALAR>
-void TPS_Morpher<SCALAR>::setup( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut, const double regularization, const bool applyWarp, const std::size_t width, const std::size_t height )
+void TPS_Morpher<SCALAR>::setup( const std::vector< Point2 > pIn, const std::vector< Point2 > pOut, const double regularization, const bool applyWarp, const std::size_t width, const std::size_t height, const double transition )
 {
 	using boost::math::pow;
 
 	_width = width;
 	_height = height;
+        _transition = transition;
 	
 #ifdef TPS_NORMALIZE_COORD
 	_pIn.reserve( pIn.size() );
@@ -274,8 +275,9 @@ typename TPS_Morpher<SCALAR>::Point2 TPS_Morpher<SCALAR>::operator( )( const poi
 		const double d = base_func( pow<2>( it_out->x - npt.x ) + pow<2>( it_out->y - npt.y ) );
 		dx += ( *it_Vx ) * d;
 		dy += ( *it_Vy ) * d;
-	}
-
+        }
+        dx *= _transition;
+        dy *= _transition;
 #ifdef TPS_NORMALIZE_COORD
 	return Point2( (npt.x+dx)*_width, (npt.y+dy)*_height );
 #else
