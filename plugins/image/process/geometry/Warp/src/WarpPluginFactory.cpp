@@ -48,16 +48,16 @@ void WarpPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 										   OFX::EContext context )
 {
-        OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
-        srcClip->addSupportedComponent( OFX::ePixelComponentRGBA );
-        srcClip->addSupportedComponent( OFX::ePixelComponentAlpha );
-        srcClip->setSupportsTiles( false );
+	OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
+	srcClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+	srcClip->addSupportedComponent( OFX::ePixelComponentAlpha );
+	srcClip->setSupportsTiles( false );
 
-        OFX::ClipDescriptor* srcBClip = desc.defineClip( kClipSourceB );
-        srcBClip->addSupportedComponent( OFX::ePixelComponentRGBA );
-        srcBClip->addSupportedComponent( OFX::ePixelComponentAlpha );
-        srcBClip->setOptional(true);
-        srcBClip->setSupportsTiles( false );
+	OFX::ClipDescriptor* srcBClip = desc.defineClip( kClipSourceB );
+	srcBClip->addSupportedComponent( OFX::ePixelComponentRGBA );
+	srcBClip->addSupportedComponent( OFX::ePixelComponentAlpha );
+	srcBClip->setOptional( true );
+	srcBClip->setSupportsTiles( false );
 
 	OFX::ClipDescriptor* dstClip = desc.defineClip( kOfxImageEffectOutputClipName );
 	dstClip->addSupportedComponent( OFX::ePixelComponentRGBA );
@@ -69,18 +69,20 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	OFX::PushButtonParamDescriptor* reset = desc.definePushButtonParam( kParamReset );
 	reset->setLabel( "Reset" );
 
-        OFX::PushButtonParamDescriptor* setKey = desc.definePushButtonParam( kParamSetKey );
-        setKey->setLabel( "SetKey" );
+	OFX::PushButtonParamDescriptor* setKey = desc.definePushButtonParam( kParamSetKey );
+	setKey->setLabel( "SetKey" );
 
-        OFX::DoubleParamDescriptor* transition = desc.defineDoubleParam( kParamTransition );
-        transition->setLabel( "Transition" );
-        transition->setHint( "Coefficient de transition" );
-        transition->setRange( 0.0, 1.0 );
+	OFX::DoubleParamDescriptor* transition = desc.defineDoubleParam( kParamTransition );
+	transition->setLabel( "Transition" );
+	transition->setHint( "Coefficient de transition" );
+	transition->setDefault( 1.0 );
+	transition->setRange( 0.0, 1.0 );
+	transition->setDisplayRange( 0.0, 1.0 );
 
-        OFX::BooleanParamDescriptor* colorActif = desc.defineBooleanParam( kParamActivateColor );
-        colorActif->setLabel( "Apply Color" );
-        colorActif->setHint( "Active ou desactive le Transfert Color" );
-        colorActif->setDefault( true );
+	OFX::BooleanParamDescriptor* colorActif = desc.defineBooleanParam( kParamActivateColor );
+	colorActif->setLabel( "Apply Color" );
+	colorActif->setHint( "Active ou desactive le Transfert Color" );
+	colorActif->setDefault( true );
 
 	//Settings
 	OFX::GroupParamDescriptor* groupSettings = desc.defineGroupParam( kParamGroupSettings );
@@ -98,7 +100,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 
 	OFX::IntParamDescriptor* nbPoints = desc.defineIntParam( kParamNbPoints );
 	nbPoints->setDefault( 0 );
-	nbPoints->setRange( 0, kMaxNbPoints-1 );
+	nbPoints->setRange( 0, kMaxNbPoints - 1 );
 	nbPoints->setIsSecret( true );
 	nbPoints->setParent( groupSettings );
 
@@ -111,7 +113,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	rigidity->setLabel( "Rigidity" );
 	rigidity->setHint( "TPS Rigidity coefficient" );
 	rigidity->setDefault( 0.0 );
-//	rigidity->setRange( 0.0, std::numeric_limits<double>::max( ) );
+	//	rigidity->setRange( 0.0, std::numeric_limits<double>::max( ) );
 	rigidity->setDisplayRange( 0.0, 10.0 );
 	rigidity->setParent( groupSettings );
 
@@ -198,7 +200,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	ouverlayTgtInColor->setParent( groupTgtIn );
 
 	OFX::Double2DParamDescriptor * pTgtIn[kMaxNbPoints * 2];
-	for( std::size_t cptTgtIn = 0; cptTgtIn < kMaxNbPoints * 2; cptTgtIn++ )
+	for( std::size_t cptTgtIn = 0; cptTgtIn < kMaxNbPoints * 2; ++cptTgtIn )
 	{
 		std::string resultTgtIn = boost::lexical_cast<std::string > ( cptTgtIn );
 		pTgtIn[cptTgtIn] = desc.defineDouble2DParam( kParamPointTgtIn + resultTgtIn );
@@ -244,7 +246,7 @@ void WarpPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
 	ouverlayTgtOutColor->setParent( groupTgtOut );
 
 	OFX::Double2DParamDescriptor * pTgtOut[kMaxNbPoints * 2];
-	for( std::size_t cptTgtOut = 0; cptTgtOut < kMaxNbPoints * 2; cptTgtOut++ )
+	for( std::size_t cptTgtOut = 0; cptTgtOut < kMaxNbPoints * 2; ++cptTgtOut )
 	{
 		std::string resultTgtOut = boost::lexical_cast<std::string > ( cptTgtOut );
 		pTgtOut[cptTgtOut] = desc.defineDouble2DParam( kParamPointTgtOut + resultTgtOut );

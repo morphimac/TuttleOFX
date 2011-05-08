@@ -16,8 +16,8 @@ struct pixel_merge_t
    const double _ratioB;
 
    pixel_merge_t( const double ratio )
-   : _ratioA(ratio),
-    _ratioB(1.0-ratio)
+   : _ratioA(1.0-ratio),
+    _ratioB(ratio)
    {
    }
 
