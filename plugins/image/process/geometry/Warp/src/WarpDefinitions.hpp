@@ -33,13 +33,22 @@ enum EParamMethod
 
 };
 
+const static std::string kParamCurve = "curve";
+const static std::string kParamCurve1 = "curve1";
+const static std::string kParamCurve2 = "curve2";
+enum EParamCurve
+{
+        eParamCurve1 = 0,
+        eParamCurve2,
+};
+
 const static std::string kParamOverlay = "overlay";
 const static std::string kParamInverse = "inverse";
 const static std::string kParamNbPoints = "nbPoints";
+//const static std::string kParamNbPointsCurve2 = "nbPointsCurve2";
 const static std::string kParamTransition = "transition";
 const static std::string kParamReset = "reset";
 const static std::string kParamSetKey = "setKey";
-const static std::string kParamActivateColor = "activateColor";
 
 const static std::string kParamGroupSettings = "settings";
 const static std::string kParamNbPointsBezier = "Points Bezier";
@@ -64,6 +73,26 @@ const static std::string kParamGroupTgtOut = "groupTgtOut";
 const static std::string kParamPointTgtOut = "pTangenteOut";
 const static std::string kParamOverlayTgtOut = "overlayTgtOut";
 const static std::string kParamOverlayTgtOutColor = "overlayTangentOutColor";
+
+/*const static std::string kParamGroupInCurve2 = "groupInCurve2";
+const static std::string kParamPointInCurve2 = "pInCurve2";
+const static std::string kParamOverlayInCurve2 = "overlayInCurve2";
+const static std::string kParamOverlayInColorCurve2 = "overlayInColorCurve2";
+
+const static std::string kParamGroupOutCurve2 = "groupOutCurve2";
+const static std::string kParamPointOutCurve2 = "pOutCurve2";
+const static std::string kParamOverlayOutCurve2 = "overlayOutCurve2";
+const static std::string kParamOverlayOutColorCurve2 = "overlayOutColorCurve2";
+
+const static std::string kParamGroupTgtInCurve2 = "groupTgtInCurve2";
+const static std::string kParamPointTgtInCurve2 = "pTangenteInCurve2";
+const static std::string kParamOverlayTgtInCurve2 = "overlayTgtInCurve2";
+const static std::string kParamOverlayTgtInColorCurve2 = "overlayTangentInColorCurve2";
+
+const static std::string kParamGroupTgtOutCurve2 = "groupTgtOutCurve2";
+const static std::string kParamPointTgtOutCurve2 = "pTangenteOutCurve2";
+const static std::string kParamOverlayTgtOutCurve2 = "overlayTgtOutCurve2";
+const static std::string kParamOverlayTgtOutColorCurve2 = "overlayTangentOutColorCurve2s";*/
 
 const static std::string kParamGroupOverlay = "groupOverlay";
 

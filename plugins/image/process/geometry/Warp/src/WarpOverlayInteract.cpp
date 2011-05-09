@@ -140,8 +140,9 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
 bool WarpOverlayInteract::penMotion( const OFX::PenArgs& args )
 {
         const std::size_t numPt = _plugin->_paramNbPoints->getValue( );
+        //const std::size_t numPtCurve2 = _plugin->_paramNbPointsCurve2->getValue( );
 
-        if( _plugin->_paramMethod->getValue( ) == eParamMethodCreation)
+        if( _plugin->_paramMethod->getValue( ) == eParamMethodCreation )
         {
                 if(longDown == true)
                 {
@@ -167,7 +168,33 @@ bool WarpOverlayInteract::penMotion( const OFX::PenArgs& args )
                 }
                 return _interactScene.penUp( args );
         }
-        else if( ( numPt < kMaxNbPoints ) && (_plugin->_paramMethod->getValue( ) == eParamMethodMove) )
+        /*else if( _plugin->_paramMethod->getValue( ) == eParamMethodCreation && _plugin->_paramCurve->getValue( ) == eParamCurve2)
+        {
+                if(longDown == true)
+                {
+                    // Tangente In
+                    // Point courant
+                    const point2<double> ptCurInCurve2( ofxToGil( _plugin->_paramPointInCurve2[numPtCurve2 - 1]->getValue() ) );
+                    // Point numéro 1 de la tangente
+                    _plugin->_paramPointTgtInCurve2[2 * ( numPtCurve2 - 1 )]->setIsSecretAndDisabled( false );
+                    _plugin->_paramPointTgtInCurve2[2 * ( numPtCurve2 - 1 )]->setValue( args.penPosition.x, args.penPosition.y );
+                    // Point numéro 2 de la tangente
+                    _plugin->_paramPointTgtInCurve2[2 * ( numPtCurve2 - 1 ) + 1]->setIsSecretAndDisabled( false );
+                    _plugin->_paramPointTgtInCurve2[2 * ( numPtCurve2 - 1 ) + 1]->setValue( 2 * ptCurInCurve2.x - args.penPosition.x, 2 * ptCurInCurve2.y - args.penPosition.y );
+
+                    // Tangente Out
+                    // Point courant
+                    const point2<double> ptCurOutCurve2( ofxToGil(_plugin->_paramPointOut[numPtCurve2 - 1]->getValue() ) );
+                    // Point numéro 1 de la tangente
+                    _plugin->_paramPointTgtOutCurve2[2 * ( numPtCurve2 - 1 )]->setIsSecretAndDisabled( false );
+                    _plugin->_paramPointTgtOutCurve2[2 * ( numPtCurve2 - 1 )]->setValue( args.penPosition.x, args.penPosition.y );
+                    // Point numéro 2 de la tangente
+                    _plugin->_paramPointTgtOutCurve2[2 * ( numPtCurve2 - 1 ) + 1]->setIsSecretAndDisabled( false );
+                    _plugin->_paramPointTgtOutCurve2[2 * ( numPtCurve2 - 1 ) + 1]->setValue( 2 * ptCurOutCurve2.x - args.penPosition.x, 2 * ptCurOutCurve2.y - args.penPosition.y );
+                }
+                return _interactScene.penUp( args );
+        }*/
+        else if( (( numPt < kMaxNbPoints ) /*|| ( numPtCurve2 < kMaxNbPoints/2 )*/ ) && (_plugin->_paramMethod->getValue( ) == eParamMethodMove) )
             return _interactScene.penMotion( args );
 
         return false;
@@ -176,6 +203,7 @@ bool WarpOverlayInteract::penMotion( const OFX::PenArgs& args )
 bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 {
         const std::size_t nbPoints = _plugin->_paramNbPoints->getValue( );
+        //const std::size_t nbPointsCurve2 = _plugin->_paramNbPointsCurve2->getValue( );
 
         //S'il reste des points à placer et si le mode est "creation"
         if( ( nbPoints < kMaxNbPoints ) && ( _plugin->_paramMethod->getValue( ) == eParamMethodCreation ))
@@ -192,6 +220,20 @@ bool WarpOverlayInteract::penDown( const OFX::PenArgs& args )
 
                 return _interactScene.penDown( args );
         }
+        /*else if( ( nbPointsCurve2 < kMaxNbPoints/2 ) && ( _plugin->_paramMethod->getValue( ) == eParamMethodCreation ) && ( _plugin->_paramCurve->getValue( ) == eParamCurve2 ))
+        {
+                longDown = true;
+
+                _plugin->_paramPointInCurve2[nbPointsCurve2]->setIsSecretAndDisabled( false );
+                _plugin->_paramPointInCurve2[nbPointsCurve2]->setValue( args.penPosition.x, args.penPosition.y );
+
+                _plugin->_paramPointOutCurve2[nbPointsCurve2]->setIsSecretAndDisabled( false );
+                _plugin->_paramPointOutCurve2[nbPointsCurve2]->setValue( args.penPosition.x, args.penPosition.y );
+
+                _plugin->_paramNbPointsCurve2->setValue( nbPointsCurve2 + 1 );
+
+                return _interactScene.penDown( args );
+        }*/
         //Si le mode est "move"
         else if( _plugin->_paramMethod->getValue( ) == eParamMethodMove )
         {

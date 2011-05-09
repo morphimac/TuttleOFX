@@ -21,22 +21,29 @@ struct WarpProcessParams
 
 	std::vector< point2<Scalar> > _inPoints;
 	std::vector< point2<Scalar> > _outPoints;
+        //std::vector< point2<Scalar> > _inPointsCurve2;
+        //std::vector< point2<Scalar> > _outPointsCurve2;
 
 	std::vector< point2<Scalar> > _tgtPointsIn;
 	std::vector< point2<Scalar> > _tgtPointsOut;
+        //std::vector< point2<Scalar> > _tgtPointsInCurve2;
+        //std::vector< point2<Scalar> > _tgtPointsOutCurve2;
 
 	std::vector< point2<Scalar> > _buildPoints;
 
 	std::vector< point2<Scalar> > _bezierIn;
 	std::vector< point2<Scalar> > _bezierOut;
+        //std::vector< point2<Scalar> > _bezierInCurve2;
+        //std::vector< point2<Scalar> > _bezierOutCurve2;
 
-	bool _activateWarp;
-	bool _activateColor;
+        bool _activateWarp;
 	double _rigiditeTPS;
 	std::size_t _nbPoints;
+        //std::size_t _nbPointsCurve2;
 	double _transition;
 
 	EParamMethod _method;
+        EParamCurve _curve;
 };
 
 /**
@@ -70,11 +77,12 @@ public:
 	OFX::BooleanParam* _paramOverlay;
 	OFX::BooleanParam* _paramInverse;
 	OFX::PushButtonParam* _paramReset;
-	OFX::PushButtonParam* _paramSetKey;
-	OFX::BooleanParam* _paramActivateColor;
+        OFX::PushButtonParam* _paramSetKey;
 	OFX::ChoiceParam* _paramMethod;
+        OFX::ChoiceParam* _paramCurve;
 
 	OFX::IntParam* _paramNbPoints;
+        //OFX::IntParam* _paramNbPointsCurve2;
 	OFX::DoubleParam* _transition;
 
 	OFX::GroupParam* _paramGroupSettings;
@@ -88,12 +96,26 @@ public:
 	OFX::BooleanParam* _paramOverlayIn;
 	OFX::RGBParam* _paramOverlayInColor;
 
+        //In Curve2
+        /*OFX::GroupParam* _paramGroupInCurve2;
+        boost::array<OFX::Double2DParam*, kMaxNbPoints/2> _paramPointInCurve2;
+
+        OFX::BooleanParam* _paramOverlayInCurve2;
+        OFX::RGBParam* _paramOverlayInColorCurve2;*/
+
 	//Out
 	OFX::GroupParam* _paramGroupOut;
-	boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointOut;
+        boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointOut;
 
 	OFX::BooleanParam* _paramOverlayOut;
 	OFX::RGBParam* _paramOverlayOutColor;
+
+        //Out Curve2
+        /*OFX::GroupParam* _paramGroupOutCurve2;
+        boost::array<OFX::Double2DParam*, kMaxNbPoints/2> _paramPointOutCurve2;
+
+        OFX::BooleanParam* _paramOverlayOutCurve2;
+        OFX::RGBParam* _paramOverlayOutColorCurve2;*/
 
 	//Tgt In
 	OFX::GroupParam* _paramGroupTgtIn;
@@ -102,12 +124,26 @@ public:
 	OFX::BooleanParam* _paramOverlayTgtIn;
 	OFX::RGBParam* _paramOverlayTgtInColor;
 
+        //Tgt In Curve2
+        /*OFX::GroupParam* _paramGroupTgtInCurve2;
+        boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointTgtInCurve2;
+
+        OFX::BooleanParam* _paramOverlayTgtInCurve2;
+        OFX::RGBParam* _paramOverlayTgtInColorCurve2;*/
+
 	//Tgt Out
 	OFX::GroupParam* _paramGroupTgtOut;
 	boost::array<OFX::Double2DParam*, 2 * kMaxNbPoints> _paramPointTgtOut;
 
 	OFX::BooleanParam* _paramOverlayTgtOut;
 	OFX::RGBParam* _paramOverlayTgtOutColor;
+
+        //Tgt Out Curve2
+        /*OFX::GroupParam* _paramGroupTgtOutCurve2;
+        boost::array<OFX::Double2DParam*, kMaxNbPoints> _paramPointTgtOutCurve2;
+
+        OFX::BooleanParam* _paramOverlayTgtOutCurve2;
+        OFX::RGBParam* _paramOverlayTgtOutColorCurve2;*/
 
 private:
 	OFX::InstanceChangedArgs _instanceChangedArgs;
