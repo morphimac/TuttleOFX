@@ -40,26 +40,44 @@ struct ComputeParams
 	Pixel average;
 };
 
+template <typename Channel,typename ChannelR>
+struct channel_sqrt_t : public std::unary_function<Channel,ChannelR> {
+        GIL_FORCEINLINE
+    ChannelR operator()(typename channel_traits<Channel>::const_reference ch) const {
+        return std::sqrt(ChannelR(ch));
+    }
+};
+
+template <typename PixelRef, typename PixelR=PixelRef> // models pixel concept
+struct pixel_sqrt_t {
+        GIL_FORCEINLINE
+    PixelR operator () (const PixelRef& p) const {
+        PixelR result;
+        static_transform(p,result, channel_sqrt_t<typename channel_type<PixelRef>::type, typename channel_type<PixelR>::type>());
+        return result;
+    }
+};
+
 template<class View>
 struct ColorParams
 {
 	typedef typename View::value_type Pixel;
-        Pixel _vecAverage, _ratio;
+        Pixel _srcAverage, _dstAverage, _ratio;
         ColorParams(const Pixel& srcAverage, const Pixel& dstAverage, const Pixel& srcDeviation, const Pixel& dstDeviation)
         {
             pixel_zeros_t<Pixel>( )( _ratio );
             _ratio = pixel_divides_t<Pixel, Pixel, Pixel>() ( dstDeviation, srcDeviation );
 
-            pixel_zeros_t<Pixel>( )( _vecAverage );
-            pixel_assigns_t<Pixel, Pixel>( )( dstAverage, _vecAverage );
-            pixel_minus_assign_t<Pixel, Pixel>( )( srcAverage, _vecAverage );
-            _vecAverage = pixel_multiplies_t<Pixel, Pixel, Pixel>( )( _ratio, _vecAverage );
+            pixel_assigns_t<Pixel, Pixel>( )( srcAverage, _srcAverage );
+            pixel_assigns_t<Pixel, Pixel>( )( dstAverage, _dstAverage );
 	}
 	Pixel operator()( const Pixel& p ) const
         {
             Pixel p2;
             pixel_assigns_t<Pixel, Pixel>( )( p, p2 );
-            pixel_plus_assign_t<Pixel, Pixel>( )( _vecAverage, p2 );
+            pixel_minus_assign_t<Pixel, Pixel>( )( _srcAverage, p2 );
+            p2 = pixel_multiplies_t<Pixel, Pixel, Pixel>( )( _ratio, p2 );
+            pixel_plus_assign_t<Pixel, Pixel>( )( _dstAverage, p2 );
             return p2;
 	}
 };
@@ -87,6 +105,7 @@ void ColorTransfertProcess<View>::computeAverage( const View& image, Pixel& aver
         pixel_zeros_t<CPixel>( )( sumDeviation );
 	const std::size_t nbPixels = image.width() * image.height();
 
+        // Average
 	for( int y = 0; y < image.height(); ++y )
 	{
 		typename View::x_iterator src_it = image.x_at( 0, y );
@@ -100,6 +119,7 @@ void ColorTransfertProcess<View>::computeAverage( const View& image, Pixel& aver
 	output.average  = pixel_divides_scalar_t<CPixel, double>() ( sumAverage, nbPixels );
 	average = output.average;
 
+        // Standard deviation
 	for( int y = 0; y < image.height(); ++y )
 	{
 		typename View::x_iterator src_it = image.x_at( 0, y );
@@ -108,10 +128,13 @@ void ColorTransfertProcess<View>::computeAverage( const View& image, Pixel& aver
                         CPixel pix;
                         pixel_assigns_t<Pixel, CPixel>( )( * src_it, pix );
                         pixel_minus_assign_t<Pixel, CPixel>( )( average, pix );
+                        pix = pixel_pow_t<CPixel, 2>()(pix);
                         pixel_plus_assign_t<CPixel, CPixel>( )( pix, sumDeviation );
 		}
 	}
-        deviation = sumDeviation;
+        deviation = pixel_divides_scalar_t<CPixel, double>() ( sumDeviation, nbPixels );
+        deviation = pixel_sqrt_t<Pixel>()(deviation);
+
 }
 
 template<class View>
