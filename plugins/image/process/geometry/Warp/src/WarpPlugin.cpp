@@ -36,15 +36,22 @@ ImageEffect( handle )
 	_paramOverlay = fetchBooleanParam( kParamOverlay );
 	_paramInverse = fetchBooleanParam( kParamInverse );
 	_paramReset = fetchPushButtonParam( kParamReset );
+        _paramNextCurve = fetchPushButtonParam( kParamNextCurve );
         _paramSetKey = fetchPushButtonParam( kParamSetKey );
 
-	_paramMethod = fetchChoiceParam( kParamMethod );
-        _paramCurve = fetchChoiceParam( kParamCurve );
+        _paramMethod = fetchChoiceParam( kParamMethod );
 	_paramNbPoints = fetchIntParam( kParamNbPoints );
 	_transition = fetchDoubleParam( kParamTransition );
 
 	_paramRigiditeTPS = fetchDoubleParam( kParamRigiditeTPS );
 	_paramNbPointsBezier = fetchIntParam( kParamNbPointsBezier );
+
+        //Multi curve
+        for( std::size_t cptCBegin = 0; cptCBegin < kMaxNbPoints; ++cptCBegin )
+        {
+                _paramCurveBegin[cptCBegin] = fetchBooleanParam( kParamCurveBegin + boost::lexical_cast<std::string > ( cptCBegin ) );
+                _paramCurveBegin[cptCBegin]->setDefault(false);
+        }
 
 	//Param IN
 	_paramGroupIn = fetchGroupParam( kParamGroupIn );
@@ -53,16 +60,7 @@ ImageEffect( handle )
                 _paramPointIn[cptIn] = fetchDouble2DParam( kParamPointIn + boost::lexical_cast<std::string > ( cptIn ) );
 	}
 	_paramOverlayIn = fetchBooleanParam( kParamOverlayIn );
-	_paramOverlayInColor = fetchRGBParam( kParamOverlayInColor );
-
-        //Param INCURVE2
-        /*_paramGroupIn = fetchGroupParam( kParamGroupIn );
-        for( std::size_t cptInCurve2 = 0; cptInCurve2 < kMaxNbPoints/2; ++cptInCurve2 )
-        {
-                _paramPointInCurve2[cptInCurve2] = fetchDouble2DParam( kParamPointInCurve2 + boost::lexical_cast<std::string > ( cptInCurve2 ) );
-        }
-        _paramOverlayIn = fetchBooleanParam( kParamOverlayIn );
-        _paramOverlayInColor = fetchRGBParam( kParamOverlayInColor );*/
+        _paramOverlayInColor = fetchRGBParam( kParamOverlayInColor );
 
 	//Param OUT
 	_paramGroupOut = fetchGroupParam( kParamGroupIn );
@@ -73,15 +71,6 @@ ImageEffect( handle )
 	_paramOverlayOut = fetchBooleanParam( kParamOverlayOut );
 	_paramOverlayOutColor = fetchRGBParam( kParamOverlayOutColor );
 
-        //Param OUTCURVE2
-        /*_paramGroupOut = fetchGroupParam( kParamGroupIn );
-        for( std::size_t cptOutCurve2 = 0; cptOutCurve2 < kMaxNbPoints/2; ++cptOutCurve2 )
-        {
-                _paramPointOutCurve2[cptOutCurve2] = fetchDouble2DParam( kParamPointOutCurve2 + boost::lexical_cast<std::string > ( cptOutCurve2 ) );
-        }
-        _paramOverlayOut = fetchBooleanParam( kParamOverlayOut );
-        _paramOverlayOutColor = fetchRGBParam( kParamOverlayOutColor );*/
-
 	//Param TGT IN
 	_paramGroupTgtIn = fetchGroupParam( kParamGroupTgtIn );
 	for( std::size_t cptTgtIn = 0; cptTgtIn < kMaxNbPoints; ++cptTgtIn )
@@ -90,17 +79,7 @@ ImageEffect( handle )
 		_paramPointTgtIn[2 * cptTgtIn + 1] = fetchDouble2DParam( kParamPointTgtIn + boost::lexical_cast<std::string > ( 2 * cptTgtIn + 1 ) );
 	}
 	_paramOverlayTgtIn = fetchBooleanParam( kParamOverlayTgtIn );
-	_paramOverlayTgtInColor = fetchRGBParam( kParamOverlayTgtInColor );
-
-        //Param TGT INCURVE2
-        /*_paramGroupTgtIn = fetchGroupParam( kParamGroupTgtIn );
-        for( std::size_t cptTgtInCurve2 = 0; cptTgtInCurve2 < kMaxNbPoints/2; ++cptTgtInCurve2 )
-        {
-                _paramPointTgtInCurve2[2 * cptTgtInCurve2] = fetchDouble2DParam( kParamPointTgtInCurve2 + boost::lexical_cast<std::string > ( 2 * cptTgtInCurve2 ) );
-                _paramPointTgtInCurve2[2 * cptTgtInCurve2 + 1] = fetchDouble2DParam( kParamPointTgtInCurve2 + boost::lexical_cast<std::string > ( 2 * cptTgtInCurve2 + 1 ) );
-        }
-        _paramOverlayTgtIn = fetchBooleanParam( kParamOverlayTgtIn );
-        _paramOverlayTgtInColor = fetchRGBParam( kParamOverlayTgtInColor );*/
+        _paramOverlayTgtInColor = fetchRGBParam( kParamOverlayTgtInColor );
 
 	//Param TGT Out
 	_paramGroupTgtOut = fetchGroupParam( kParamGroupTgtOut );
@@ -110,17 +89,7 @@ ImageEffect( handle )
 		_paramPointTgtOut[2 * cptTgtOut + 1] = fetchDouble2DParam( kParamPointTgtOut + boost::lexical_cast<std::string > ( 2 * cptTgtOut + 1 ) );
 	}
 	_paramOverlayTgtOut = fetchBooleanParam( kParamOverlayTgtOut );
-	_paramOverlayTgtOutColor = fetchRGBParam( kParamOverlayTgtOutColor );
-
-        //Param TGT OutCURVE2
-        /*_paramGroupTgtOut = fetchGroupParam( kParamGroupTgtOut );
-        for( std::size_t cptTgtOutCurve2 = 0; cptTgtOutCurve2 < kMaxNbPoints/2; ++cptTgtOutCurve2 )
-        {
-                _paramPointTgtOutCurve2[2 * cptTgtOutCurve2] = fetchDouble2DParam( kParamPointTgtOutCurve2 + boost::lexical_cast<std::string > ( 2 * cptTgtOutCurve2 ) );
-                _paramPointTgtOutCurve2[2 * cptTgtOutCurve2 + 1] = fetchDouble2DParam( kParamPointTgtOutCurve2 + boost::lexical_cast<std::string > ( 2 * cptTgtOutCurve2 + 1 ) );
-        }
-        _paramOverlayTgtOut = fetchBooleanParam( kParamOverlayTgtOut );
-        _paramOverlayTgtOutColor = fetchRGBParam( kParamOverlayTgtOutColor );*/
+        _paramOverlayTgtOutColor = fetchRGBParam( kParamOverlayTgtOutColor );
 
 	//Param speciaux
 	_instanceChangedArgs.time = 0;
@@ -134,15 +103,12 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 {
 	using namespace boost::assign;
 	WarpProcessParams<Scalar> params;
-	const std::size_t nbPoints = _paramNbPoints->getValue( );
-        //const std::size_t nbPointsCurve2 = _paramNbPointsCurve2->getValue( );
-	params._nbPoints = nbPoints;
-        //params._nbPointsCurve2 = nbPointsCurve2;
+        const std::size_t nbPoints = _paramNbPoints->getValue( );
+        params._nbPoints = nbPoints;
 
 	params._rigiditeTPS = _paramRigiditeTPS->getValue( );
 	params._transition = _transition->getValue( );
-	params._method = static_cast<EParamMethod> ( _paramMethod->getValue( ) );
-        params._curve = static_cast<EParamCurve> ( _paramCurve->getValue( ) );
+        params._method = static_cast<EParamMethod> ( _paramMethod->getValue( ) );
 
 	if( nbPoints <= 1 )
 	{
@@ -156,8 +122,9 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 		return params;
 	}
 	for( std::size_t c = 0; c < nbPoints - 1; ++c )
-	{
-		// Creation des points et des ptTangente et recuperation des valeurs
+        {
+
+                // Creation des points et des ptTangente et recuperation des valeurs
 		//points a relier
 		Point2 pIn1 = ofxToGil( _paramPointIn[c]->getValue( ) );
 		params._inPoints.push_back( pIn1 );
@@ -165,18 +132,7 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 
 		Point2 pOut1 = ofxToGil( _paramPointOut[c]->getValue( ) );
 		params._outPoints.push_back( pOut1 );
-		Point2 pOut2 = ofxToGil( _paramPointOut[c + 1]->getValue( ) );
-
-                /*if(c < kMaxNbPoints/2)
-                {
-                    Point2 pIn1Curve2 = ofxToGil( _paramPointInCurve2[c]->getValue( ) );
-                    params._inPointsCurve2.push_back( pIn1Curve2 );
-                    Point2 pIn2Curve2 = ofxToGil( _paramPointInCurve2[c + 1]->getValue( ) );
-
-                    Point2 pOut1Curve2 = ofxToGil( _paramPointOutCurve2[c]->getValue( ) );
-                    params._outPointsCurve2.push_back( pOut1 );
-                    Point2 pOut2Curve2 = ofxToGil( _paramPointOutCurve2[c + 1]->getValue( ) );
-                }*/
+                Point2 pOut2 = ofxToGil( _paramPointOut[c + 1]->getValue( ) );
 
 		//Points de la tangente
 		Point2 tIn1 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 1]->getValue( ) );
@@ -189,19 +145,6 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 
 		params._tgtPointsOut.push_back( tOut1 );
 		params._tgtPointsOut.push_back( tOut2 );
-
-                /*if(c < kMaxNbPoints/2)
-                {
-                    Point2 tIn1Curve2 = ofxToGil( _paramPointTgtInCurve2[( 2 * c ) + 1]->getValue( ) );
-                    Point2 tIn2Curve2 = ofxToGil( _paramPointTgtInCurve2[( 2 * c ) + 2]->getValue( ) );
-                    params._tgtPointsInCurve2.push_back( tIn1Curve2 );
-                    params._tgtPointsInCurve2.push_back( tIn2Curve2 );
-
-                    Point2 tOut1Curve2 = ofxToGil( _paramPointTgtOutCurve2[( 2 * c ) + 1]->getValue( ) );
-                    Point2 tOut2Curve2 = ofxToGil( _paramPointTgtOutCurve2[( 2 * c ) + 2]->getValue( ) );
-                    params._tgtPointsOutCurve2.push_back( tOut1Curve2 );
-                    params._tgtPointsOutCurve2.push_back( tOut2Curve2 );
-                }*/
 
 		// Creation et remplissage du tableau necessaire a Bezier
 		//TUTTLE_TCOUT_INFOS;
@@ -216,14 +159,6 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 			params._bezierIn.push_back( pIn1 );
 			bezier::bezierSubdivide( tabPtsIn, nbBezierPoints, params._bezierIn );
 
-                        /*std::vector< Point2 > tabPtsInCurve2;
-                        tabPtsInCurve2.push_back( pIn1Curve2 );
-                        tabPtsInCurve2.push_back( tIn1Curve2 );
-                        tabPtsInCurve2.push_back( tIn2Curve2 );
-                        tabPtsInCurve2.push_back( pIn2Curve2 );
-
-                        params._bezierInCurve2.push_back( pIn1Curve2 );
-                        bezier::bezierSubdivide( tabPtsInCurve2, nbBezierPoints, params._bezierInCurve2 );*/
                 }
 		{
 			std::vector< Point2 > tabPtsOut;
@@ -235,15 +170,7 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 			params._bezierOut.push_back( pOut1 );
 			bezier::bezierSubdivide( tabPtsOut, nbBezierPoints, params._bezierOut );
 
-                        /*std::vector< Point2 > tabPtsOutCurve2;
-                        tabPtsOutCurve2.push_back( pOut1Curve2 );
-                        tabPtsOutCurve2.push_back( tOut1Curve2 );
-                        tabPtsOutCurve2.push_back( tOut2Curve2 );
-                        tabPtsOutCurve2.push_back( pOut2Curve2 );
-
-                        params._bezierOutCurve2.push_back( pOut1Curve2 );
-                        bezier::bezierSubdivide( tabPtsOutCurve2, nbBezierPoints, params._bezierOutCurve2 );*/
-		}
+                }
 		//TUTTLE_TCOUT_INFOS;
 	}
 	const std::size_t c = nbPoints - 1;
@@ -252,21 +179,7 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	params._bezierIn.push_back( pIn );
 	Point2 pOut = ofxToGil( _paramPointOut[c]->getValue( ) );
 	params._outPoints.push_back( pOut );
-	params._bezierOut.push_back( pOut );
-
-        /*Point2 pInCurve2 = ofxToGil( _paramPointInCurve2[c/2]->getValue( ) );
-        params._inPointsCurve2.push_back( pInCurve2 );
-        params._bezierInCurve2.push_back( pInCurve2 );
-        Point2 pOutCurve2 = ofxToGil( _paramPointOutCurve2[c/2]->getValue( ) );
-        params._outPointsCurve2.push_back( pOutCurve2 );
-        params._bezierOutCurve2.push_back( pOutCurve2 );*/
-
-	//TUTTLE_TCOUT_VAR( nbBezierPoints );
-	//TUTTLE_TCOUT_VAR( nbPoints );
-	//TUTTLE_TCOUT_VAR( params._bezierIn.size() );
-	//TUTTLE_TCOUT_VAR( params._bezierOut.size() );
-	//TUTTLE_TCOUT_VAR( params._inPoints.size() );
-	//TUTTLE_TCOUT_VAR( params._outPoints.size() );
+        params._bezierOut.push_back( pOut );
 
 	if( _paramInverse->getValue( ) )
 	{
@@ -287,7 +200,7 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 		{
 			case eParamMethodCreation:
 			{
-				std::size_t size = _paramNbPoints->getValue( );
+                                std::size_t size = _paramNbPoints->getValue( );
 				std::size_t i = 0;
 				for(; i < size; ++i )
 				{
@@ -319,7 +232,7 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 			}
 		}
 	}
-		//Si le mode est Reset
+        //Si le mode est Reset
 	else if( paramName == kParamReset )
 	{
 		for( std::size_t i = 0; i < kMaxNbPoints; ++i )
@@ -340,6 +253,13 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 			_paramNbPoints->setValue( 0 );
 		}
 	}
+        //Si le mode est MultiCurve
+        else if( paramName == kParamNextCurve )
+        {
+                TUTTLE_COUT(_paramNbPoints->getValue());
+                _paramCurveBegin[(_paramNbPoints->getValue())]->setValue(true);
+                TUTTLE_COUT(_paramCurveBegin[(_paramNbPoints->getValue())]->getValue());
+        }
 	else if( paramName == kParamSetKey )
 	{
 		// @todo adrien: c'est peut-etre mieux de le faire uniquement sur les points cree ? _paramNbPoints->getValue()

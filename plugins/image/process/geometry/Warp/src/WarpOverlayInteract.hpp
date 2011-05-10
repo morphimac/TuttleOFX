@@ -1,4 +1,4 @@
-#ifndef _WARPOVERLAYINTERACT_HPP_
+ #ifndef _WARPOVERLAYINTERACT_HPP_
 #define _WARPOVERLAYINTERACT_HPP_
 
 #include "WarpPlugin.hpp"
