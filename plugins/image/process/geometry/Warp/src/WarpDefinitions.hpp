@@ -18,6 +18,9 @@ static const float positionOrigine = -200.0;
 
 //static const int nbCoeffBezier = 50;
 
+//const static std::string kClipSourceA = "A";
+const static std::string kClipSourceB = "B";
+
 const static std::string kParamMethod = "method";
 const static std::string kParamMethodCreation = "creation";
 const static std::string kParamMethodDelete = "delete";
@@ -33,8 +36,10 @@ enum EParamMethod
 const static std::string kParamOverlay = "overlay";
 const static std::string kParamInverse = "inverse";
 const static std::string kParamNbPoints = "nbPoints";
+const static std::string kParamTransition = "transition";
 const static std::string kParamReset = "reset";
-const static std::string kParamActivateWarp = "activateWarp";
+const static std::string kParamSetKey = "setKey";
+const static std::string kParamActivateColor = "activateColor";
 
 const static std::string kParamGroupSettings = "settings";
 const static std::string kParamNbPointsBezier = "Points Bezier";

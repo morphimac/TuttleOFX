@@ -3,8 +3,6 @@
 #include <tuttle/plugin/image/ofxToGil.hpp>
 #include <tuttle/common/utils/global.hpp>
 
-#include <boost/math/special_functions/pow.hpp>
-
 namespace tuttle {
 namespace plugin {
 namespace interact {
@@ -91,29 +89,21 @@ bool InteractScene::penMotion( const OFX::PenArgs& args )
 	{
 		case eMotionTranslate:
 		{
-                    std::cout<<"translate"<<std::endl;
-                        translate( penPosition - _beginPenPosition );
+			translate( penPosition - _beginPenPosition );
 			break;
-                }
+		}
 		case eMotionRotate:
 		{
 			if( _manipulator )
 			{
-				using namespace boost::math;
-				// a^2 = b^2 + c^2 - 2bc * cos(alpha)
-				// alpha = -arccos( (a^2 - b^2 - c^2) / 2bc )
-				double a = std::sqrt( pow<2>(penPosition.x - _beginPenPosition.x) + pow<2>(penPosition.y - _beginPenPosition.y) );
-				double b = std::sqrt( pow<2>(_beginPenPosition.x - _manipulator->getPosition().x) + pow<2>(_beginPenPosition.y - _manipulator->getPosition().y) );
-				double c = std::sqrt( pow<2>(penPosition.x - _manipulator->getPosition().x) + pow<2>(penPosition.y - _manipulator->getPosition().y) );
-
-				//rotate( _manipulator->getPosition(), -std::acos( (pow<2>(a) - pow<2>(b) - pow<2>(c)) / (2*abs(b)*abs(c)) ) );
+				rotate( _manipulator->getPosition(), penPosition, penPosition - _beginPenPosition );
 			}
 			break;
 		}
 		case eMotionScale:
 		{
-			//if( _manipulator )
-			//	scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
+			if( _manipulator )
+				scale( _manipulator->getPosition(), penPosition - _beginPenPosition );
 			break;
 		}
 		case eMotionNone:
@@ -308,37 +298,21 @@ bool InteractScene::drawSelection( const OFX::DrawArgs& args )
 void InteractScene::translate( const Point2& vec )
 {
 	//TUTTLE_COUT_VAR2( vec.x, vec.y );
-
+	Point2 newVec = vec;
 	switch( _motionType._axis )
 	{
 		case eAxisXY:
 		{
-			for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
-			     it != itEnd;
-			     ++it )
-			{
-				it->first->setPosition( it->second + vec );
-			}
 			break;
 		}
 		case eAxisX:
 		{
-			for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
-			     it != itEnd;
-			     ++it )
-			{
-				it->first->setPositionX( it->second.x + vec.x );
-			}
+			newVec.y = 0;
 			break;
 		}
 		case eAxisY:
 		{
-			for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
-			     it != itEnd;
-			     ++it )
-			{
-				it->first->setPositionY( it->second.y + vec.y );
-			}
+			newVec.x = 0;
 			break;
 		}
 		case eAxisNone:
@@ -346,76 +320,53 @@ void InteractScene::translate( const Point2& vec )
 			break;
 		}
 	}
-    /*
-    ///////////TODO-vince //////////////////
-    std::cout<<"translating"<<std::endl;
-
-
-
-    for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
-         it != itEnd;
-         ++it )
-    {
-            std::cout<<"translating2"<<std::endl;
-            //it->first->setPosition( it->second + vec );
-        std::cout<<it->first->getPosition()<<std::endl;
-    }
-
-    ///////////////////////////////////////
-*/
-
+	for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
+		 it != itEnd;
+		 ++it )
+	{
+		it->first->translate( it->second, newVec );
+	}
 }
 
-void InteractScene::rotate( const Point2& center, const Scalar angle )
+void InteractScene::rotate( const Point2& center, const Point2& from, const Point2& vec )
 {
 	for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
 		 it != itEnd;
 		 ++it )
 	{
-//		Point2 nPt = rotate( it->second, center, angle );
-		Point2 nPt = it->second;
-		it->first->setPosition( nPt );
+		it->first->rotate( it->second, center, from, vec );
 	}
 }
 
 void InteractScene::scale( const Point2& center, const Point2& factor )
 {
+	Point2 newFactor = factor;
 	switch( _motionType._axis )
 	{
 		case eAxisXY:
 		{
-			for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
-			     it != itEnd;
-			     ++it )
-			{
-				it->first->setPosition( it->second );
-			}
 			break;
 		}
 		case eAxisX:
 		{
-			for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
-			     it != itEnd;
-			     ++it )
-			{
-				it->first->setPositionX( it->second.x );
-			}
+			newFactor.y = 0;
 			break;
 		}
 		case eAxisY:
 		{
-			for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
-			     it != itEnd;
-			     ++it )
-			{
-				it->first->setPositionY( it->second.y );
-			}
+			newFactor.x = 0;
 			break;
 		}
 		case eAxisNone:
 		{
 			break;
 		}
+	}
+	for( SelectedObjectVector::iterator it = _selected.begin(), itEnd = _selected.end();
+		 it != itEnd;
+		 ++it )
+	{
+		it->first->scale( it->second, center, factor );
 	}
 }
 

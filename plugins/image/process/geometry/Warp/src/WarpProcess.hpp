@@ -18,15 +18,25 @@ template<class View>
 class WarpProcess : public ImageGilFilterProcessor<View>
 {
 public:
-	typedef typename View::value_type Pixel;
-	typedef typename boost::gil::channel_type<View>::type Channel;
-
-	typedef WarpPlugin::Scalar Scalar;
+    typedef typename View::value_type Pixel;
+    typedef typename boost::gil::channel_type<View>::type Channel;
+    typedef WarpPlugin::Scalar Scalar;
+    typedef typename View::point_t Point;
+    typedef typename View::coord_t Coord;
+    typedef typename image_from_view<View>::type Image;
 
 protected :
     WarpPlugin&    _plugin;            ///< Rendering plugin
-	WarpProcessParams<Scalar> _params; ///< parameters
-	TPS_Morpher<Scalar> _tps;
+
+
+    OFX::Clip* _clipSrcB;       ///< Source B
+    boost::scoped_ptr<OFX::Image> _srcB;
+    OfxRectI _srcBPixelRod;
+    View _srcBView;
+
+    WarpProcessParams<Scalar> _params; ///< parameters
+    TPS_Morpher<Scalar> _tpsA;
+    TPS_Morpher<Scalar> _tpsB;
 
 public:
     WarpProcess( WarpPlugin& effect );

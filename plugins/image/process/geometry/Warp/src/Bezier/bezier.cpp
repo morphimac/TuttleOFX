@@ -18,10 +18,8 @@ double barycentre( const double a, const double b, const double c, const double 
 point2<double> barycentre( const std::vector< point2<double> >& pts, const double t )
 {
 	point2<double> p;
-
-        p.x = barycentre( pts[0].x, pts[1].x, pts[2].x, pts[3].x, t );
-        p.y = barycentre( pts[0].y, pts[1].y, pts[2].y, pts[3].y, t );
-
+	p.x = barycentre( pts[0].x, pts[1].x, pts[2].x, pts[3].x, t );
+	p.y = barycentre( pts[0].y, pts[1].y, pts[2].y, pts[3].y, t );
 	return p;
 }
 

@@ -30,15 +30,18 @@ WarpPlugin::WarpPlugin( OfxImageEffectHandle handle ) :
 ImageEffect( handle )
 {
 	_clipSrc = fetchClip( kOfxImageEffectSimpleSourceClipName );
+	_clipSrcB = fetchClip( kClipSourceB );
 	_clipDst = fetchClip( kOfxImageEffectOutputClipName );
 
 	_paramOverlay = fetchBooleanParam( kParamOverlay );
 	_paramInverse = fetchBooleanParam( kParamInverse );
 	_paramReset = fetchPushButtonParam( kParamReset );
-	_paramActivateWarp = fetchBooleanParam( kParamActivateWarp );
+	_paramSetKey = fetchPushButtonParam( kParamSetKey );
+	_paramActivateColor = fetchBooleanParam( kParamActivateColor );
 
 	_paramMethod = fetchChoiceParam( kParamMethod );
 	_paramNbPoints = fetchIntParam( kParamNbPoints );
+	_transition = fetchDoubleParam( kParamTransition );
 
 	_paramRigiditeTPS = fetchDoubleParam( kParamRigiditeTPS );
 	_paramNbPointsBezier = fetchIntParam( kParamNbPointsBezier );
@@ -93,20 +96,20 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 {
 	using namespace boost::assign;
 	WarpProcessParams<Scalar> params;
-	params._activateWarp = _paramActivateWarp->getValue( );
 	const std::size_t nbPoints = _paramNbPoints->getValue( );
 	params._nbPoints = nbPoints;
 
 	params._rigiditeTPS = _paramRigiditeTPS->getValue( );
+	params._transition = _transition->getValue( );
 	params._method = static_cast<EParamMethod> ( _paramMethod->getValue( ) );
 
 	if( nbPoints <= 1 )
 	{
 		/// @todo: in this case it's just a translation...
-                //TUTTLE_TCOUT_WITHINFOS( "TODO !" );
+		//TUTTLE_TCOUT_WITHINFOS( "TODO !" );
 	}
 	const std::size_t nbBezierPoints = _paramNbPointsBezier->getValue( );
-        //TUTTLE_TCOUT_VAR( nbBezierPoints );
+	//TUTTLE_TCOUT_VAR( nbBezierPoints );
 	if( nbPoints == 0 )
 	{
 		return params;
@@ -124,19 +127,20 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 		Point2 pOut2 = ofxToGil( _paramPointOut[c + 1]->getValue( ) );
 
 		//Points de la tangente
-		Point2 tIn1 = ofxToGil( _paramPointTgtIn[( 2 * c )]->getValue( ) );
-		Point2 tIn2 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 1]->getValue( ) );
+		Point2 tIn1 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 1]->getValue( ) );
+		Point2 tIn2 = ofxToGil( _paramPointTgtIn[( 2 * c ) + 2]->getValue( ) );
 		params._tgtPointsIn.push_back( tIn1 );
 		params._tgtPointsIn.push_back( tIn2 );
 
-		Point2 tOut1 = ofxToGil( _paramPointTgtOut[( 2 * c )]->getValue( ) );
-		Point2 tOut2 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 1]->getValue( ) );
+		Point2 tOut1 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 1]->getValue( ) );
+		Point2 tOut2 = ofxToGil( _paramPointTgtOut[( 2 * c ) + 2]->getValue( ) );
+
 		params._tgtPointsOut.push_back( tOut1 );
 		params._tgtPointsOut.push_back( tOut2 );
 
 		// Creation et remplissage du tableau necessaire a Bezier
-                //TUTTLE_TCOUT_INFOS;
-                //TUTTLE_TCOUT_VAR( c );
+		//TUTTLE_TCOUT_INFOS;
+		//TUTTLE_TCOUT_VAR( c );
 		{
 			std::vector< Point2 > tabPtsIn;
 			tabPtsIn.push_back( pIn1 );
@@ -157,24 +161,24 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 			params._bezierOut.push_back( pOut1 );
 			bezier::bezierSubdivide( tabPtsOut, nbBezierPoints, params._bezierOut );
 		}
-                //TUTTLE_TCOUT_INFOS;
+		//TUTTLE_TCOUT_INFOS;
 	}
 	const std::size_t c = nbPoints - 1;
-	Point2 pIn  = ofxToGil( _paramPointIn[c]->getValue() );
+	Point2 pIn = ofxToGil( _paramPointIn[c]->getValue( ) );
 	params._inPoints.push_back( pIn );
 	params._bezierIn.push_back( pIn );
-	Point2 pOut = ofxToGil( _paramPointOut[c]->getValue() );
-	params._outPoints.push_back( pIn );
+	Point2 pOut = ofxToGil( _paramPointOut[c]->getValue( ) );
+	params._outPoints.push_back( pOut );
 	params._bezierOut.push_back( pOut );
 
-        //TUTTLE_TCOUT_VAR( nbBezierPoints );
-        //TUTTLE_TCOUT_VAR( nbPoints );
-        //TUTTLE_TCOUT_VAR( params._bezierIn.size() );
-        //TUTTLE_TCOUT_VAR( params._bezierOut.size() );
-        //TUTTLE_TCOUT_VAR( params._inPoints.size() );
-        //TUTTLE_TCOUT_VAR( params._outPoints.size() );
-	
-	if( _paramInverse->getValue() )
+	//TUTTLE_TCOUT_VAR( nbBezierPoints );
+	//TUTTLE_TCOUT_VAR( nbPoints );
+	//TUTTLE_TCOUT_VAR( params._bezierIn.size() );
+	//TUTTLE_TCOUT_VAR( params._bezierOut.size() );
+	//TUTTLE_TCOUT_VAR( params._inPoints.size() );
+	//TUTTLE_TCOUT_VAR( params._outPoints.size() );
+
+	if( _paramInverse->getValue( ) )
 	{
 		std::swap( params._bezierIn, params._bezierOut );
 	}
@@ -225,8 +229,8 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 			}
 		}
 	}
-	//Si le mode est Reset
-	if( paramName == kParamReset )
+		//Si le mode est Reset
+	else if( paramName == kParamReset )
 	{
 		for( std::size_t i = 0; i < kMaxNbPoints; ++i )
 		{
@@ -246,14 +250,27 @@ void WarpPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::
 			_paramNbPoints->setValue( 0 );
 		}
 	}
+	else if( paramName == kParamSetKey )
+	{
+		// @todo adrien: c'est peut-etre mieux de le faire uniquement sur les points cree ? _paramNbPoints->getValue()
+		for( std::size_t i = 0; i < kMaxNbPoints; ++i )
+		{
+			_paramPointIn[i]->setValueAtTime( args.time, _paramPointIn[i]->getValue( ) );
+			_paramPointOut[i]->setValueAtTime( args.time, _paramPointOut[i]->getValue( ) );
 
+			_paramPointTgtIn[2 * i]->setValueAtTime( args.time, _paramPointTgtIn[2 * i]->getValue( ) );
+			_paramPointTgtIn[( 2 * i ) + 1]->setValueAtTime( args.time, _paramPointTgtIn[( 2 * i ) + 1]->getValue( ) );
+
+			_paramPointTgtOut[2 * i]->setValueAtTime( args.time, _paramPointTgtOut[2 * i]->getValue( ) );
+			_paramPointTgtOut[( 2 * i ) + 1]->setValueAtTime( args.time, _paramPointTgtOut[( 2 * i ) + 1]->getValue( ) );
+		}
+	}
 }
 
 bool WarpPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
-	WarpProcessParams<Scalar> params = getProcessParams();
-	if( ! params._activateWarp ||
-	    params._nbPoints == 0 )
+	WarpProcessParams<Scalar> params = getProcessParams( );
+	if( params._nbPoints == 0 )
 	{
 		identityClip = _clipSrc;
 		identityTime = args.time;

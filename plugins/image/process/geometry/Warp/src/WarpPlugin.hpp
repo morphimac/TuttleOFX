@@ -31,8 +31,10 @@ struct WarpProcessParams
 	std::vector< point2<Scalar> > _bezierOut;
 
 	bool _activateWarp;
+	bool _activateColor;
 	double _rigiditeTPS;
 	std::size_t _nbPoints;
+	double _transition;
 
 	EParamMethod _method;
 };
@@ -62,15 +64,18 @@ public:
 
 public:
 	OFX::Clip* _clipSrc; ///< Source image clip
+	OFX::Clip* _clipSrcB; ///< Source image clip
 	OFX::Clip* _clipDst; ///< Destination image clip
 
 	OFX::BooleanParam* _paramOverlay;
 	OFX::BooleanParam* _paramInverse;
 	OFX::PushButtonParam* _paramReset;
-	OFX::BooleanParam* _paramActivateWarp;
+	OFX::PushButtonParam* _paramSetKey;
+	OFX::BooleanParam* _paramActivateColor;
 	OFX::ChoiceParam* _paramMethod;
 
 	OFX::IntParam* _paramNbPoints;
+	OFX::DoubleParam* _transition;
 
 	OFX::GroupParam* _paramGroupSettings;
 	OFX::DoubleParam* _paramRigiditeTPS;

@@ -92,11 +92,11 @@ bool WarpOverlayInteract::draw( const OFX::DrawArgs& args )
                         //Points de la tangente
                         if(longDown == false)
                         {
-                            OfxPointD tIn1 = _plugin->_paramPointTgtIn[(2*c)]->getValue();
-                            OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+1]->getValue();
+                            OfxPointD tIn1 = _plugin->_paramPointTgtIn[(2*c)+1]->getValue();
+                            OfxPointD tIn2 = _plugin->_paramPointTgtIn[(2*c)+2]->getValue();
 
-                            OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)]->getValue();
-                            OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+1]->getValue();
+                            OfxPointD tOut1 = _plugin->_paramPointTgtOut[(2*c)+1]->getValue();
+                            OfxPointD tOut2 = _plugin->_paramPointTgtOut[(2*c)+2]->getValue();
 
 
                             //Création et remplissage du tableau necessaire à Bezier

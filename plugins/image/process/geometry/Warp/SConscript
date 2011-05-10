@@ -3,7 +3,9 @@ Import( 'libs' )
 
 project.createOfxPlugin( dirs = ['src'],
                          libs = [
+				 libs.gl,
                                  libs.tuttlePlugin,
-                                 libs.gl,
+                                 libs.boost_gil,
+                                 libs.boost_system,
                                  ] )
 
