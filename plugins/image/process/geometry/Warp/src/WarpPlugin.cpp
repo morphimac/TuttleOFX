@@ -124,6 +124,8 @@ WarpProcessParams<WarpPlugin::Scalar> WarpPlugin::getProcessParams( const OfxPoi
 	for( std::size_t c = 0; c < nbPoints - 1; ++c )
         {
 
+            if( _paramCurveBegin[c+1]->getValue() )
+                continue;
                 // Creation des points et des ptTangente et recuperation des valeurs
 		//points a relier
 		Point2 pIn1 = ofxToGil( _paramPointIn[c]->getValue( ) );
