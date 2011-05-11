@@ -18,9 +18,9 @@ static const bool kSupportTiles = false;
  */
 void ColorTransfertPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
-	desc.setLabels( "ColorTransfert", "ColorTransfert",
+	desc.setLabels( "TuttleColorTransfert", "ColorTransfert",
 		            "ColorTransfert" );
-	desc.setPluginGrouping( "tuttle" );
+	desc.setPluginGrouping( "tuttle/image/process/color" );
 
 	desc.setDescription( "ColorTransfert\n"
 	                     "Plugin is used to ???." );
