@@ -34,25 +34,6 @@ void ColorTransfertPlugin::changedParam( const OFX::InstanceChangedArgs &args, c
 
 }
 
-//bool ColorTransfertPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
-//{
-//	ColorTransfertProcessParams<Scalar> params = getProcessParams();
-//	OfxRectD srcRod = _clipSrc->getCanonicalRod( args.time );
-//
-//	switch( params._border )
-//	{
-//		case eParamBorderPadded:
-//			rod.x1 = srcRod.x1 + 1;
-//			rod.y1 = srcRod.y1 + 1;
-//			rod.x2 = srcRod.x2 - 1;
-//			rod.y2 = srcRod.y2 - 1;
-//			return true;
-//		default:
-//			break;
-//	}
-//	return false;
-//}
-//
 //void ColorTransfertPlugin::getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois )
 //{
 //	ColorTransfertProcessParams<Scalar> params = getProcessParams();
@@ -66,25 +47,39 @@ void ColorTransfertPlugin::changedParam( const OFX::InstanceChangedArgs &args, c
 //	rois.setRegionOfInterest( *_clipSrc, srcRoi );
 //}
 
-bool ColorTransfertPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
-{
-//	ColorTransfertProcessParams<Scalar> params = getProcessParams();
-//	if( params._in == params._out )
-//	{
-//		identityClip = _clipSrc;
-//		identityTime = args.time;
-//		return true;
-//	}
-	return false;
-}
-
 /**
  * @brief The overridden render function
  * @param[in]   args     Rendering parameters
  */
 void ColorTransfertPlugin::render( const OFX::RenderArguments &args )
 {
-	doGilRender<ColorTransfertProcess>( *this, args );
+//	doGilRender<ColorTransfertProcess>( *this, args );
+
+	// instantiate the render code based on the pixel depth of the dst clip
+	OFX::EBitDepth bitDepth         = _clipDst->getPixelDepth();
+	OFX::EPixelComponent components = _clipDst->getPixelComponents();
+
+	switch( components )
+	{
+		case OFX::ePixelComponentRGBA:
+		{
+			doGilRender<ColorTransfertProcess, false, boost::gil::rgba_layout_t>( *this, args, bitDepth );
+			return;
+		}
+		case OFX::ePixelComponentRGB:
+		{
+			doGilRender<ColorTransfertProcess, false, boost::gil::rgba_layout_t>( *this, args, bitDepth );
+			return;
+		}
+		case OFX::ePixelComponentAlpha:
+		case OFX::ePixelComponentCustom:
+		case OFX::ePixelComponentNone:
+		{
+			BOOST_THROW_EXCEPTION( exception::Unsupported()
+				<< exception::user() + "Pixel components (" + mapPixelComponentEnumToString(components) + ") not supported by the plugin." );
+		}
+	}
+	BOOST_THROW_EXCEPTION( exception::Unknown() );
 }
 
 

@@ -30,11 +30,9 @@ public:
 
     void changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName );
 
-//	bool getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod );
 //	void getRegionsOfInterest( const OFX::RegionsOfInterestArguments& args, OFX::RegionOfInterestSetter& rois );
-	bool isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime );
 
-    void render( const OFX::RenderArguments &args );
+	void render( const OFX::RenderArguments &args );
 	
 public:
         OFX::Clip* _clipSrc; ///< Source image clip 1

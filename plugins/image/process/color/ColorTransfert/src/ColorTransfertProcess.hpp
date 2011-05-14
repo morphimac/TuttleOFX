@@ -28,40 +28,42 @@ namespace colorTransfert {
  *
  */
 using namespace boost::numeric::ublas;
+
 template<class View>
 class ColorTransfertProcess : public ImageGilFilterProcessor<View>
 {
 public:
-        typedef typename View::value_type Pixel;
-        typedef typename boost::gil::channel_type<View>::type Channel;
+	typedef typename View::value_type Pixel;
+	typedef typename boost::gil::channel_type<View>::type Channel;
 	typedef float Scalar;
 
-        OFX::Clip* _clipSrcRef;       ///< Source ref image clip
-        boost::scoped_ptr<OFX::Image> _srcRef;
-        OfxRectI _srcRefPixelRod;
-        View _srcRefView;
+	OFX::Clip* _clipSrcRef; ///< Source ref image clip
+	boost::scoped_ptr<OFX::Image> _srcRef;
+	OfxRectI _srcRefPixelRod;
+	View _srcRefView;
 
 
-        OFX::Clip* _clipDstRef;       ///< Dst ref image clip
-        boost::scoped_ptr<OFX::Image> _dstRef;
-        OfxRectI _dstRefPixelRod;
-        View _dstRefView;
+	OFX::Clip* _clipDstRef; ///< Dst ref image clip
+	boost::scoped_ptr<OFX::Image> _dstRef;
+	OfxRectI _dstRefPixelRod;
+	View _dstRefView;
 
 protected:
-        ColorTransfertPlugin&    _plugin;            ///< Rendering plugin
-        ColorTransfertProcessParams<Scalar> _params; ///< parameters
+	ColorTransfertPlugin& _plugin; ///< Rendering plugin
+	ColorTransfertProcessParams<Scalar> _params; ///< parameters
 
-        Pixel _srcRefAverage, _dstRefAverage, _srcRefDeviation, _dstRefDeviation;
+	Pixel _srcRefAverage, _dstRefAverage, _srcRefDeviation, _dstRefDeviation;
+
 
 public:
-         ColorTransfertProcess( ColorTransfertPlugin& effect );
+	ColorTransfertProcess( ColorTransfertPlugin& effect );
 
 	void setup( const OFX::RenderArguments& args );
 
-        void multiThreadProcessImages( const OfxRectI& procWindowRoW );
+	void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 
 private:
-        void computeAverage( const View& image, Pixel& average, Pixel& deviation );
+	void computeAverage( const View& image, Pixel& average, Pixel& deviation );
 
 };
 
